@@ -260,6 +260,10 @@ export const UI = {
       fr: "Le serveur n'a pas pu rejouer cette partie.",
       en: "The server could not replay this run.",
     },
+    offline: {
+      fr: "Le classement n'est pas encore ouvert. Ton score reste dans ce navigateur.",
+      en: "The leaderboard is not open yet. Your score stays in this browser.",
+    },
     network: {
       fr: "Classement injoignable. Réessaie dans un instant.",
       en: "The leaderboard is unreachable. Try again in a moment.",

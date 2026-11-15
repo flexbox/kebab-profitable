@@ -12,6 +12,8 @@ export type SubmitError = "pseudo" | "stale" | "invalid";
 export interface Board {
   today: ScoreEntry[];
   allTime: ScoreEntry[];
+  /** True when no leaderboard database is connected yet. */
+  offline?: boolean;
 }
 
 const TOP = 50;

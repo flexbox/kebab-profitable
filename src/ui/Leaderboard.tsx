@@ -38,6 +38,7 @@ export function Leaderboard({
   const board = given ?? (loaded?.seed === seed ? loaded.board : null);
   if (board === null) return <p className="muted">{t(UI.loadingScores)}</p>;
   if (board === "error") return <p className="muted">{t(UI.errors.network)}</p>;
+  if (board.offline) return <p className="muted">{t(UI.errors.offline)}</p>;
 
   const rows: ScoreEntry[] = board[tab];
   return (

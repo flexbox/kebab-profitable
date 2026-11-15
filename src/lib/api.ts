@@ -15,7 +15,7 @@ export async function fetchBoard(seed: string): Promise<Board> {
 
 export type SubmitResult =
   | { ok: true; rank: number; days: number; board: Board }
-  | { ok: false; error: SubmitError | "network" };
+  | { ok: false; error: SubmitError | "network" | "offline" };
 
 export async function submitScore(
   state: GameState,

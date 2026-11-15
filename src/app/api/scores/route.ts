@@ -6,7 +6,9 @@ import { board, submit } from "@/server/submit";
 export async function GET(request: Request) {
   const asked = new URL(request.url).searchParams.get("seed");
   const seed = asked && isSeed(asked) ? asked : seedFor(new Date());
-  return Response.json(await board(scoreStore(), seed));
+  const store = scoreStore();
+  if (!store) return Response.json({ today: [], allTime: [], offline: true });
+  return Response.json(await board(store, seed));
 }
 
 /** POST /api/scores: replays the run on the server and records the result. */
@@ -17,6 +19,8 @@ export async function POST(request: Request) {
   } catch {
     return Response.json({ ok: false, error: "invalid" }, { status: 400 });
   }
-  const result = await submit(scoreStore(), body, new Date());
+  const store = scoreStore();
+  if (!store) return Response.json({ ok: false, error: "offline" }, { status: 503 });
+  const result = await submit(store, body, new Date());
   return Response.json(result, { status: result.ok ? 200 : 400 });
 }
