@@ -12,10 +12,20 @@ const body = Geist({
   subsets: ["latin", "latin-ext"],
 });
 
+const description =
+  "Un jeu parodique sur la vie d'indie hacker, par Indie Hackers Lille. Objectif : 270 € de MRR, le prix d'un kebab par jour.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://kebab-profitable.vercel.app"),
   title: "Kebab Profitable",
-  description:
-    "Un jeu parodique sur la vie d'indie hacker, par Indie Hackers Lille. Objectif : 270 € de MRR, le prix d'un kebab par jour.",
+  description,
+  openGraph: {
+    title: "Kebab Profitable",
+    description,
+    type: "website",
+    locale: "fr_FR",
+    alternateLocale: "en_GB",
+  },
 };
 
 export const viewport: Viewport = {

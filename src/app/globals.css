@@ -1239,27 +1239,27 @@ button {
     display: contents;
   }
 
-  .gauges {
+  .play-grid .gauges {
     order: 1;
   }
 
-  .scene {
+  .play-grid .scene {
     order: 2;
   }
 
-  .chef {
+  .play-grid .chef {
     order: 3;
   }
 
-  .panel {
+  .play-grid .panel {
     order: 4;
   }
 
-  .project {
+  .play-grid .project {
     order: 5;
   }
 
-  .journal {
+  .play-grid .journal {
     order: 6;
   }
 
@@ -1282,6 +1282,24 @@ button {
 
   .hint {
     display: none;
+  }
+
+  /* Keep the room short so the actions stay within reach of the thumb. */
+  .room {
+    aspect-ratio: auto;
+    height: 30dvh;
+    min-height: 170px;
+    object-fit: cover;
+    object-position: 35% 60%;
+  }
+
+  .bar-right {
+    gap: 6px;
+  }
+
+  .chip {
+    font-size: 0.8rem;
+    padding: 1px 6px;
   }
 
   .slots {

@@ -33,18 +33,20 @@ export function byRank(a: ScoreEntry, b: ScoreEntry): number {
  * Local stand-in: one JSON file under .data/. Used in development and in
  * tests. Production uses the hosted store (see store.ts).
  */
-export function fileStore(file = path.join(process.cwd(), ".data", "scores.json")): ScoreStore {
+export function fileStore(
+  file = path.join(/* turbopackIgnore: true */ process.cwd(), ".data", "scores.json"),
+): ScoreStore {
   type Table = Record<string, ScoreEntry>;
   const load = async (): Promise<Table> => {
     try {
-      return JSON.parse(await readFile(file, "utf8")) as Table;
+      return JSON.parse(await readFile(/* turbopackIgnore: true */ file, "utf8")) as Table;
     } catch {
       return {};
     }
   };
   const save = async (table: Table) => {
-    await mkdir(path.dirname(file), { recursive: true });
-    await writeFile(file, JSON.stringify(table, null, 2));
+    await mkdir(/* turbopackIgnore: true */ path.dirname(file), { recursive: true });
+    await writeFile(/* turbopackIgnore: true */ file, JSON.stringify(table, null, 2));
   };
   return {
     async forSeed(seed) {

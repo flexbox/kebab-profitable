@@ -3,6 +3,8 @@
 A small parody management game about indie hacking, made for
 [Indie Hackers Lille](https://luma.com/indiehackerslille).
 
+**Play it: https://kebab-profitable.vercel.app**
+
 You have just signed your *rupture conventionnelle*. You have €2,500, a studio
 in Lille, a kebab shop downstairs and one goal: **€270 of MRR**, the price of
 a kebab a day. Run out of cash and it's *retour au CDI*.
@@ -46,6 +48,22 @@ pnpm sim        # balance report: win rates per character
 | `src/game/data/events.ts` | The event deck. |
 | `src/game/data/chef.ts` | What the kebab shop owner says. |
 | `src/game/sim/` | Scripted players used to tune the balance. |
+| `src/ui/` | The screens, and `pixels.ts`, where all the pixel art is drawn in code. |
+| `src/server/` | The leaderboard: it replays each submitted run before recording it. |
+
+## Leaderboard
+
+Scores are checked on the server: the browser sends the list of moves, the
+server replays them with the same rules engine and records the day the replay
+finds. In development scores go to `.data/scores.json`. In production they go
+to Upstash Redis, added to the Vercel project from the Marketplace:
+
+```bash
+vercel integration add upstash/upstash-kv
+```
+
+Until that is done the deployed game plays normally and the leaderboard says
+it is not open yet.
 
 ## Add a card
 
