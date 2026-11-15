@@ -13,8 +13,10 @@ The interface is in French and English. The jargon stays in English, as it
 does at the apéro.
 
 The interface is a calm dark-navy layout inspired by the Indie Hackers
-website, around an isometric pixel-art room. All of the art is original and
-drawn in code, and the game is not affiliated with indiehackers.com.
+website, around a pixel-art room in the style of 16-bit role-playing games:
+seen from three-quarters above, with outlined, shaded little characters. All
+of the art is original and written as code, and the game is not affiliated
+with indiehackers.com.
 
 ## How it plays
 

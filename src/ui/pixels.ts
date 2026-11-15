@@ -19,12 +19,6 @@ export type PersonId = CharacterId | "chef";
 export const ROOM_W = 192;
 export const ROOM_H = 128;
 
-/** The same geometry as the art file: the back corner of the floor, then cells. */
-const OX = 88;
-const OY = 47;
-const sx = (x: number, y: number) => OX + x - y;
-const sy = (x: number, y: number, z = 0) => OY + ((x + y) >> 1) - z;
-
 export type Pose = "idle" | "desk" | "phone" | "bed" | "eat" | "think" | "out";
 export type Screen = "code" | "ship" | "chat" | "invoice" | "off";
 
@@ -133,31 +127,39 @@ function sprite(c: Ctx, art: Art, name: string, x: number, y: number) {
 
 /** Top-left corners of the pieces that have a fixed place, as in the art file. */
 const PLACE = {
-  chart: [28, 24],
-  screen: [103, 44],
-  plant: [151, 64],
-  bowl: [98, 39],
+  /** The bars of the wall chart, over the bed. */
+  chart: [11, 16],
+  /** The terminal's screen. */
+  screen: [110, 24],
+  /** The plant, above its pot. */
+  plant: [160, 26],
+  /** The first bowl, at the left end of the desk. */
+  bowl: [97, 38],
+  /** Whoever sits on the stool, back to the room. */
+  seat: [109, 42],
+  /** A head on the pillow. */
+  pillow: [15, 55],
+  /** Whoever stands on the rug. */
+  rug: [96, 68],
 } as const;
 
-/** Where kebab wrappers land, in floor cells. */
+/** Where kebab wrappers land on the floor. */
 const WRAPPERS = [
-  [44, 60], [62, 50], [30, 46], [70, 34], [54, 64], [74, 56], [26, 58], [66, 62],
+  [60, 66], [150, 84], [52, 116], [144, 110], [120, 116], [164, 98], [58, 96], [172, 74],
 ];
 
-/** Rain on the glass. The window is on the right-hand wall, which slants. */
+/** The glass of the window, and its glazing bars, as in the art file. */
+const GLASS = { x: 150, y: 8, w: 32, h: 24 };
+
+/** Rain on the glass. */
 function drawRain(c: Ctx, frame: number) {
-  const U = 42;
-  const V = 15;
-  const W = 36;
-  const H = 24;
-  c.fillStyle = "rgba(214,226,232,0.7)";
+  c.fillStyle = "rgba(226,236,240,0.75)";
   for (let i = 0; i < 14; i++) {
-    const a = (i * 7 + frame * 3) % W;
-    const b = (i * 11 + frame * 7) % (H - 2);
+    const a = (i * 7 + frame * 3) % GLASS.w;
+    const b = (i * 11 + frame * 7) % (GLASS.h - 2);
     // Not over the glazing bars.
-    if (a === 17 || a === 18 || (b >= 10 && b <= 12)) continue;
-    const u = U + a;
-    c.fillRect(OX + u, OY + (u >> 1) - (V + H - b), 1, 2);
+    if (a === 15 || a === 16 || (b >= 10 && b <= 12)) continue;
+    c.fillRect(GLASS.x + a, GLASS.y + b, 1, 2);
   }
 }
 
@@ -177,8 +179,7 @@ export function drawRoom(c: Ctx, art: Art, s: RoomScene) {
   // Kebab wrappers pile up on the floor, bowls of pasta on the desk.
   const wrappers = Math.min(WRAPPERS.length, Math.floor(s.kebabs / 2));
   for (let i = 0; i < wrappers; i++) {
-    const [x, y] = WRAPPERS[i];
-    sprite(c, art, `wrapper_${light}`, sx(x, y) - 2, sy(x, y) - 3);
+    sprite(c, art, `wrapper_${light}`, WRAPPERS[i][0], WRAPPERS[i][1]);
   }
   const bowls = Math.min(3, Math.floor(s.pates / 4));
   for (let i = 0; i < bowls; i++) {
@@ -194,29 +195,26 @@ export function drawRoom(c: Ctx, art: Art, s: RoomScene) {
   sprite(c, art, `plant_${plant}_${light}`, PLACE.plant[0], PLACE.plant[1]);
 
   if (s.pose === "desk") {
-    // On the stool, back to the room.
-    sprite(c, art, `${s.who}_back_${desk}`, sx(30, 17) - 7, sy(30, 17, 5) - 15);
+    sprite(c, art, `${s.who}_back_${desk}`, PLACE.seat[0], PLACE.seat[1]);
   } else if (s.pose === "bed") {
-    const x = sx(9, 31) - 7;
-    const y = sy(9, 31, 9) - 8;
+    const [x, y] = PLACE.pillow;
     sprite(c, art, `${s.who}_asleep_${light}`, x, y);
-    sprite(c, art, "bubble_zzz", x + 13, y - 11 - (s.frame % 2));
+    sprite(c, art, "bubble_zzz", x + 15, y - 12 - (s.frame % 2));
   } else if (s.pose !== "out") {
-    // Standing on the rug.
     const rug = onRug(s);
     const bob = s.pose === "idle" ? 0 : s.frame % 2;
-    const x = sx(50, 42) - 7;
-    const feet = sy(50, 42);
-    const y = feet - 20 + bob;
-    c.fillStyle = "rgba(0,0,0,0.28)";
-    c.fillRect(x + 2, feet - 1, 10, 2);
+    const x = PLACE.rug[0];
+    const y = PLACE.rug[1] + bob;
+    // The figures are 29 pixels tall: a shadow under the feet.
+    c.fillStyle = "rgba(0,0,0,0.26)";
+    c.fillRect(x + 3, PLACE.rug[1] + 27, 10, 2);
     const holding = s.pose === "phone" || s.pose === "eat";
     sprite(c, art, `${s.who}_${holding ? "arm" : "front"}_${rug}`, x, y);
     if (s.pose === "phone") {
-      sprite(c, art, `phone_${rug}`, x + 11, y + 2);
-      if (s.frame % 2 === 0) sprite(c, art, "bubble_heart", x + 13, y - 10);
+      sprite(c, art, `phone_${rug}`, x + 12, y + 6);
+      if (s.frame % 2 === 0) sprite(c, art, "bubble_heart", x + 15, y - 10);
     }
-    if (s.pose === "eat") sprite(c, art, `kebab_${rug}`, x + 10, y + 2);
-    if (s.pose === "think") sprite(c, art, "bubble_idea", x + 12, y - 10);
+    if (s.pose === "eat") sprite(c, art, `kebab_${rug}`, x + 11, y + 6);
+    if (s.pose === "think") sprite(c, art, "bubble_idea", x + 13, y - 10);
   }
 }

@@ -3,6 +3,9 @@
 // Rendered with pxl (https://github.com/crsolver/claude-pxl). `pnpm art` builds
 // this file and copies the PNGs the game uses into public/art.
 //
+// The look is the 16-bit role-playing game: a room seen from three-quarters
+// above, with its back wall facing you, and outlined, shaded little people.
+//
 // The room is drawn once and rendered in every light the game shows: morning,
 // afternoon, rain, evening and night. The people and props are rendered in the
 // same lights, so nothing is tinted at run time.
@@ -23,10 +26,10 @@ const darken = (h, t) => hex(mul(rgb(h), [1 - t, 1 - t, 1 - t]))
 const GRADE = {
   day: (c) => c,
   morning: (c) => mix(mul(c, [1.03, 1.0, 0.94]), [255, 214, 150], 0.07),
-  rain: (c) => mix(mul(c, [0.88, 0.9, 0.94]), [150, 158, 165], 0.1),
+  rain: (c) => mix(mul(c, [0.86, 0.89, 0.94]), [150, 158, 165], 0.12),
   evening: (c) => mix(mul(c, [0.84, 0.72, 0.74]), [217, 130, 80], 0.1),
-  night: (c) => mix(mul(c, [0.38, 0.43, 0.6]), [16, 26, 52], 0.22),
-  lamp: (c) => mix(mul(c, [1.0, 0.92, 0.78]), [255, 214, 140], 0.1),
+  night: (c) => mix(mul(c, [0.36, 0.42, 0.62]), [16, 26, 52], 0.22),
+  lamp: (c) => mix(mul(c, [1.0, 0.93, 0.8]), [255, 214, 140], 0.08),
 }
 // Between the lamp and the dark, the light steps down through these.
 const between = (a, b, t) => (c) => mix(GRADE[a](c), GRADE[b](c), t)
@@ -50,448 +53,465 @@ function grader(g) {
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
 const dithered = (x, y, density) => (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16 < density
 
+const C = {
+  ink: "#2a1c18", // outlines: a dark brown, never pure black
+  wallTop: "#3a2f2a",
+  wallTopEdge: "#57483f",
+  brick: "#9a4f3a",
+  brickLight: "#ad5f45",
+  brickDark: "#84412f",
+  mortar: "#63301f",
+  floorA: "#b0804f",
+  floorB: "#a47545",
+  floorC: "#ba8a58",
+  seam: "#7d5632",
+  wood: "#9a6c40",
+  woodLight: "#c09058",
+  woodDark: "#6e4a2a",
+  metal: "#84907a",
+  metalLight: "#a3ad92",
+  metalDark: "#66705c",
+  beige: "#d9cfae",
+  beigeMid: "#bfb490",
+  beigeDark: "#968c6c",
+  white: "#f4eedd",
+  whiteShade: "#d5ccb4",
+  blanket: "#6f8a4c",
+  blanketLight: "#8aa562",
+  blanketDark: "#566c3a",
+  rug: "#a8463a",
+  rugDark: "#7d2f29",
+  rugLight: "#c05e48",
+  gold: "#e8b04a",
+  pot: "#c0693f",
+  potLight: "#d8845a",
+  potDark: "#96502f",
+  leaf: "#5fa04a",
+  leafLight: "#8cc864",
+  leafDark: "#3f7a38",
+  paper: "#efe4c4",
+  red: "#c0432f",
+  steel: "#6d756b",
+  steelLight: "#98a093",
+}
+
 // ---------------------------------------------------------------------------
-// The isometric room
+// The room, seen from three-quarters above
 // ---------------------------------------------------------------------------
 
 const W = 192
 const H = 128
-/** Where the back corner of the floor sits, and the room's size in cells. */
-const OX = 88
-const OY = 47
-const RW = 84 // along x, which runs down and to the right
-const RD = 68 // along y, which runs down and to the left
-const RH = 42
+/** The inside of the room: the back wall's face, then the floor. */
+const WALL_Y = 4
+const FLOOR_Y = 44
+const LEFT = 6
+const RIGHT = 186
+const BOTTOM = 122
 
-const sx = (x, y) => OX + x - y
-const sy = (x, y, z = 0) => OY + ((x + y) >> 1) - z
-
-const C = {
-  ink: "#171411",
-  bone: "#d8caa6",
-  paper: "#e6dcc0",
-  white: "#f1ead8",
-  amber: "#e0a13c",
-  rust: "#9c4f2c",
-  rustDark: "#733821",
-  leaf: "#6c9450",
-  leafDark: "#4a6e3a",
-  leafLight: "#8fb86a",
-  wood: "#7a5a3a",
-  woodDark: "#59412a",
-  woodLight: "#93714a",
-  steel: "#7c8376",
-  steelDark: "#585e54",
-  steelLight: "#9ba294",
-  brick: "#774234",
-  brickLight: "#85503b",
-  brickDark: "#693a2e",
-  mortar: "#4d2c23",
-  plaster: "#b5a786",
-  plasterShade: "#a2957a",
-  dado: "#737a5e",
-  dadoTrim: "#8f9473",
-}
-
-const METAL = ["#8f957f", "#7b826d", "#5d6455"]
-const DARK_METAL = ["#6a6f60", "#5a5f52", "#474b41"]
-const TIMBER = [C.woodLight, C.wood, C.woodDark]
-
-/** Drawing in room coordinates. Every colour goes through the light's grade. */
+/** Drawing on the picture. Every colour goes through the light's grade. */
 function painter(c, tint) {
   const p = {
-    /** A level patch at height z: w cells along x, d cells along y. */
-    flat(x, y, z, w, d, h) {
-      const k = tint(h)
-      for (let j = y; j < y + d; j++) for (let i = x; i < x + w; i++) c.px(sx(i, j), sy(i, j, z), k)
-    },
-    /** An upright patch that catches the light: w cells along x, standing in row y. */
-    lit(x, y, z, w, hgt, h) {
-      const k = tint(h)
-      for (let i = x; i < x + w; i++) c.rect(sx(i, y), sy(i, y, z) - hgt + 1, 1, hgt, k)
-    },
-    /** An upright patch in the shade: d cells along y, standing in column x. */
-    dim(x, y, z, d, hgt, h) {
-      const k = tint(h)
-      for (let j = y; j < y + d; j++) c.rect(sx(x, j), sy(x, j, z) - hgt + 1, 1, hgt, k)
-    },
-    /** A box: top, lit side, shaded side, with its top edges picked out. */
-    box(x, y, z, w, d, hgt, [top, l, r], edge = true) {
-      p.flat(x, y, z + hgt, w, d, top)
-      p.lit(x, y + d - 1, z, w, hgt, l)
-      p.dim(x + w - 1, y, z, d, hgt, r)
-      if (edge && hgt > 2) {
-        p.lit(x, y + d - 1, z + hgt - 1, w, 1, lighten(l, 0.2))
-        p.dim(x + w - 1, y, z + hgt - 1, d, 1, lighten(r, 0.14))
-      }
-    },
-    /** A patch on the right-hand wall: u along it from the corner, v up from the floor. */
-    wallR(u, v, w, hgt, h) {
-      const k = tint(h)
-      for (let i = u; i < u + w; i++) c.rect(OX + i, OY + (i >> 1) - v - hgt, 1, hgt, k)
-    },
-    /** A patch on the left-hand wall, clipped to it. */
-    wallL(u, v, w, hgt, h) {
-      const from = Math.max(0, u)
-      const to = Math.min(RD - 1, u + w)
-      const height = Math.min(hgt, RH - v)
-      if (to <= from || height <= 0) return
-      const k = tint(h)
-      for (let j = from; j < to; j++) c.rect(OX - 1 - j, OY + ((j + 1) >> 1) - v - height, 1, height, k)
-    },
-    /** A flat rectangle on the picture itself, graded. */
-    rect(x, y, w, hgt, h) {
-      c.rect(x, y, w, hgt, tint(h))
-    },
+    /** A filled rectangle. */
+    r: (x, y, w, h, hx) => c.rect(x, y, w, h, tint(hx)),
     /** The same, in a colour that gives off its own light. */
-    glow(x, y, w, hgt, h) {
-      c.rect(x, y, w, hgt, h)
+    e: (x, y, w, h, hx) => c.rect(x, y, w, h, hx),
+    /** A filled rectangle with an ink outline around it. */
+    box: (x, y, w, h, hx) => {
+      c.rect(x - 1, y - 1, w + 2, h + 2, tint(C.ink))
+      c.rect(x, y, w, h, tint(hx))
     },
-    /** Changes the pixels already on the floor (or on a top face at height z). */
-    onFloor(x, y, w, d, z, fn, density = 1) {
-      for (let j = y; j < y + d; j++) {
+    /** Rows of characters, each mapped to a colour. "." is skipped. */
+    g: (x, y, rows, map) => {
+      rows.forEach((row, j) => {
+        for (let i = 0; i < row.length; i++) {
+          const hx = map[row[i]]
+          if (hx) c.px(x + i, y + j, tint(hx))
+        }
+      })
+    },
+    text: (x, y, str, hx) => c.text(x, y, str, tint(hx)),
+    /** Changes the pixels already painted. */
+    adjust: (x, y, w, h, fn, density = 1) => {
+      for (let j = y; j < y + h; j++) {
         for (let i = x; i < x + w; i++) {
-          const X = sx(i, j)
-          const Y = sy(i, j, z)
-          if (density < 1 && !dithered(X, Y, density)) continue
-          const v = c.get(X, Y)
+          if (density < 1 && !dithered(i, j, density)) continue
+          const v = c.get(i, j)
           if ((v & 255) === 0) continue
-          c.px(X, Y, hex(fn([v >>> 24, (v >>> 16) & 255, (v >>> 8) & 255])))
+          c.px(i, j, hex(fn([v >>> 24, (v >>> 16) & 255, (v >>> 8) & 255])))
         }
       }
     },
-    /** A shadow thrown on the floor to the right of something, soft at its far edge. */
-    shadow(x, y, w, d, len = 3) {
-      const dark = (px) => mul(px, [0.76, 0.76, 0.8])
-      p.onFloor(x + w, y + 1, len - 1, d, 0, dark)
-      p.onFloor(x + w + len - 1, y + 1, 1, d, 0, dark, 0.5)
+    /** A soft shadow on the floor: solid, then broken up at its edge. */
+    shadow: (x, y, w, h) => {
+      const dark = (px) => mul(px, [0.74, 0.72, 0.76])
+      p.adjust(x, y, w, h - 1, dark)
+      p.adjust(x, y + h - 1, w, 1, dark, 0.5)
     },
   }
   return p
 }
 
 const SKIES = {
-  dawn: { top: "#e9c48f", bottom: "#b9c9bd", town: "#7d4636", lit: false },
-  day: { top: "#9dbccb", bottom: "#cdd6c4", town: "#8a4f3b", lit: false },
-  grey: { top: "#8d948f", bottom: "#a9aea2", town: "#6f5148", lit: false },
-  dusk: { top: "#5d4a73", bottom: "#d98250", town: "#4c2a2d", lit: true },
-  night: { top: "#10131f", bottom: "#1d2233", town: "#15131c", lit: true },
+  dawn: { top: "#f0c890", bottom: "#c2d2c2", town: "#8a4c3a", lit: false, sun: [5, 12] },
+  day: { top: "#8fc0dc", bottom: "#d2e2d6", town: "#96533d", lit: false, sun: [5, 3] },
+  grey: { top: "#8d948f", bottom: "#aab0a6", town: "#6f5148", lit: false, sun: null },
+  dusk: { top: "#5d4a7c", bottom: "#e08a52", town: "#4c2a33", lit: true, sun: [5, 15] },
+  night: { top: "#10142a", bottom: "#222a48", town: "#161426", lit: true, sun: null },
 }
-const WINDOW_LIGHT = "#f4c06a"
+const WINDOW_LIGHT = "#f8c868"
+/** The glass of the window, on the picture. The game draws the rain on it. */
+const GLASS = [150, 8, 32, 24]
 
-function paintWalls(p) {
-  // The right-hand wall catches the light: plaster above a painted dado.
-  p.wallR(0, 0, RW, RH, C.plaster)
-  p.wallR(0, 0, RW, 13, C.dado)
-  p.wallR(0, 13, RW, 1, C.dadoTrim)
-  p.wallR(0, 12, RW, 1, darken(C.dado, 0.12))
-  p.wallR(0, 0, RW, 2, "#4b4132")
-  p.wallR(0, 2, RW, 1, "#62563f")
-  // Damp has crept down from the ceiling in the corner, where the two walls meet.
-  p.wallR(0, 33, 4, 9, C.plasterShade)
-  p.wallR(4, 36, 3, 6, C.plasterShade)
-  p.wallR(7, 39, 3, 3, C.plasterShade)
-  // Where the plaster gave up, the brick shows through.
-  p.wallR(17, 27, 10, 10, "#94553c")
-  p.wallR(16, 29, 1, 6, "#94553c")
-  p.wallR(27, 28, 1, 7, "#94553c")
-  p.wallR(19, 37, 6, 1, "#94553c")
-  for (const v of [29, 32, 35]) p.wallR(17, v, 10, 1, "#6e3d2c")
-  for (const [u, v] of [[20, 27], [24, 27], [18, 30], [22, 30], [26, 30], [20, 33], [24, 33]]) {
-    p.wallR(u, v, 1, 2, "#6e3d2c")
+function paintShell(p) {
+  // The floor: boards laid across the room, with staggered joints.
+  const boards = [C.floorA, C.floorB, C.floorC]
+  for (let k = 0; FLOOR_Y + k * 6 < BOTTOM; k++) {
+    const y = FLOOR_Y + k * 6
+    const h = Math.min(6, BOTTOM - y)
+    p.r(LEFT, y, RIGHT - LEFT, h, boards[(k * 2) % 3])
+    p.r(LEFT, y, RIGHT - LEFT, 1, C.seam)
+    for (let x = LEFT + 10 + ((k * 37) % 41); x < RIGHT; x += 47) p.r(x, y + 1, 1, h - 1, C.seam)
+    p.r(LEFT, y + 1, RIGHT - LEFT, 1, lighten(boards[(k * 2) % 3], 0.08))
   }
-  p.wallR(16, 26, 12, 1, darken(C.plaster, 0.14))
-  // Rain has run down from both ends of the window sill.
-  p.wallR(40, 2, 1, 9, darken(C.dado, 0.1))
-  p.wallR(79, 3, 1, 8, darken(C.dado, 0.1))
 
-  // The left-hand wall is in the shade: bare Lille brick, in courses.
-  p.wallL(0, 0, RD, RH, C.brick)
-  for (let row = 0; row * 4 < RH; row++) {
-    const v = row * 4
-    for (let k = 0; k * 8 < RD + 8; k++) {
-      const u = k * 8 - (row % 2) * 4
-      const bake = (row * 7 + k * 13) % 6
-      if (bake === 0) p.wallL(u + 1, v + 1, 7, 3, C.brickLight)
-      if (bake === 3) p.wallL(u + 1, v + 1, 7, 3, C.brickDark)
-      p.wallL(u, v + 1, 1, 3, C.mortar)
+  // The back wall: Lille brick, in courses, facing you.
+  p.r(LEFT, WALL_Y, RIGHT - LEFT, FLOOR_Y - WALL_Y, C.brick)
+  for (let row = 0; WALL_Y + row * 4 < FLOOR_Y - 4; row++) {
+    const y = WALL_Y + row * 4
+    for (let k = -1; k * 8 < RIGHT; k++) {
+      const x = LEFT + k * 8 + (row % 2) * 4
+      const bake = (row * 7 + k * 13 + 60) % 6
+      const x0 = Math.max(LEFT, x + 1)
+      const x1 = Math.min(RIGHT, x + 8)
+      if (x1 > x0) {
+        if (bake === 0) p.r(x0, y + 1, x1 - x0, 3, C.brickLight)
+        if (bake === 3) p.r(x0, y + 1, x1 - x0, 3, C.brickDark)
+        // Each brick catches a little light along its top.
+        if (bake !== 3) p.r(x0, y + 1, x1 - x0, 1, lighten(bake === 0 ? C.brickLight : C.brick, 0.1))
+      }
+      if (x >= LEFT && x < RIGHT) p.r(x, y + 1, 1, 3, C.mortar)
     }
-    p.wallL(0, v, RD, 1, C.mortar)
+    p.r(LEFT, y, RIGHT - LEFT, 1, C.mortar)
   }
+  // The ceiling keeps the top of the wall in shade.
+  p.adjust(LEFT, WALL_Y, RIGHT - LEFT, 3, (px) => mul(px, [0.74, 0.72, 0.76]))
+  p.adjust(LEFT, WALL_Y + 3, RIGHT - LEFT, 1, (px) => mul(px, [0.74, 0.72, 0.76]), 0.5)
+  // Skirting board.
+  p.r(LEFT, FLOOR_Y - 4, RIGHT - LEFT, 4, C.woodDark)
+  p.r(LEFT, FLOOR_Y - 4, RIGHT - LEFT, 1, C.wood)
+  p.r(LEFT, FLOOR_Y - 1, RIGHT - LEFT, 1, C.ink)
+  // The wall throws a shadow on the first boards.
+  p.shadow(LEFT, FLOOR_Y, RIGHT - LEFT, 4)
+
   // A heating pipe that has not been warm in years, with rust under each bracket.
-  p.wallL(0, 37, RD, 2, C.steelDark)
-  p.wallL(0, 38, RD, 1, C.steelLight)
-  for (let u = 6; u < RD; u += 18) {
-    p.wallL(u, 36, 2, 4, "#3f443c")
-    p.wallL(u, 32, 1, 4, C.rustDark)
+  p.r(LEFT, 6, 142, 2, C.steel)
+  p.r(LEFT, 6, 142, 1, C.steelLight)
+  for (let x = 32; x < 146; x += 36) {
+    p.r(x, 5, 2, 4, C.ink)
+    p.r(x, 9, 1, 3, "#7a3a24")
   }
 
-  // The cut tops of both walls, where the cutaway slices through.
-  p.flat(-3, -3, RH, RW + 3, 3, "#d0c4a4")
-  p.flat(-3, 0, RH, 3, RD - 1, "#a8654b")
-  p.flat(-1, -3, RH, RW + 1, 1, "#e2d8bc")
+  // The tops of the walls, cut through: the room is a box with its lid off.
+  p.r(0, 0, W, WALL_Y, C.wallTop)
+  p.r(0, 0, LEFT, H, C.wallTop)
+  p.r(RIGHT, 0, W - RIGHT, H, C.wallTop)
+  p.r(0, BOTTOM, W, H - BOTTOM, C.wallTop)
+  p.r(LEFT - 1, WALL_Y - 1, RIGHT - LEFT + 2, 1, C.wallTopEdge)
+  p.r(LEFT - 1, WALL_Y - 1, 1, BOTTOM - WALL_Y + 2, C.wallTopEdge)
+  p.r(RIGHT, WALL_Y - 1, 1, BOTTOM - WALL_Y + 2, C.wallTopEdge)
+  p.r(LEFT - 1, BOTTOM, RIGHT - LEFT + 2, 1, C.wallTopEdge)
+  p.r(LEFT, WALL_Y, 1, BOTTOM - WALL_Y, C.ink)
+  p.r(RIGHT - 1, WALL_Y, 1, BOTTOM - WALL_Y, C.ink)
+  // The door, at the bottom, and its mat.
+  p.r(84, BOTTOM, 24, H - BOTTOM, C.floorB)
+  p.r(84, BOTTOM, 24, 1, C.seam)
+  p.box(83, 113, 26, 8, "#6c7650")
+  p.r(85, 115, 22, 4, "#7f8a5e")
+  for (let x = 86; x < 106; x += 4) p.r(x, 116, 2, 2, "#6c7650")
 }
 
-function paintWindow(p, c, sky, grey) {
-  const U = 42
-  const V = 15
-  const WW = 36
-  const HH = 24
-  /** Window coordinates: a across from the left, b down from the top. */
-  const frame = (a, b, w, h, col) => p.wallR(U + a, V + HH - b - h, w, h, col)
-  const glass = (a, b, w, h, col) => {
-    for (let i = U + a; i < U + a + w; i++) c.rect(OX + i, OY + (i >> 1) - (V + HH - b - h) - h, 1, h, col)
+function paintWindow(p, sky) {
+  const [X, Y, GW, GH] = GLASS
+  // Frame.
+  p.box(X - 2, Y - 2, GW + 4, GH + 4, C.wood)
+  p.r(X - 2, Y - 2, GW + 4, 1, C.woodLight)
+  p.r(X - 1, Y - 1, GW + 2, GH + 2, C.ink)
+  // Sky, in three bands, with the seams broken up.
+  const middle = hex(mix(rgb(sky.top), rgb(sky.bottom), 0.5))
+  p.e(X, Y, GW, 8, sky.top)
+  p.e(X, Y + 8, GW, 8, middle)
+  p.e(X, Y + 16, GW, 8, sky.bottom)
+  for (let i = 0; i < GW; i += 2) {
+    p.e(X + i, Y + 8, 1, 1, sky.top)
+    p.e(X + i + 1, Y + 16, 1, 1, middle)
   }
-
-  frame(-2, -2, WW + 4, HH + 4, C.woodDark)
-  // Sky in three bands, with the seams broken up.
-  const top = sky.top
-  const bottom = sky.bottom
-  const middle = hex(mix(rgb(top), rgb(bottom), 0.5))
-  glass(0, 0, WW, 8, top)
-  glass(0, 8, WW, 8, middle)
-  glass(0, 16, WW, 8, bottom)
-  for (let a = 0; a < WW; a++) {
-    if (a % 2 === 0) glass(a, 8, 1, 1, top)
-    if (a % 2 === 1) glass(a, 16, 1, 1, middle)
-  }
-
   if (sky === SKIES.night) {
-    glass(4, 3, 4, 4, C.bone)
-    glass(6, 3, 2, 2, top)
-    for (const [a, b] of [[12, 2], [19, 6], [28, 3], [32, 8], [15, 10]]) glass(a, b, 1, 1, C.bone)
-  } else if (!grey) {
-    const sunB = sky === SKIES.dawn ? 9 : sky === SKIES.day ? 2 : 12
-    glass(5, sunB, 4, 4, sky === SKIES.dusk ? WINDOW_LIGHT : "#f7e7b0")
+    p.e(X + 4, Y + 3, 4, 4, "#e8e2c8")
+    p.e(X + 6, Y + 3, 2, 2, sky.top)
+    for (const [a, b] of [[12, 2], [19, 6], [27, 3], [29, 9], [15, 10]]) p.e(X + a, Y + b, 1, 1, "#e8e2c8")
+  } else if (sky.sun) {
+    p.e(X + sky.sun[0], Y + sky.sun[1], 4, 4, sky === SKIES.dusk ? WINDOW_LIGHT : "#fbeeb8")
   }
-
   // The belfry and a row of stepped Flemish gables.
   const town = sky.town
-  const townDark = darken(town, 0.18)
-  glass(24, 3, 1, 3, town)
-  glass(23, 6, 3, 4, town)
-  glass(22, 10, 5, 14, town)
-  glass(26, 10, 1, 14, townDark)
-  if (sky.lit) glass(24, 8, 1, 1, WINDOW_LIGHT)
+  const shade = darken(town, 0.2)
+  p.e(X + 22, Y + 3, 1, 3, town)
+  p.e(X + 21, Y + 6, 3, 4, town)
+  p.e(X + 20, Y + 10, 5, 14, town)
+  p.e(X + 24, Y + 10, 1, 14, shade)
+  if (sky.lit) p.e(X + 22, Y + 8, 1, 1, WINDOW_LIGHT)
   const gables = [
     { a: 0, w: 7, h: 9 },
     { a: 8, w: 6, h: 7 },
-    { a: 15, w: 6, h: 10 },
-    { a: 28, w: 8, h: 8 },
+    { a: 14, w: 6, h: 10 },
+    { a: 26, w: 6, h: 8 },
   ]
   gables.forEach((g, i) => {
-    glass(g.a, HH - g.h, g.w, g.h, town)
-    glass(g.a + g.w - 1, HH - g.h, 1, g.h, townDark)
-    glass(g.a + 1, HH - g.h - 1, g.w - 2, 1, town)
-    glass(g.a + 2, HH - g.h - 2, g.w - 4, 1, town)
-    const lit = sky.lit && i !== 1
-    glass(g.a + 2, HH - g.h + 2, 2, 2, lit ? WINDOW_LIGHT : townDark)
-    if (g.h > 8) glass(g.a + 2, HH - g.h + 6, 2, 2, sky.lit && i === 2 ? WINDOW_LIGHT : townDark)
+    p.e(X + g.a, Y + GH - g.h, g.w, g.h, town)
+    p.e(X + g.a + g.w - 1, Y + GH - g.h, 1, g.h, shade)
+    p.e(X + g.a + 1, Y + GH - g.h - 1, g.w - 2, 1, town)
+    p.e(X + g.a + 2, Y + GH - g.h - 2, g.w - 4, 1, town)
+    p.e(X + g.a + 2, Y + GH - g.h + 2, 2, 2, sky.lit && i !== 1 ? WINDOW_LIGHT : shade)
+    if (g.h > 8) p.e(X + g.a + 2, Y + GH - g.h + 6, 2, 2, sky.lit && i === 2 ? WINDOW_LIGHT : shade)
   })
-
   // Glazing bars, with the light catching one edge, and the sill.
-  frame(17, 0, 2, HH, C.woodDark)
-  frame(0, 11, WW, 2, C.woodDark)
-  frame(17, 0, 1, HH, C.wood)
-  frame(0, 11, WW, 1, C.wood)
-  frame(-3, HH + 2, WW + 6, 2, C.woodLight)
-  frame(-3, HH + 2, WW + 6, 1, lighten(C.woodLight, 0.2))
+  p.r(X + 15, Y, 2, GH, C.woodDark)
+  p.r(X, Y + 11, GW, 2, C.woodDark)
+  p.r(X + 15, Y, 1, GH, C.wood)
+  p.r(X, Y + 11, GW, 1, C.wood)
+  p.box(X - 4, Y + GH + 2, GW + 8, 2, C.woodLight)
+  // Rain has run down the brick from both ends of the sill.
+  p.adjust(X - 3, Y + GH + 5, 1, 5, (px) => mul(px, [0.8, 0.8, 0.84]))
+  p.adjust(X + GW + 2, Y + GH + 5, 1, 4, (px) => mul(px, [0.8, 0.8, 0.84]))
 }
 
-function paintPoster(p) {
-  const U = 33
-  const V = 13
-  const PW = 26
-  const PH = 22
-  /** Poster coordinates, read left to right on screen: a across, b down. */
-  const put = (a, b, w, h, col) => p.wallL(U + PW - a - w, V + PH - b - h, w, h, col)
-  put(-1, 0, PW + 2, PH + 1, "#33251b")
-  put(0, 0, PW, PH, C.paper)
-  put(0, PH - 1, PW, 1, darken(C.paper, 0.12))
-  // The kebab line, dashed, near the top. The game draws the bars under it.
-  for (let a = 1; a < PW - 1; a += 3) put(a, 4, 2, 1, C.amber)
-  put(1, PH - 3, PW - 2, 1, C.ink)
-  // Two pins.
-  put(1, 1, 1, 1, "#b5412f")
-  put(PW - 2, 1, 1, 1, "#b5412f")
-}
-
-function paintFloor(p, sun) {
-  const planks = ["#6b523a", "#634b35", "#72583f"]
-  const seam = "#4b3828"
-  for (let k = 0; k * 6 < RD; k++) {
-    const y = k * 6
-    const d = Math.min(6, RD - y)
-    p.flat(0, y, 0, RW, d, planks[(k * 2) % 3])
-    p.flat(0, y, 0, RW, 1, seam)
-    for (let x = 5 + ((k * 17) % 29); x < RW; x += 34) p.flat(x, y + 1, 0, 1, d - 1, seam)
+function paintWallThings(p) {
+  // The fridge, against the wall, clear of the bed.
+  const F = 42
+  p.shadow(F - 1, 48, 23, 3)
+  p.box(F, 10, 20, 38, C.metal)
+  p.r(F, 10, 20, 4, C.metalLight)
+  p.r(F, 14, 20, 1, C.metalDark)
+  p.r(F + 18, 15, 2, 33, C.metalDark)
+  p.r(F, 15, 1, 33, C.metalLight)
+  p.r(F + 1, 25, 17, 1, C.ink)
+  p.r(F + 1, 26, 17, 1, C.metalLight)
+  for (const [y, h] of [[17, 6], [28, 9]]) {
+    p.r(F + 15, y, 2, h, C.white)
+    p.r(F + 17, y, 1, h, C.ink)
   }
-  // The walls keep the edge of the floor in shade.
-  p.onFloor(0, 0, RW, 2, 0, (px) => mul(px, [0.8, 0.8, 0.84]))
-  p.onFloor(0, 2, 2, RD - 2, 0, (px) => mul(px, [0.8, 0.8, 0.84]))
-  // The edge of the slab.
-  p.lit(0, RD - 1, -3, RW, 3, "#3d2f22")
-  p.dim(RW - 1, 0, -3, RD, 3, "#2b2119")
-  p.lit(0, RD - 1, -1, RW, 1, "#57432f")
+  // A kebab-shop magnet, and a note held under it.
+  p.r(F + 4, 29, 3, 3, C.gold)
+  p.r(F + 5, 30, 1, 1, C.red)
+  p.r(F + 3, 33, 6, 7, C.paper)
+  p.r(F + 3, 39, 6, 1, C.whiteShade)
+  p.r(F + 4, 35, 4, 1, C.beigeDark)
+  p.r(F + 4, 37, 3, 1, C.beigeDark)
+  for (const y of [43, 45]) p.r(F + 3, y, 12, 1, C.metalDark)
+  p.r(F, 46, 3, 2, "#7a3a24")
 
-  // A rug that was red once, with a fringe at each end.
-  p.flat(34, 30, 0, 34, 26, "#7a3c2e")
-  p.flat(36, 32, 0, 30, 22, "#96503a")
-  p.flat(38, 34, 0, 26, 18, "#7a3c2e")
-  p.flat(40, 36, 0, 22, 14, "#8a4634")
-  for (let i = 0; i < 4; i++) p.flat(42 + i * 5, 42, 0, 2, 2, C.amber)
-  for (let j = 30; j < 56; j += 2) {
-    p.flat(33, j, 0, 1, 1, C.bone)
-    p.flat(68, j, 0, 1, 1, C.bone)
-  }
+  // The MRR chart, over the bed. The game draws the bars under the kebab line.
+  const P = 9
+  p.adjust(P + 1, 35, 28, 1, (px) => mul(px, [0.74, 0.72, 0.76]))
+  p.box(P, 10, 28, 24, C.paper)
+  p.r(P, 33, 28, 1, C.whiteShade)
+  for (let x = P + 2; x < P + 26; x += 3) p.r(x, 15, 2, 1, C.gold)
+  p.r(P + 2, 30, 24, 1, C.ink)
+  p.r(P + 1, 11, 1, 1, C.red)
+  p.r(P + 26, 11, 1, 1, C.red)
 
-  // Daylight through the two panes: longer in the morning.
-  if (sun > 0) {
-    const reach = sun === 2 ? 24 : 16
-    const warm = (px) => mix(px, [255, 232, 180], sun === 2 ? 0.2 : 0.16)
-    for (const x of [44, 61]) {
-      p.onFloor(x, 14, 15, reach - 2, 0, warm)
-      p.onFloor(x, 14 + reach - 2, 15, 2, 0, warm, 0.5)
-    }
-  }
-}
-
-function paintFridge(p) {
-  p.shadow(1, 2, 11, 11, 4)
-  p.box(1, 2, 0, 11, 11, 28, METAL)
-  // The door faces the room.
-  p.dim(11, 2, 18, 11, 1, "#3f453a")
-  p.dim(11, 3, 20, 1, 5, "#b4b9a6")
-  p.dim(11, 3, 9, 1, 7, "#b4b9a6")
-  p.dim(11, 4, 20, 1, 5, "#4a5045")
-  p.dim(11, 4, 9, 1, 7, "#4a5045")
-  // A kebab-shop magnet and a note held under it.
-  p.dim(11, 7, 22, 3, 3, C.amber)
-  p.dim(11, 8, 23, 1, 1, C.rust)
-  p.dim(11, 8, 12, 3, 4, C.paper)
-  p.dim(11, 9, 16, 1, 1, "#b5412f")
-  // Rust where the floor is damp.
-  p.dim(11, 9, 0, 4, 2, C.rustDark)
-  p.dim(11, 5, 0, 2, 1, C.rustDark)
-  // Vents on the side.
-  p.lit(3, 12, 3, 6, 1, "#565c4e")
-  p.lit(3, 12, 5, 6, 1, "#565c4e")
-  p.lit(3, 12, 7, 6, 1, "#565c4e")
+  // A sign, and a shelf of books that have all been started.
+  p.box(70, 12, 19, 9, "#33261f")
+  p.text(72, 14, "SHIP", C.gold)
+  p.adjust(69, 34, 22, 1, (px) => mul(px, [0.74, 0.72, 0.76]))
+  p.box(68, 32, 23, 2, C.wood)
+  p.r(68, 32, 23, 1, C.woodLight)
+  const books = [["#c0432f", 7], ["#3f8f86", 6], [C.gold, 8], ["#4f6f8a", 7], ["#7a58b8", 6], [C.white, 8]]
+  books.forEach(([col, h], i) => {
+    p.r(70 + i * 3, 32 - h, 2, h, col)
+    p.r(72 + i * 3, 32 - h, 1, h, C.ink)
+  })
 }
 
 function paintDesk(p, lampOn) {
-  p.onFloor(15, 4, 28, 11, 0, (px) => mul(px, [0.72, 0.72, 0.76]))
-  p.shadow(36, 1, 8, 12, 3)
-  p.box(14, 1, 0, 2, 12, 9, TIMBER, false)
-  // Drawers, each with a handle.
-  p.box(36, 1, 0, 8, 12, 9, [C.wood, "#6c5034", C.woodDark], false)
-  for (const z of [3, 6]) p.lit(36, 12, z, 8, 1, C.woodDark)
-  for (const z of [1, 4, 7]) p.lit(39, 12, z, 2, 1, C.bone)
-  p.box(14, 1, 9, 30, 12, 2, TIMBER, false)
-  p.lit(14, 12, 10, 30, 1, lighten(C.wood, 0.2))
-  // The grain of the top runs along the desk.
-  p.flat(16, 4, 11, 26, 1, darken(C.woodLight, 0.08))
-  p.flat(15, 9, 11, 20, 1, darken(C.woodLight, 0.08))
+  // Under the desk, the floor is in shade.
+  p.shadow(97, 56, 46, 7)
+  // Legs, then the drawers on the right.
+  p.box(97, 56, 3, 5, C.woodDark)
+  p.box(127, 49, 16, 12, C.wood)
+  p.r(127, 54, 16, 1, C.ink)
+  p.r(127, 55, 16, 1, C.woodLight)
+  p.r(127, 49, 16, 1, C.woodLight)
+  for (const y of [51, 57]) p.r(133, y, 4, 1, C.white)
+  // The top, seen from above, and its front edge.
+  p.box(96, 36, 48, 12, C.woodLight)
+  p.r(96, 46, 48, 2, C.wood)
+  p.r(96, 36, 48, 1, lighten(C.woodLight, 0.16))
+  p.r(100, 40, 30, 1, darken(C.woodLight, 0.08))
+  p.r(98, 44, 22, 1, darken(C.woodLight, 0.08))
+  p.box(96, 49, 30, 6, C.wood)
+  p.r(96, 49, 30, 1, C.woodLight)
+  p.r(96, 54, 30, 1, C.woodDark)
 
   // A mug, gone cold.
-  p.box(21, 3, 11, 2, 2, 3, ["#3a2c20", "#d9d1bc", "#bab39f"], false)
+  p.box(127, 39, 4, 4, C.white)
+  p.r(128, 39, 2, 1, "#4a3020")
+  p.r(130, 40, 1, 3, C.whiteShade)
 
-  // The terminal, its screen turned towards the room.
-  p.box(25, 3, 11, 12, 8, 10, ["#cbc0a2", "#b5aa8a", "#91876c"])
-  p.lit(26, 10, 13, 10, 7, "#20231f")
-  p.lit(26, 10, 19, 10, 1, "#2b2f29")
-  p.lit(27, 10, 11, 8, 1, "#91876c")
-  // Vents on its side, and a cable down the back of the desk.
-  p.dim(36, 4, 14, 5, 1, "#7a715a")
-  p.dim(36, 4, 16, 5, 1, "#7a715a")
-  p.dim(43, 2, 2, 1, 8, C.ink)
+  // The terminal: you see what is on its screen.
+  p.box(108, 20, 18, 20, C.beigeMid)
+  p.r(108, 20, 18, 3, C.beige)
+  p.r(124, 23, 2, 17, C.beigeDark)
+  p.box(110, 24, 14, 11, "#1e2a22")
+  p.r(110, 24, 14, 1, "#2c3a30")
+  p.r(110, 24, 1, 11, "#2c3a30")
+  p.r(110, 37, 6, 1, C.beigeDark)
+  p.r(122, 37, 1, 1, "#5fd070")
   // Keyboard.
-  p.box(26, 11, 11, 10, 2, 1, ["#c2b899", "#a99f81", "#8c836a"], false)
-  p.flat(27, 11, 12, 8, 1, "#a99f81")
-
-  // Lamp.
-  p.box(39, 4, 11, 3, 3, 1, DARK_METAL, false)
-  const [lx, ly] = [sx(40, 5), sy(40, 5, 12)]
-  p.rect(lx, ly - 7, 1, 7, "#474b41")
-  if (lampOn) {
-    p.flat(38, 3, 22, 5, 5, "#ffe9b0")
-    for (let i = 38; i < 43; i++) p.glow(sx(i, 7), sy(i, 7, 19) - 2, 1, 3, "#f8cf74")
-    for (let j = 3; j < 8; j++) p.glow(sx(42, j), sy(42, j, 19) - 2, 1, 3, "#dfa844")
-    p.flat(38, 3, 22, 5, 5, "#ffe9b0")
-  } else {
-    p.box(38, 3, 19, 5, 5, 3, METAL)
+  p.box(108, 42, 18, 4, C.beige)
+  for (let x = 109; x < 125; x += 2) {
+    p.r(x, 43, 1, 1, C.beigeDark)
+    p.r(x, 45, 1, 1, C.beigeDark)
   }
 
-  // The stool.
-  p.shadow(28, 15, 5, 5, 2)
-  p.box(28, 15, 0, 5, 5, 5, DARK_METAL)
+  // Lamp.
+  p.box(132, 42, 6, 2, C.metalDark)
+  p.r(134, 31, 2, 11, C.ink)
+  p.r(134, 31, 1, 11, C.metalLight)
+  if (lampOn) {
+    c_glowShade(p)
+  } else {
+    p.box(131, 26, 8, 2, C.metalLight)
+    p.box(130, 28, 10, 3, C.metal)
+    p.r(130, 30, 10, 1, C.metalDark)
+  }
+
+  // The stool, pushed in.
+  p.shadow(111, 66, 13, 3)
+  p.box(113, 62, 2, 5, C.steel)
+  p.box(119, 62, 2, 5, C.steel)
+  p.box(111, 57, 12, 5, C.metal)
+  p.r(111, 57, 12, 2, C.metalLight)
+
+  // A bin, for what does not make it to the floor.
+  p.shadow(146, 57, 9, 3)
+  p.box(146, 47, 8, 10, C.metalDark)
+  p.r(146, 47, 8, 2, "#3a4036")
+  p.r(148, 47, 3, 1, C.paper)
+  p.r(147, 50, 1, 6, C.metal)
 }
 
-function paintPot(p) {
-  p.shadow(74, 2, 7, 7, 3)
-  p.box(74, 2, 0, 7, 7, 6, ["#4f3423", "#a8603e", "#844a30"])
-  p.lit(74, 8, 5, 7, 1, "#c27a55")
+/** The lamp's shade when it is lit: it gives off its own light. */
+function c_glowShade(p) {
+  p.box(131, 26, 8, 2, "#fff0c0")
+  p.box(130, 28, 10, 3, "#ffe090")
+  p.e(131, 26, 8, 2, "#fff4cc")
+  p.e(130, 28, 10, 3, "#ffdf8a")
+  p.e(130, 30, 10, 1, "#f0b850")
 }
 
 function paintBed(p) {
-  const frame = ["#5b594f", "#4b4941", "#3a3832"]
-  p.shadow(1, 27, 17, 38, 4)
-  p.box(1, 26, 0, 17, 1, 12, frame)
-  p.box(1, 27, 0, 17, 38, 4, frame, false)
-  p.box(1, 27, 4, 17, 38, 3, ["#cfc2a2", "#b4a787", "#968a6c"], false)
-  // Pillow, dented where a head goes.
-  p.box(3, 28, 7, 13, 7, 2, [C.white, "#d3c9af", "#b4aa90"], false)
-  p.flat(6, 30, 9, 7, 3, "#ded6c0")
-  // An army blanket, with its folds.
-  p.box(1, 37, 7, 17, 28, 2, ["#64744c", "#53623b", "#44502f"], false)
-  p.flat(1, 37, 9, 17, 1, "#7f8d5e")
-  p.flat(1, 39, 9, 17, 2, "#7f8d5e")
-  p.flat(1, 61, 9, 17, 1, "#7f8d5e")
-  p.flat(4, 46, 9, 9, 1, "#56653f")
-  p.flat(8, 53, 9, 8, 1, "#56653f")
-  p.lit(1, 64, 8, 17, 1, "#6f7f54")
-  p.box(1, 65, 0, 17, 1, 9, frame)
+  // The bed runs along the left wall, its head towards the back.
+  p.shadow(38, 58, 3, 52)
+  p.shadow(8, 110, 31, 3)
+  // Headboard: iron rails.
+  p.box(8, 48, 30, 9, "#4a4a44")
+  p.r(8, 48, 30, 1, "#77776c")
+  for (let x = 11; x < 37; x += 5) p.r(x, 50, 2, 6, "#2f2f2b")
+  // Sheet and pillow.
+  p.box(8, 57, 30, 46, C.white)
+  p.box(12, 59, 22, 9, "#fffaf0")
+  p.r(12, 66, 22, 2, C.whiteShade)
+  p.r(18, 61, 10, 4, C.white)
+  // An army blanket, turned down, with its folds.
+  p.r(8, 70, 30, 2, C.whiteShade)
+  p.r(8, 72, 30, 31, C.blanket)
+  p.r(8, 72, 30, 2, C.blanketLight)
+  p.r(8, 72, 1, 31, C.blanketLight)
+  p.r(36, 72, 2, 31, C.blanketDark)
+  p.r(13, 82, 14, 1, C.blanketDark)
+  p.r(19, 91, 13, 1, C.blanketDark)
+  p.r(11, 97, 9, 1, C.blanketDark)
+  p.r(8, 71, 30, 1, C.ink)
+  // The foot of the bed.
+  p.box(8, 103, 30, 6, C.blanketDark)
+  p.r(8, 103, 30, 1, C.blanket)
+  p.box(8, 109, 3, 2, "#2f2f2b")
+  p.box(35, 109, 3, 2, "#2f2f2b")
 
   // A crate for a bedside table, and a radio that has seen better decades.
-  p.shadow(20, 28, 8, 8, 3)
-  p.box(20, 28, 0, 8, 8, 7, TIMBER)
-  p.lit(20, 35, 3, 8, 1, C.woodDark)
-  p.dim(27, 28, 3, 8, 1, "#49351f")
-  p.box(21, 30, 7, 6, 4, 4, ["#8d7350", "#a78a5f", "#6f583b"], false)
-  p.dim(26, 30, 8, 2, 2, "#3a2e20")
-  p.dim(26, 33, 9, 1, 1, C.bone)
-  const [ax, ay] = [sx(21, 30), sy(21, 30, 11)]
-  p.rect(ax, ay - 6, 1, 6, C.steelLight)
+  p.shadow(42, 78, 14, 3)
+  p.box(42, 66, 13, 5, C.woodLight)
+  p.box(42, 71, 13, 7, C.wood)
+  for (const y of [73, 76]) p.r(42, y, 13, 1, C.woodDark)
+  p.r(42, 66, 13, 1, lighten(C.woodLight, 0.16))
+  p.box(44, 60, 9, 7, "#8d6a48")
+  p.r(44, 60, 9, 1, "#b08a60")
+  p.r(45, 62, 3, 3, "#3a2a1c")
+  p.r(50, 62, 2, 2, C.gold)
+  p.r(53, 54, 1, 6, C.steelLight)
+  p.r(54, 52, 1, 3, C.steelLight)
 }
 
-function paintBin(p) {
-  // A bin by the desk, for what does not make it to the floor.
-  p.shadow(47, 3, 4, 4, 2)
-  p.box(47, 3, 0, 4, 4, 5, DARK_METAL)
-  p.flat(47, 3, 5, 4, 4, "#2f332c")
-  p.flat(48, 4, 5, 2, 2, "#c4c0ae")
+function paintRug(p) {
+  // A rug that was red once, with a fringe at each end.
+  p.box(68, 72, 72, 34, C.rugDark)
+  p.r(70, 74, 68, 30, C.rug)
+  p.r(73, 77, 62, 24, C.rugDark)
+  p.r(75, 79, 58, 20, C.rug)
+  p.r(70, 74, 68, 1, C.rugLight)
+  // A row of lozenges down the middle.
+  for (let i = 0; i < 4; i++) {
+    const x = 82 + i * 13
+    p.g(x, 87, [".gg.", "gGGg", "gGGg", ".gg."], { g: C.gold, G: C.rugDark })
+  }
+  for (let y = 73; y < 106; y += 2) {
+    p.r(66, y, 2, 1, C.paper)
+    p.r(140, y, 2, 1, C.paper)
+  }
+}
+
+function paintPot(p) {
+  p.shadow(163, 61, 16, 3)
+  p.box(165, 50, 12, 10, C.pot)
+  p.box(164, 48, 14, 3, C.potLight)
+  p.r(175, 51, 2, 9, C.potDark)
+  p.r(166, 49, 10, 1, "#4a3020")
+  p.r(165, 51, 1, 9, C.potLight)
+}
+
+/** Daylight through the window, falling across the floor. */
+function paintSun(p, reach) {
+  const warm = (px) => mix(px, [255, 236, 190], 0.2)
+  for (let j = 0; j < reach; j++) {
+    const y = FLOOR_Y + 4 + j
+    const x = 148 - Math.round(j * 0.7)
+    const density = j >= reach - 3 ? 0.5 : 1
+    // Two panes, so two patches, with the glazing bar's shadow between them.
+    p.adjust(x, y, 14, 1, warm, density)
+    p.adjust(x + 17, y, 14, 1, warm, density)
+  }
 }
 
 /** The whole flat, in one light. */
-function paintRoom(c, { grade, sky, sun, lamp, grey }) {
+function paintRoom(c, { grade, sky, sun, lamp }) {
   const p = painter(c, grader(grade))
-  paintWalls(p)
-  paintWindow(p, c, SKIES[sky], grey)
-  paintPoster(p)
-  paintFloor(p, sun)
-  paintFridge(p)
-  paintDesk(p, lamp)
-  paintBin(p)
-  paintPot(p)
+  paintShell(p)
+  paintWindow(p, SKIES[sky])
+  paintRug(p)
+  if (sun) paintSun(p, sun)
+  paintWallThings(p)
   paintBed(p)
+  paintDesk(p, lamp)
+  paintPot(p)
 }
 
-// One painting per light. The names starting with "_" are parts of the final scenes.
+// One painting per light. Names starting with "_" are parts of the final scenes.
 const LIGHTS = {
-  morning: { grade: "morning", sky: "dawn", sun: 2, lamp: false },
-  morning_rain: { grade: "rain", sky: "grey", sun: 0, lamp: false, grey: true },
-  afternoon: { grade: "day", sky: "day", sun: 1, lamp: false },
-  afternoon_rain: { grade: "rain", sky: "grey", sun: 0, lamp: false, grey: true },
+  morning: { grade: "morning", sky: "dawn", sun: 46, lamp: false },
+  morning_rain: { grade: "rain", sky: "grey", sun: 0, lamp: false },
+  afternoon: { grade: "day", sky: "day", sun: 30, lamp: false },
+  afternoon_rain: { grade: "rain", sky: "grey", sun: 0, lamp: false },
 }
 for (const [name, light] of Object.entries(LIGHTS)) {
   scene("room_" + name, { w: W, h: H }, (c) => paintRoom(c, light))
@@ -500,10 +520,10 @@ for (const [name, light] of Object.entries(LIGHTS)) {
 // After dark the lamp is on. Its light falls off in steps: each step is the
 // whole room painted a little darker, cut to a ring around the lamp, with a
 // dithered rim so one step breaks into the next.
-const LAMP = [sx(40, 5), sy(40, 5, 14)]
+const LAMP = [135, 34]
 const DARK = {
-  evening: { sky: "dusk", steps: [["evening1", 38], ["lamp", 24]] },
-  night: { sky: "night", steps: [["night2", 43], ["night1", 32], ["lamp", 21]] },
+  evening: { sky: "dusk", steps: [["evening1", 46], ["lamp", 28]] },
+  night: { sky: "night", steps: [["night2", 54], ["night1", 40], ["lamp", 26]] },
 }
 for (const [name, { sky, steps }] of Object.entries(DARK)) {
   const painted = (grade) => {
@@ -526,125 +546,160 @@ for (const [name, { sky, steps }] of Object.entries(DARK)) {
 // Things the game places in the room
 // ---------------------------------------------------------------------------
 
-/** A small sprite drawn with the room's painter, moved so its corner is at 0,0. */
-function roomSprite(name, grade, [ox, oy, w, h], draw) {
-  sprite(name, { w, h }, (c) => {
-    const shifted = {
-      px: (x, y, col) => c.px(x - ox, y - oy, col),
-      rect: (x, y, rw, rh, col) => c.rect(x - ox, y - oy, rw, rh, col),
-      get: (x, y) => c.get(x - ox, y - oy),
-    }
-    draw(painter(shifted, grade ? grader(grade) : (hx) => hx))
-  })
-}
-
-// Where each of these sits on the room picture. The game reads the same numbers.
-const PLACE = {
-  chart: [28, 24, 28, 42],
-  screen: [103, 44, 12, 14],
-  plant: [151, 64, 18, 20],
-  bowl: [98, 39, 10, 8],
-}
-
 for (const g of GRADES) {
-  // The MRR bars on the wall chart, from empty (1) to the kebab line (8).
+  const tint = grader(g)
+
+  // The MRR bars on the wall chart, from one step to the kebab line (8).
   for (let step = 1; step <= 8; step++) {
-    roomSprite(`chart_${step}_${g}`, g, PLACE.chart, (p) => {
-      const U = 33
-      const V = 13
-      const PW = 26
-      const PH = 22
-      const put = (a, b, w, h, col) => p.wallL(U + PW - a - w, V + PH - b - h, w, h, col)
+    sprite(`chart_${step}_${g}`, { w: 24, h: 14 }, (c) => {
       for (let i = 0; i < 7; i++) {
         const ramp = Math.pow((i + 1) / 7, 1.6)
-        const h = Math.round(ramp * (step / 8) * 15)
-        if (h > 0) put(2 + i * 3, PH - 3 - h, 2, h, step === 8 ? "#5f9a52" : "#4f6f8a")
+        const h = Math.round(ramp * (step / 8) * 14)
+        if (h === 0) continue
+        const col = step === 8 ? "#4f9a4a" : "#4f6f8a"
+        c.rect(1 + i * 3, 14 - h, 2, h, tint(col))
+        c.rect(1 + i * 3, 14 - h, 1, h, tint(lighten(col, 0.2)))
       }
     })
   }
 
   // The plant lives and dies with your morale.
-  roomSprite(`plant_lush_${g}`, g, PLACE.plant, (p) => {
-    const [x, y] = [sx(77, 5), sy(77, 5, 6)]
-    p.rect(x, y - 12, 2, 12, C.leafDark)
-    p.rect(x - 5, y - 8, 5, 2, C.leaf)
-    p.rect(x + 2, y - 10, 5, 2, C.leaf)
-    p.rect(x - 3, y - 15, 7, 3, C.leaf)
-    p.rect(x - 6, y - 4, 5, 2, C.leaf)
-    p.rect(x + 2, y - 5, 4, 2, C.leaf)
-    p.rect(x - 5, y - 8, 4, 1, C.leafLight)
-    p.rect(x + 2, y - 10, 4, 1, C.leafLight)
-    p.rect(x - 2, y - 15, 5, 1, C.leafLight)
-    p.rect(x - 6, y - 4, 4, 1, C.leafLight)
-    p.rect(x - 3, y - 13, 1, 1, C.leafDark)
-    p.rect(x + 3, y - 13, 1, 1, C.leafDark)
-  })
-  roomSprite(`plant_wilting_${g}`, g, PLACE.plant, (p) => {
-    const [x, y] = [sx(77, 5), sy(77, 5, 6)]
-    p.rect(x, y - 8, 2, 8, "#7d8a4a")
-    p.rect(x - 4, y - 5, 4, 2, "#a3a65a")
-    p.rect(x + 2, y - 7, 4, 2, "#a3a65a")
-    p.rect(x - 1, y - 10, 4, 2, "#a3a65a")
-    p.rect(x - 5, y - 4, 1, 2, "#8a8d48")
-    p.rect(x + 6, y - 6, 1, 2, "#8a8d48")
-  })
-  roomSprite(`plant_dead_${g}`, g, PLACE.plant, (p) => {
-    const [x, y] = [sx(77, 5), sy(77, 5, 6)]
-    p.rect(x, y - 6, 1, 6, "#7a5c36")
-    p.rect(x + 1, y - 6, 3, 1, "#7a5c36")
-    p.rect(x + 3, y - 5, 1, 2, "#7a5c36")
-    p.rect(x - 2, y - 3, 2, 1, "#7a5c36")
-    p.rect(x - 4, y, 2, 1, "#8a6a3a")
-  })
+  const leaf = (c, rows, map) =>
+    rows.forEach((row, j) => [...row].forEach((ch, i) => map[ch] && c.px(i, j, tint(map[ch]))))
+  const greens = { k: C.ink, d: C.leafDark, l: C.leaf, h: C.leafLight, s: "#7a5c36" }
+  sprite(`plant_lush_${g}`, { w: 22, h: 24 }, (c) =>
+    leaf(c, [
+      "........kkk...........",
+      ".......khhlk..........",
+      "..kk..khllldk....kk...",
+      ".khhk.klllddk..kkhhk..",
+      "khllhkkldddk..khhllk..",
+      "klllldkkdddk.khlllldk.",
+      "kllldddkkdk.khllllddk.",
+      ".kldddddkkkkklllldddk.",
+      "..kkddddkdlkllldddkk..",
+      "....kkkkkdlklddddk....",
+      ".kkk....kdlkkkkkk.....",
+      "khhhkk..kdlk...kkkk...",
+      "khllllkkkdlk.kkhhhhk..",
+      "klllllddkdlkkhhllllk..",
+      ".kllddddkdlkhllllldk..",
+      "..kkdddkkdlklllldddk..",
+      "....kkk.kdlkkdddddk...",
+      "........kdlk.kkkkk....",
+      "........kdlk..........",
+      "........kdlk..........",
+      "........kdlk..........",
+      "........kddk..........",
+      "........kddk..........",
+      ".........kk...........",
+    ], greens))
+  const tired = { k: C.ink, d: "#7d8a4a", l: "#a3a65a", h: "#c0c070", s: "#7a5c36" }
+  sprite(`plant_wilting_${g}`, { w: 22, h: 24 }, (c) =>
+    leaf(c, [
+      "......................",
+      "......................",
+      "......................",
+      "......................",
+      "......................",
+      "......................",
+      ".........kk...........",
+      "........khlk..........",
+      "........kllk..........",
+      "..kkkk..kdlk..kkkk....",
+      ".khlllkkkdlkkkllllk...",
+      "kllldddkkdlkllldddlk..",
+      "klddkkkkkdlkkkkkddlk..",
+      "kldk....kdlk....kdlk..",
+      ".kk.....kdlk....kldk..",
+      "........kdlk.....kk...",
+      "........kdlk..........",
+      "........kdlk..........",
+      "........kdlk..........",
+      "........kdlk..........",
+      "........kdlk..........",
+      "........kddk..........",
+      "........kddk..........",
+      ".........kk...........",
+    ], tired))
+  sprite(`plant_dead_${g}`, { w: 22, h: 24 }, (c) =>
+    leaf(c, [
+      "......................",
+      "......................",
+      "......................",
+      "......................",
+      "......................",
+      "......................",
+      "......................",
+      "......................",
+      "......................",
+      "......................",
+      "......................",
+      "...........kk.........",
+      "..........kssk........",
+      "......kk..ksk.........",
+      ".....kssk.ksk..kk.....",
+      "......kssksskkssk.....",
+      ".......kssssssk.......",
+      "........ksssk.........",
+      "........kssk..........",
+      "........kssk..........",
+      "........kssk..........",
+      "........kssk..........",
+      ".....ks.kssk..........",
+      "......k..kk...........",
+    ], greens))
 
-  // A bowl of pasta: they pile up at the far end of the desk.
-  roomSprite(`bowl_${g}`, g, PLACE.bowl, (p) => {
-    p.box(15, 3, 11, 4, 4, 2, ["#efd98c", "#ddd5bf", "#bdb6a2"], false)
-  })
+  // A bowl of pasta: they pile up at the end of the desk.
+  sprite(`bowl_${g}`, { w: 9, h: 5 }, (c) =>
+    leaf(c, [".kkkkkkk.", "kyyyyyyyk", "kwwwwwwwk", ".kwwwwwk.", "..kkkkk.."], {
+      k: C.ink, y: "#f2da8a", w: C.white,
+    }))
 
   // A kebab wrapper on the floor.
-  const tint = grader(g)
-  sprite(`wrapper_${g}`, { w: 6, h: 4 }, (c) => {
-    c.rect(0, 1, 5, 3, tint("#c4c0ae"))
-    c.rect(1, 0, 3, 1, tint("#dedbcb"))
-    c.rect(3, 2, 2, 1, tint(C.amber))
-    c.rect(0, 3, 5, 1, tint("#a39f8e"))
-  })
+  sprite(`wrapper_${g}`, { w: 8, h: 6 }, (c) =>
+    leaf(c, ["..kkkk..", ".kwwwwk.", "kwwwgwwk", "kwsswwwk", ".kssssk.", "..kkkk.."], {
+      k: C.ink, w: "#e6e0cc", s: "#bdb6a2", g: C.gold,
+    }))
 }
 
-// What is on the terminal's screen. Screens give off their own light, so one set does for every hour.
-const SCREEN = { bg: "#0b2012", bright: "#69e07c", dim: "#3fae55", bone: "#d8caa6", amber: "#e0a13c" }
+// What is on the terminal's screen. Screens give off their own light, so one
+// set does for every hour.
+const SCREEN = { bg: "#0d2416", bright: "#74f08a", dim: "#3fae55", bone: "#e8dcb8", amber: "#f0a93c" }
 const SCREENS = {
   code: (line, f) => {
-    line(1, 1, 5, SCREEN.bright)
-    line(2, 2, 6, SCREEN.dim)
-    line(2, 3, 4, SCREEN.dim)
-    line(1, 4, 7, SCREEN.bright)
-    if (f === 0) line(1, 5, 1, SCREEN.bright)
+    line(1, 1, 6, SCREEN.bright)
+    line(3, 3, 8, SCREEN.dim)
+    line(3, 5, 5, SCREEN.dim)
+    line(1, 7, 9, SCREEN.bright)
+    if (f === 0) line(1, 9, 2, SCREEN.bright)
   },
   ship: (line, f) => {
-    line(1, 1, 8, SCREEN.amber)
-    line(1, 3, f === 0 ? 4 : 8, SCREEN.bright)
-    line(1, 5, 4, SCREEN.dim)
+    line(1, 1, 12, SCREEN.amber)
+    line(1, 4, f === 0 ? 5 : 11, SCREEN.bright)
+    line(1, 5, f === 0 ? 5 : 11, SCREEN.bright)
+    line(1, 8, 6, SCREEN.dim)
   },
   chat: (line, f) => {
-    line(1, 1, 5, SCREEN.bone)
-    line(4, 3, 5, SCREEN.bright)
-    if (f === 0) line(1, 5, 3, SCREEN.bone)
+    line(1, 1, 7, SCREEN.bone)
+    line(1, 2, 5, SCREEN.bone)
+    line(5, 5, 8, SCREEN.bright)
+    if (f === 0) line(1, 8, 4, SCREEN.bone)
   },
   invoice: (line) => {
-    line(1, 1, 4, SCREEN.bone)
-    line(6, 1, 3, SCREEN.bright)
-    line(1, 3, 4, SCREEN.bone)
-    line(6, 3, 3, SCREEN.bright)
-    line(5, 5, 4, SCREEN.amber)
+    line(1, 1, 6, SCREEN.bone)
+    line(9, 1, 4, SCREEN.bright)
+    line(1, 4, 6, SCREEN.bone)
+    line(9, 4, 4, SCREEN.bright)
+    line(1, 6, 12, SCREEN.dim)
+    line(7, 8, 6, SCREEN.amber)
   },
 }
 for (const [kind, draw] of Object.entries(SCREENS)) {
   for (const f of [0, 1]) {
-    roomSprite(`screen_${kind}_${f}`, null, PLACE.screen, (p) => {
-      p.lit(26, 10, 13, 10, 7, SCREEN.bg)
-      draw((a, b, w, col) => p.lit(26 + a, 10, 19 - b, w, 1, col), f)
+    sprite(`screen_${kind}_${f}`, { w: 14, h: 11 }, (c) => {
+      c.rect(0, 0, 14, 11, SCREEN.bg)
+      draw((x, y, w, col) => c.rect(x, y, w, 1, col), f)
     })
   }
 }
@@ -659,94 +714,116 @@ for (const [kind, draw] of Object.entries(SCREENS)) {
  * once each member has approved theirs.
  */
 const BODY = {
-  k: "#171411", // outline
-  K: "#3a2a1f", // hair
-  Z: "#2a1e16", // hair, in shade
-  H: "#e6b950", // skin
-  Y: "#c79a3c", // skin, in shade
-  I: "#f3d27a", // skin, in light
+  k: "#2a1c18", // outline
+  K: "#4a3020", // hair
+  L: "#6e4a30", // hair, in light
+  Z: "#33201a", // hair, in shade
+  H: "#f2c24f", // skin
+  Y: "#d09a36", // skin, in shade
+  I: "#fbe08a", // skin, in light
   m: "#a8522f", // mouth
-  Q: "#454d57", // denim
-  U: "#333a43", // denim, in shade
-  x: "#f1ead8", // white
-  X: "#cfc8b4", // white, in shade
-  a: "#e0a13c", // amber
-  s: "#7c8376", // steel
-  r: "#b5412f", // red
+  Q: "#4a5568", // trousers
+  U: "#343c4c", // trousers, in shade
+  S: "#3a2a20", // shoes
+  x: "#f4eedd", // white
+  X: "#d5ccb4", // white, in shade
+  a: "#e8b04a", // gold
+  s: "#98a093", // steel
+  r: "#c0432f", // red
   R: "#8c2c22", // red, in shade
-  e: "#d9553f", // headphone cups
-  y: "#e3b548", // cap
-  w: "#c9992f", // cap, in shade
+  e: "#e0583f", // headphone cups
+  y: "#f0c050", // cap
+  w: "#c9952e", // cap, in shade
+  g: "#5fa04a", // salad
 }
 
 const PEOPLE = {
-  david: { shirt: "#3f8f86" },
-  karl: { shirt: "#d8d2c0" },
-  mickael: { shirt: "#c9762f" },
-  christophe: { shirt: "#3f62a8" },
-  matthys: { shirt: "#7a58b8" },
+  david: { shirt: "#3f9a90" },
+  karl: { shirt: "#e4decb" },
+  mickael: { shirt: "#d98234" },
+  christophe: { shirt: "#4a6fc0" },
+  matthys: { shirt: "#8a62cc" },
 }
 
-/** The half of the body that is the same on both sides, front and back. */
+/** Half of the body: it is the same on both sides. Fourteen wide once mirrored. */
 const FRONT = `
-  ..KKKK
-  .KKKKK
-  .KKHHH
-  .HHIkH
-  .YHHHH
-  .YHHHm
-  ..YHHH
-  ..cCCC
-  .CCCCC
-  cCCCCC
-  cCCCCC
-  HcCCCC
-  ..UQQQ
-  ..UQQ.
-  ..UQQ.
-  ..UQQ.
-  ..UQQ.
-  .kkkk.`
+  ...KKKK
+  ..KLLKK
+  .KKLKKK
+  .KKKKKK
+  .KKKKHH
+  .KKHHHH
+  .KHIkHH
+  .ZHHkHH
+  .YHHHHH
+  ..YHHHm
+  ...YHHH
+  ...cCCC
+  ..cCCDC
+  .cCCCCC
+  .cCCCCC
+  .cCCCCC
+  .HcCCCC
+  ..cCCCC
+  ..UQQQQ
+  ..UQQQQ
+  ..UQQQ.
+  ..UQQQ.
+  ..UQQQ.
+  ..UQQQ.
+  ..SSSS.
+  .SSSSS.`
 const BACK = `
-  ..KKKK
-  .KKKKK
-  .ZKKKK
-  .ZKKKK
-  .ZKKKK
-  .YZKKK
-  ..YHHH
-  ..cCCC
-  .CCCCC
-  cCCCCC
-  cCCCCC
-  HcCCCC
-  ..UQQQ`
+  ...KKKK
+  ..KLLKK
+  .KKLKKK
+  .KKKKKK
+  .KKKKKK
+  .KKKKKK
+  .ZKKKKK
+  .ZKKKKK
+  .ZZKKKK
+  ..YZZKK
+  ...YHHH
+  ...cCCC
+  ..cCCCC
+  .cCCCCC
+  .cCCCCC
+  .cCCCCC
+  .HcCCCC
+  ..cCCCC`
 const ASLEEP = `
-  ..KKKK
-  .KKKKK
-  .KKHHH
-  .HHYYH
-  .YHHHH
-  .YHHHm
-  ..YHHH`
+  ...KKKK
+  ..KLLKK
+  .KKLKKK
+  .KKKKKK
+  .KKKKHH
+  .KKHHHH
+  .KHHHHH
+  .ZHYYHH
+  .YHHHHH
+  ..YHHHm
+  ...YHHH`
 
-/** What each member wears. Drawn over the body, before the outline. */
+/** What each member wears, on the sprite: its body starts one row down. */
 function props(who, back) {
   switch (who) {
     case "david": // headphones: he is the DJ
-      return [rect(2, 0, 8, 1, "k"), rect(1, 1, 1, 2, "k"), rect(10, 1, 1, 2, "k"), rect(0, 3, 2, 3, "e"), rect(10, 3, 2, 3, "e")]
+      return [rect(3, 0, 8, 1, "k"), rect(1, 1, 2, 1, "k"), rect(11, 1, 2, 1, "k"), rect(0, 2, 1, 4, "k"), rect(13, 2, 1, 4, "k"), rect(0, 6, 2, 4, "e"), rect(12, 6, 2, 4, "e"), px(0, 6, "R"), px(13, 6, "R")]
     case "karl": // mortarboard: he is the doctor
-      return [rect(0, 0, 12, 1, "k"), rect(3, 1, 6, 1, "k"), rect(11, 1, 1, 3, "a")]
+      return [rect(0, 1, 14, 1, "k"), rect(1, 0, 12, 1, "k"), rect(3, 2, 8, 1, "k"), rect(13, 2, 1, 4, "a"), px(13, 6, "a"), px(12, 6, "a")]
     case "mickael": // podcast headset
       return back
-        ? [rect(2, 0, 8, 1, "s"), rect(1, 1, 1, 2, "s"), rect(0, 3, 2, 3, "k")]
-        : [rect(2, 0, 8, 1, "s"), rect(1, 1, 1, 2, "s"), rect(0, 3, 2, 3, "k"), rect(1, 6, 3, 1, "k"), px(4, 6, "s")]
+        ? [rect(3, 0, 8, 1, "s"), rect(1, 1, 2, 1, "s"), rect(0, 2, 1, 4, "s"), rect(0, 6, 2, 4, "k")]
+        : [rect(3, 0, 8, 1, "s"), rect(1, 1, 2, 1, "s"), rect(0, 2, 1, 4, "s"), rect(0, 6, 2, 4, "k"), rect(1, 10, 3, 1, "k"), px(4, 10, "s")]
     case "christophe": // mask: he is the superhero
-      return back ? [rect(2, 4, 8, 1, "R")] : [rect(2, 4, 8, 1, "R"), px(4, 4, "x"), px(7, 4, "x")]
+      return back
+        ? [rect(1, 7, 12, 2, "r")]
+        : [rect(1, 7, 12, 2, "r"), px(4, 7, "x"), px(9, 7, "x"), px(4, 8, "k"), px(9, 8, "k")]
     case "matthys": // cap and shades: he is the cool kid
       return back
-        ? [rect(2, 0, 8, 2, "y"), rect(4, 2, 4, 1, "w")]
-        : [rect(2, 0, 8, 2, "y"), rect(2, 1, 8, 1, "w"), rect(9, 2, 3, 1, "w"), rect(3, 4, 6, 1, "k")]
+        ? [rect(2, 1, 10, 3, "y"), rect(2, 3, 10, 1, "w"), rect(5, 4, 4, 1, "w")]
+        : [rect(2, 1, 10, 3, "y"), rect(2, 3, 10, 1, "w"), rect(8, 4, 6, 1, "w"), rect(3, 7, 8, 2, "k"), px(4, 7, "s"), px(8, 7, "s")]
     default:
       return []
   }
@@ -756,58 +833,61 @@ for (const g of GRADES) {
   const tint = grader(g)
   const base = Object.fromEntries(Object.entries(BODY).map(([key, h]) => [key, tint(h)]))
   for (const [who, look] of Object.entries(PEOPLE)) {
-    pal({ ...base, C: tint(look.shirt), c: tint(darken(look.shirt, 0.22)) })
+    pal({
+      ...base,
+      C: tint(look.shirt),
+      c: tint(darken(look.shirt, 0.24)),
+      D: tint(lighten(look.shirt, 0.22)),
+    })
     const cape = who === "christophe"
+    const behind = cape ? [rect(1, 13, 12, 11, "r"), rect(1, 13, 12, 1, "R"), rect(1, 22, 12, 2, "R")] : []
 
     // Standing, facing the room. The cape hangs behind the body.
     sprite(`_${who}_front_${g}`, { mx: true }, FRONT)
     sprite(
       `${who}_front_${g}`,
-      { w: 12, h: 19, outline: "k" },
-      ...(cape ? [rect(0, 9, 12, 7, "r"), rect(0, 9, 12, 1, "R")] : []),
+      { w: 14, h: 27, outline: "k" },
+      ...behind,
       stamp(`_${who}_front_${g}`, 0, 1),
-      layer("props", { y: 1 }, ...props(who, false)),
+      ...props(who, false),
     )
     // One arm raised, to hold a phone or a kebab.
     sprite(
       `${who}_arm_${g}`,
-      { w: 13, h: 19, outline: "k" },
-      ...(cape ? [rect(0, 9, 12, 7, "r"), rect(0, 9, 12, 1, "R")] : []),
+      { w: 16, h: 27, outline: "k" },
+      ...behind,
       stamp(`_${who}_front_${g}`, 0, 1),
-      grid(11, 10, "_\n_\n_"),
-      px(11, 9, "C"),
-      px(11, 8, "C"),
-      px(12, 7, "C"),
-      px(12, 6, "H"),
-      layer("props", { y: 1 }, ...props(who, false)),
+      grid(12, 14, "__\n__\n__\n__"),
+      grid(12, 10, ".H\n.C\nCC\nC."),
+      ...props(who, false),
     )
     // Seated at the terminal, seen from behind. The cape covers the back.
     sprite(`_${who}_back_${g}`, { mx: true }, BACK)
     sprite(
       `${who}_back_${g}`,
-      { w: 12, h: 14, outline: "k" },
+      { w: 14, h: 19, outline: "k" },
       stamp(`_${who}_back_${g}`, 0, 1),
-      ...(cape ? [rect(1, 9, 10, 5, "r"), rect(2, 8, 8, 1, "R")] : []),
-      layer("props", { y: 1 }, ...props(who, true)),
+      ...(cape ? [rect(2, 13, 10, 6, "r"), rect(3, 12, 8, 1, "R")] : []),
+      ...props(who, true),
     )
     // Asleep: a head on the pillow.
     sprite(`_${who}_asleep_${g}`, { mx: true }, ASLEEP)
     sprite(
       `${who}_asleep_${g}`,
-      { w: 12, h: 8, outline: "k" },
+      { w: 14, h: 12, outline: "k" },
       stamp(`_${who}_asleep_${g}`, 0, 1),
-      layer("props", { y: 1 }, ...props(who, false).filter((_, i) => who !== "matthys" || i < 3)),
+      ...(who === "matthys" ? props(who, true) : who === "christophe" ? [rect(1, 7, 12, 2, "r")] : props(who, false)),
     )
   }
 
   // What the raised hand holds.
-  pal({ ...base, g: tint("#6c9450") })
-  sprite(`phone_${g}`, { outline: "k" }, "QQ\nxx\nQQ")
-  sprite(`kebab_${g}`, { outline: "k" }, ".ggg\nXxrx\nXxxx")
+  pal(base)
+  sprite(`phone_${g}`, { outline: "k" }, "QQQ\nxxx\nxxx\nQQQ")
+  sprite(`kebab_${g}`, { outline: "k" }, ".ggg.\nXxrxx\nXxxxx\n.XXX.")
 }
 
 // Thought bubbles are the same at any hour.
-pal({ k: "#171411", p: "#e6dcc0", P: "#bdb39a", r: "#b5412f", a: "#e0a13c", n: "#454d57" })
+pal({ k: "#2a1c18", p: "#f4eedd", r: "#c0432f", a: "#e8b04a", n: "#4a5568" })
 sprite("bubble_zzz", { outline: "k" }, `
   .ppppppp.
   ppnnnnnpp
@@ -845,14 +925,14 @@ sprite("bubble_idea", { outline: "k" }, `
 
 const BUST = `
   ..........KKKKKK
-  ........KKKKKKKK
-  .......KKKKKKKKK
+  ........KKKLLKKK
+  .......KKKLLKKKK
   ......KKKKKKKKKK
   ......KKKKHHHHHH
   ......KKHHHHHHHH
   ......KHHHHHIIHH
-  ......HHHHkkIHHH
-  ......HHHHkkHHHH
+  ......ZHHHkkIHHH
+  ......ZHHHkkHHHH
   ......YHHHHHHHHH
   ......YHHHHHHHHY
   ......YYHHHHHmmm
@@ -861,13 +941,13 @@ const BUST = `
   ..........YYHHHH
   ..........YYYHHH
   ....cCCCCCCcYYHH
-  ..cCCCCCCCCCcccC
-  .cCCCCCCCCCCCCCC
+  ..cCCDDCCCCCcccC
+  .cCCDCCCCCCCCCCC
   cCCCCCCCCCCCCCCC
   cCCCCCCCCCCCCCCC
   cCCCCCCCCCCCCCCC`
 
-/** The same props as on the small figures, twice the size. */
+/** The same props as on the small figures, at the portrait's size. */
 function bustProps(who) {
   switch (who) {
     case "david":
@@ -879,7 +959,7 @@ function bustProps(who) {
     case "christophe":
       return [rect(6, 11, 20, 3, "r"), rect(6, 13, 20, 1, "R"), rect(10, 11, 3, 2, "x"), rect(19, 11, 3, 2, "x")]
     case "matthys":
-      return [rect(7, 3, 18, 5, "y"), rect(7, 6, 18, 2, "w"), rect(22, 8, 8, 2, "w"), rect(8, 11, 16, 3, "k"), rect(9, 11, 3, 1, "n"), rect(17, 11, 3, 1, "n")]
+      return [rect(7, 3, 18, 5, "y"), rect(7, 6, 18, 2, "w"), rect(22, 8, 8, 2, "w"), rect(8, 11, 16, 3, "k"), rect(9, 11, 3, 1, "s"), rect(17, 11, 3, 1, "s")]
     case "chef":
       return [
         rect(8, 0, 16, 7, "x"), rect(6, 1, 20, 4, "x"), rect(8, 5, 16, 2, "X"), rect(8, 7, 16, 1, "x"),
@@ -892,16 +972,23 @@ function bustProps(who) {
 }
 
 const PORTRAITS = {
-  david: { shirt: "#3f8f86", tile: "#2f5e59" },
-  karl: { shirt: "#d8d2c0", tile: "#56594c" },
-  mickael: { shirt: "#c9762f", tile: "#7a4a22" },
-  christophe: { shirt: "#3f62a8", tile: "#2f4470" },
-  matthys: { shirt: "#7a58b8", tile: "#4f3a78" },
-  chef: { shirt: "#a8402e", tile: "#6e2a1e" },
+  david: { shirt: "#3f9a90", tile: "#2f5e59" },
+  karl: { shirt: "#e4decb", tile: "#56594c" },
+  mickael: { shirt: "#d98234", tile: "#7a4a22" },
+  christophe: { shirt: "#4a6fc0", tile: "#2f4470" },
+  matthys: { shirt: "#8a62cc", tile: "#4f3a78" },
+  chef: { shirt: "#b8452f", tile: "#6e2a1e" },
 }
 
 for (const [who, look] of Object.entries(PORTRAITS)) {
-  pal({ ...BODY, n: "#5a6470", C: look.shirt, c: darken(look.shirt, 0.22), T: look.tile, t: darken(look.tile, 0.14) })
+  pal({
+    ...BODY,
+    C: look.shirt,
+    c: darken(look.shirt, 0.24),
+    D: lighten(look.shirt, 0.22),
+    T: look.tile,
+    t: darken(look.tile, 0.14),
+  })
   sprite(`_bust_${who}`, { mx: true }, BUST)
   sprite(
     `_figure_${who}`,
