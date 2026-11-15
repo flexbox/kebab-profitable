@@ -53,11 +53,17 @@ function Gauge({
   tone: "faim" | "energie" | "moral";
   turn: number;
 }) {
+  const { t } = useLang();
   const level = value <= 0 ? "empty" : value < 25 ? "low" : "ok";
   return (
     <div className={`gauge gauge-${tone} gauge-${level}`}>
       <div className="gauge-head">
-        <span className="gauge-label">{label}</span>
+        <span className="gauge-label">
+          {label}
+          {level !== "ok" && (
+            <span className="tag-low">{t(level === "empty" ? UI.empty : UI.low)}</span>
+          )}
+        </span>
         <span className="gauge-value">
           {Math.round(value)}
           <Delta key={turn} value={Math.round(delta)} />
@@ -84,6 +90,7 @@ function Stat({
   turn,
   format,
   warn,
+  kind,
 }: {
   label: string;
   value: string;
@@ -91,10 +98,17 @@ function Stat({
   turn: number;
   format?: (n: number) => string;
   warn?: boolean;
+  /** Recurring revenue is shown as the green number. */
+  kind?: "mrr";
 }) {
+  const { t } = useLang();
+  const classes = ["stat", warn && "stat-warn", kind && `stat-${kind}`].filter(Boolean);
   return (
-    <div className={warn ? "stat stat-warn" : "stat"}>
-      <span className="stat-label">{label}</span>
+    <div className={classes.join(" ")}>
+      <span className="stat-label">
+        {label}
+        {warn && <span className="tag-low">{t(UI.low)}</span>}
+      </span>
       <span className="stat-value">
         {value}
         <Delta key={turn} value={Math.round(delta)} format={format} />
@@ -148,6 +162,7 @@ function Gauges({ turn }: { turn: Turn }) {
           delta={mrrOf(s) - mrrOf(p)}
           turn={turn.n}
           format={(n) => euro(n)}
+          kind="mrr"
         />
       </div>
       {eff < 100 && (
@@ -412,11 +427,15 @@ function EventPanel({ state, play }: { state: GameState; play: (m: Move) => void
             <span className="choice-title">{t(choice.label)}</span>
             {seesOdds && choice.odds.length > 1 && (
               <span className="odds">
-                {choice.odds.map((o, i) => (
-                  <span key={i} className={`odd odd-${effectTone(o.effect)}`}>
-                    {t(UI.odds(Math.round(o.p * 100)))}
-                  </span>
-                ))}
+                {choice.odds.map((o, i) => {
+                  const tone = effectTone(o.effect);
+                  return (
+                    <span key={i} className={`odd tone-${tone}`}>
+                      <span className="sr-only">{t(UI.oddsTone[tone])}, </span>
+                      {t(UI.odds(Math.round(o.p * 100)))}
+                    </span>
+                  );
+                })}
               </span>
             )}
           </button>
@@ -435,9 +454,12 @@ function ResultPanel({ state, onContinue }: { state: GameState; onContinue: () =
       <p className="event-kind">
         <span className={`badge badge-${ev.kind}`}>{t(UI.kinds[ev.kind])}</span>
         {ev.who && <span className="event-who">{ev.who}</span>}
+        {result.tone !== "neutral" && (
+          <span className={`badge tone-${result.tone}`}>{t(UI.tones[result.tone])}</span>
+        )}
       </p>
       <h2 className="ask">{t(ev.title)}</h2>
-      <p className={`event-text result result-${result.tone}`}>{t(result.text)}</p>
+      <p className="event-text">{t(result.text)}</p>
       <button type="button" className="btn btn-primary" onClick={onContinue} autoFocus>
         {t(UI.continue)}
       </button>
@@ -549,6 +571,7 @@ export function Play({
   const aperoIn = daysToApero(state.day);
   const slots = slotsToday(state);
   const who = character(state.character);
+  const latest = state.log[state.log.length - 1];
   const roomLabel =
     lang === "fr"
       ? `Le studio de ${who.name.split(" ")[0]}, à Lille`
@@ -558,7 +581,7 @@ export function Play({
     <div className="page play">
       <header className="bar">
         <div className="bar-left">
-          <span className="brand">Kebab Profitable</span>
+          <h1 className="brand">Kebab Profitable</h1>
           <span className="when">
             <strong>{t(UI.day(state.day))}</strong> · {date(state.day)}
           </span>
@@ -579,14 +602,18 @@ export function Play({
         </div>
       </header>
 
-      <div className="play-grid">
+      <main className="play-grid">
+        {/* What just happened, announced once: the panel itself is not read out each turn. */}
+        <p className="sr-only" role="status">
+          {latest ? t(latest.text) : ""}
+        </p>
         <div className="col-main">
           <section className="scene">
-            <Room state={state} preview={preview} label={roomLabel} />
-            <ol className="slots" aria-label={t(UI.slots[Math.min(3, state.slot)])}>
+            <ol className="slots" aria-label={t(UI.slotsLabel)}>
               {Array.from({ length: slots }, (_, i) => (
                 <li
                   key={i}
+                  aria-current={i === state.slot ? "step" : undefined}
                   className={
                     i < state.slot ? "slot slot-done" : i === state.slot ? "slot slot-now" : "slot"
                   }
@@ -595,6 +622,7 @@ export function Play({
                 </li>
               ))}
             </ol>
+            <Room state={state} preview={preview} label={roomLabel} />
           </section>
 
           {state.chef && (
@@ -610,7 +638,7 @@ export function Play({
         </div>
 
         <div className="col-side">
-          <section className="card panel" aria-live="polite">
+          <section className="card panel">
             {showResult ? (
               <ResultPanel state={state} onContinue={ack} />
             ) : state.phase === "idea" ? (
@@ -640,7 +668,7 @@ export function Play({
             </ol>
           </section>
         </div>
-      </div>
+      </main>
 
       {over && <End state={state} attempts={attempts} onRetry={onRetry} onHome={onHome} />}
     </div>

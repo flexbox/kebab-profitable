@@ -41,8 +41,8 @@ export const UI = {
     },
   ] as L[],
   disclaimer: {
-    fr: "Parodie affectueuse, sans lien avec les personnes citées. Une carte te concerne et te déplaît ? Ouvre une issue, elle sera retirée.",
-    en: "An affectionate parody, not affiliated with the people it mentions. A card about you bothers you? Open an issue and it will be removed.",
+    fr: "Parodie affectueuse, sans lien avec les personnes citées ni avec indiehackers.com. Une carte te concerne et te déplaît ? Ouvre une issue, elle sera retirée.",
+    en: "An affectionate parody, not affiliated with the people it mentions or with indiehackers.com. A card about you bothers you? Open an issue and it will be removed.",
   },
   madeBy: {
     fr: "Fait pour les Indie Hackers Lille. Code ouvert sur GitHub.",
@@ -63,6 +63,7 @@ export const UI = {
     en: "Coming soon. Meanwhile, send your card as a pull request.",
   },
   back: { fr: "Retour", en: "Back" },
+  home: { fr: "Retour à l'accueil", en: "Back to home" },
 
   day: (n: number): L => ({ fr: `Jour ${n}`, en: `Day ${n}` }),
   slots: [
@@ -87,6 +88,19 @@ export const UI = {
     en: "Three ideas. The market will say which one was worth it, once launched.",
   },
 
+  slotsLabel: { fr: "Créneaux du jour", en: "Today's slots" },
+  /** Spelled out next to a red gauge, so colour is not the only warning. */
+  low: { fr: "bas", en: "low" },
+  empty: { fr: "vide", en: "empty" },
+  tones: {
+    good: { fr: "Bonne nouvelle", en: "Good news" },
+    bad: { fr: "Coup dur", en: "Setback" },
+  },
+  oddsTone: {
+    good: { fr: "issue favorable", en: "good outcome" },
+    bad: { fr: "issue défavorable", en: "bad outcome" },
+    neutral: { fr: "issue neutre", en: "neutral outcome" },
+  },
   faim: { fr: "Faim", en: "Hunger" },
   energie: { fr: "Énergie", en: "Energy" },
   moral: { fr: "Moral", en: "Morale" },
@@ -106,7 +120,10 @@ export const UI = {
   },
 
   project: { fr: "Projet", en: "Project" },
-  noProject: { fr: "Aucun projet", en: "No project" },
+  noProject: {
+    fr: "Pas encore de projet. Choisis une idée pour commencer.",
+    en: "No project yet. Choose an idea to get started.",
+  },
   mvp: { fr: "MVP", en: "MVP" },
   quality: { fr: "Qualité", en: "Quality" },
   customers: { fr: "Clients", en: "Customers" },
@@ -167,7 +184,7 @@ export const UI = {
     fr: `Clients gagnés : ${gained} · Clients perdus : ${lost} · MRR : ${mrr}`,
     en: `Customers gained: ${gained} · Customers lost: ${lost} · MRR: ${mrr}`,
   }),
-  nextMonth: { fr: "Mois suivant", en: "Next month" },
+  nextMonth: { fr: "Passer au mois suivant", en: "Start next month" },
 
   journal: { fr: "Journal", en: "Journal" },
   quit: { fr: "Abandonner", en: "Give up" },
@@ -231,16 +248,15 @@ export const UI = {
   today: { fr: "Aujourd'hui", en: "Today" },
   allTime: { fr: "Depuis toujours", en: "All-time" },
   rank: { fr: "#", en: "#" },
-  pseudo: { fr: "Pseudo", en: "Name" },
-  who: { fr: "Perso", en: "Character" },
+  player: { fr: "Joueur", en: "Player" },
   days: { fr: "Jours", en: "Days" },
   tries: { fr: "Essais", en: "Tries" },
-  date: { fr: "Date", en: "Date" },
   noScores: {
     fr: "Personne n'est encore kebab profitable. À toi.",
     en: "Nobody is kebab profitable yet. Your move.",
   },
   yourPseudo: { fr: "Ton pseudo", en: "Your name" },
+  pseudoHint: { fr: "De 2 à 16 caractères.", en: "2 to 16 characters." },
   submit: { fr: "Inscrire mon score", en: "Submit my score" },
   submitting: { fr: "Vérification…", en: "Checking…" },
   submitted: (rank: number): L => ({
@@ -253,12 +269,12 @@ export const UI = {
       en: "Pick a name of 2 to 16 characters, and keep it clean.",
     },
     stale: {
-      fr: "Cette partie n'est plus celle du jour : le score ne peut plus être inscrit.",
-      en: "This run is no longer today's: the score can no longer be submitted.",
+      fr: "Cette partie date d'un autre jour : son score ne peut plus être inscrit. Joue la partie du jour pour entrer au classement.",
+      en: "This run is from another day, so its score can no longer be submitted. Play today's run to enter the leaderboard.",
     },
     invalid: {
-      fr: "Le serveur n'a pas pu rejouer cette partie.",
-      en: "The server could not replay this run.",
+      fr: "Le serveur n'a pas pu vérifier cette partie. Réessaie ; si l'erreur revient, rejoue une partie.",
+      en: "The server could not verify this run. Try again; if it fails again, play a new run.",
     },
     offline: {
       fr: "Le classement n'est pas encore ouvert. Ton score reste dans ce navigateur.",

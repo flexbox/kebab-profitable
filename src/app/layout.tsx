@@ -1,25 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Big_Shoulders_Stencil, IBM_Plex_Mono, VT323 } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-// Stencilled lettering for the console, a terminal face for its screens and a
-// typewriter-ish monospace for everything bolted around them.
-const display = Big_Shoulders_Stencil({
-  variable: "--font-display",
-  subsets: ["latin", "latin-ext"],
-  // Next has no fallback metrics for this face; the CSS names its own fallback.
-  adjustFontFallback: false,
-});
-
-const term = VT323({
-  variable: "--font-term",
-  weight: "400",
-  subsets: ["latin", "latin-ext"],
-});
-
-const body = IBM_Plex_Mono({
-  variable: "--font-body",
-  weight: ["400", "500", "600"],
+// One readable typeface for the whole interface.
+const sans = Inter({
+  variable: "--font-sans",
   subsets: ["latin", "latin-ext"],
 });
 
@@ -40,14 +25,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0c0b09",
+  themeColor: "#0e2439",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fr" className={`${display.variable} ${term.variable} ${body.variable}`}>
+    <html lang="fr" className={sans.variable}>
       <body>{children}</body>
     </html>
   );

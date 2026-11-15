@@ -54,12 +54,11 @@ export function Controls({ muted, toggleMute }: ChromeProps) {
       </div>
       <button
         type="button"
-        className="icon-btn"
+        className={muted ? "icon-btn icon-btn-off" : "icon-btn"}
         onClick={() => {
           setLive(true);
           toggleMute();
         }}
-        aria-pressed={muted}
         aria-label={t(muted ? UI.unmute : UI.mute)}
         title={t(muted ? UI.unmute : UI.mute)}
       >

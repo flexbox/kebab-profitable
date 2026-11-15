@@ -56,7 +56,7 @@ export function Select({
                   </dt>
                 </div>
               </dl>
-              <button type="button" className="btn btn-primary" onClick={() => onPick(c.id)}>
+              <button type="button" className="btn" onClick={() => onPick(c.id)}>
                 {t(UI.playAs(c.name.split(" ")[0]))}
               </button>
             </li>

@@ -12,9 +12,9 @@ a kebab a day. Run out of cash and it's *retour au CDI*.
 The interface is in French and English. The jargon stays in English, as it
 does at the apéro.
 
-The look is a worn metal console with phosphor terminals and an isometric
-room, a nod to late-90s post-apocalyptic RPGs such as Fallout 2. All of the
-art is original and drawn in code.
+The interface is a calm dark-navy layout inspired by the Indie Hackers
+website, around an isometric pixel-art room. All of the art is original and
+drawn in code, and the game is not affiliated with indiehackers.com.
 
 ## How it plays
 

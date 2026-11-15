@@ -11,7 +11,6 @@ type Ctx = CanvasRenderingContext2D;
 
 /** A dusty palette: worn wood, tired metal, Lille brick and a little phosphor. */
 export const C = {
-  void: "#0c0b09",
   ink: "#171411",
   bone: "#d8caa6",
   paper: "#e6dcc0",
@@ -666,8 +665,8 @@ function glow(c: Ctx, x: number, y: number, radius: number, rgb: string, strengt
 }
 
 export function drawRoom(c: Ctx, s: RoomScene) {
-  // The building is drawn on an empty canvas; the void goes in behind it last,
-  // so that light and shade can be laid on the building alone.
+  // The building is drawn on an empty canvas: the page shows around it, and
+  // light and shade can be laid on the building alone.
   c.clearRect(0, 0, ROOM_W, ROOM_H);
   drawWalls(c);
   drawWindow(c, s);
@@ -713,8 +712,6 @@ export function drawRoom(c: Ctx, s: RoomScene) {
   if (s.screen !== "off") {
     glow(c, sx(31, 12), sy(31, 12, 16), 16, "105,224,124", s.time >= 2 ? 0.34 : 0.2);
   }
-  c.globalCompositeOperation = "destination-over";
-  rect(c, 0, 0, ROOM_W, ROOM_H, C.void);
   c.restore();
 }
 

@@ -43,13 +43,12 @@ export function Leaderboard({
   const rows: ScoreEntry[] = board[tab];
   return (
     <div className="board">
-      <div className="seg" role="tablist">
+      <div className="seg" role="group" aria-label={t(UI.leaderboard)}>
         {(["today", "allTime"] as Tab[]).map((id) => (
           <button
             key={id}
             type="button"
-            role="tab"
-            aria-selected={tab === id}
+            aria-pressed={tab === id}
             className={tab === id ? "seg-on" : ""}
             onClick={() => setTab(id)}
           >
@@ -65,11 +64,9 @@ export function Leaderboard({
             <thead>
               <tr>
                 <th className="num">{t(UI.rank)}</th>
-                <th>{t(UI.pseudo)}</th>
-                <th>{t(UI.who)}</th>
+                <th>{t(UI.player)}</th>
                 <th className="num">{t(UI.days)}</th>
                 <th className="num">{t(UI.tries)}</th>
-                {tab === "allTime" && <th>{t(UI.date)}</th>}
               </tr>
             </thead>
             <tbody>
@@ -79,16 +76,22 @@ export function Leaderboard({
                   className={highlight && row.pseudo === highlight ? "me" : ""}
                 >
                   <td className="num">{i + 1}</td>
-                  <td>{row.pseudo}</td>
+                  {/* One cell for the player: the name they chose, then who they played
+                      (and which day, on the all-time board). It stays readable on a phone. */}
                   <td>
                     <span className="who-cell">
                       <Portrait who={row.character} className="portrait portrait-xs" />
-                      {character(row.character).name.split(" ")[0]}
+                      <span className="who-text">
+                        <span className="who-pseudo">{row.pseudo}</span>
+                        <span className="who-meta">
+                          {character(row.character).name.split(" ")[0]}
+                          {tab === "allTime" && ` · ${row.seed}`}
+                        </span>
+                      </span>
                     </span>
                   </td>
                   <td className="num">{row.days}</td>
                   <td className="num">{row.attempts}</td>
-                  {tab === "allTime" && <td>{row.seed}</td>}
                 </tr>
               ))}
             </tbody>

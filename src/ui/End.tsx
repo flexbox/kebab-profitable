@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { character, mrrOf } from "@/game";
 import type { GameState, L } from "@/game/types";
 import { UI } from "@/i18n/strings";
@@ -35,6 +35,17 @@ export function End({
   const [pseudo, setPseudo] = useState(() => store.pseudo());
   const [sent, setSent] = useState<Sent>({ status: "idle" });
   const [copied, setCopied] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const input = useRef<HTMLInputElement>(null);
+  const canSubmit = won && sent.status !== "done";
+
+  // A modal dialog: the page behind is inert, focus moves inside, and it
+  // goes back to the page when the dialog closes.
+  useEffect(() => {
+    const el = dialog.current;
+    if (el && !el.open) el.showModal();
+    return () => el?.close();
+  }, []);
 
   const title = won ? UI.wonTitle : outcome.reason === "cdi" ? UI.lostCdiTitle : UI.lostCashTitle;
   const sub = won
@@ -58,7 +69,11 @@ export function End({
   async function send(event: React.FormEvent) {
     event.preventDefault();
     const name = pseudo.trim();
-    if (name.length < 2) return setSent({ status: "error", error: "pseudo" });
+    if (name.length < 2) {
+      setSent({ status: "error", error: "pseudo" });
+      input.current?.focus();
+      return;
+    }
     setSent({ status: "sending" });
     store.setPseudo(name);
     const result = await submitScore(state, name, attempts);
@@ -78,8 +93,17 @@ export function End({
   }
 
   return (
-    <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="end-title">
-      <div className={won ? "card end end-won" : "card end end-lost"}>
+    <dialog
+      ref={dialog}
+      className={won ? "card end end-won" : "card end end-lost"}
+      aria-labelledby="end-title"
+      onCancel={(event) => {
+        // Escape leaves the finished run, like the last button does.
+        event.preventDefault();
+        onHome();
+      }}
+    >
+      <>
         <div className="end-head">
           <Portrait who={state.character} className="portrait portrait-lg" />
           <div>
@@ -112,9 +136,23 @@ export function End({
         {won && sent.status !== "done" && (
           <form className="submit" onSubmit={send}>
             <label htmlFor="pseudo">{t(UI.yourPseudo)}</label>
+            <p id="pseudo-hint" className="field-hint">
+              {t(UI.pseudoHint)}
+            </p>
+            {/* The error sits right above the field it is about, where the eye already is. */}
+            {sent.status === "error" && (
+              <p id="pseudo-error" className="error" role="alert">
+                {t(UI.errors[sent.error])}
+              </p>
+            )}
             <div className="submit-row">
               <input
                 id="pseudo"
+                ref={input}
+                aria-invalid={sent.status === "error" && sent.error === "pseudo"}
+                aria-describedby={
+                  sent.status === "error" ? "pseudo-hint pseudo-error" : "pseudo-hint"
+                }
                 value={pseudo}
                 onChange={(e) => setPseudo(e.target.value)}
                 maxLength={16}
@@ -125,7 +163,6 @@ export function End({
                 {t(sent.status === "sending" ? UI.submitting : UI.submit)}
               </button>
             </div>
-            {sent.status === "error" && <p className="error">{t(UI.errors[sent.error])}</p>}
           </form>
         )}
 
@@ -137,17 +174,18 @@ export function End({
         )}
 
         <div className="end-actions">
-          <button type="button" className="btn btn-primary" onClick={onRetry}>
+          {/* One filled button: submitting the score while that is still to do. */}
+          <button type="button" className={canSubmit ? "btn" : "btn btn-primary"} onClick={onRetry}>
             {t(UI.retry)}
           </button>
           <button type="button" className="btn" onClick={share}>
             {t(copied ? UI.copied : UI.share)}
           </button>
           <button type="button" className="btn" onClick={onHome}>
-            {t(UI.back)}
+            {t(UI.home)}
           </button>
         </div>
-      </div>
-    </div>
+      </>
+    </dialog>
   );
 }
