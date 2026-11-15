@@ -607,7 +607,25 @@ export function Play({
         <p className="sr-only" role="status">
           {latest ? t(latest.text) : ""}
         </p>
-        <div className="col-main">
+        {/* On the left, what you do: the question, then the journal of what came of it. */}
+        <section className="card panel">
+          {showResult ? (
+            <ResultPanel state={state} onContinue={ack} />
+          ) : state.phase === "idea" ? (
+            <IdeaPanel state={state} play={play} />
+          ) : state.phase === "meal" ? (
+            <MealPanel state={state} play={play} />
+          ) : state.phase === "event" ? (
+            <EventPanel state={state} play={play} />
+          ) : state.phase === "report" ? (
+            <ReportPanel state={state} play={play} />
+          ) : state.phase === "slot" ? (
+            <SlotPanel state={state} play={play} onPreview={setPreview} />
+          ) : null}
+        </section>
+
+        {/* On the right, what you see: the room, then the numbers. */}
+        <div className="col-side">
           <section className="scene">
             <ol className="slots" aria-label={t(UI.slotsLabel)}>
               {Array.from({ length: slots }, (_, i) => (
@@ -635,39 +653,22 @@ export function Play({
           )}
 
           <Gauges turn={turn} />
+          <ProjectCard state={state} />
         </div>
 
-        <div className="col-side">
-          <section className="card panel">
-            {showResult ? (
-              <ResultPanel state={state} onContinue={ack} />
-            ) : state.phase === "idea" ? (
-              <IdeaPanel state={state} play={play} />
-            ) : state.phase === "meal" ? (
-              <MealPanel state={state} play={play} />
-            ) : state.phase === "event" ? (
-              <EventPanel state={state} play={play} />
-            ) : state.phase === "report" ? (
-              <ReportPanel state={state} play={play} />
-            ) : state.phase === "slot" ? (
-              <SlotPanel state={state} play={play} onPreview={setPreview} />
-            ) : null}
-          </section>
-          <ProjectCard state={state} />
-          <section className="card journal">
-            <h2>{t(UI.journal)}</h2>
-            <ol>
-              {state.log
-                .slice(-14)
-                .reverse()
-                .map((entry, i) => (
-                  <li key={`${state.log.length - i}`} className={`log log-${entry.tone}`}>
-                    <span className="log-day">{t(UI.day(entry.day))}</span> {t(entry.text)}
-                  </li>
-                ))}
-            </ol>
-          </section>
-        </div>
+        <section className="card journal">
+          <h2>{t(UI.journal)}</h2>
+          <ol>
+            {state.log
+              .slice(-14)
+              .reverse()
+              .map((entry, i) => (
+                <li key={`${state.log.length - i}`} className={`log log-${entry.tone}`}>
+                  <span className="log-day">{t(UI.day(entry.day))}</span> {t(entry.text)}
+                </li>
+              ))}
+          </ol>
+        </section>
       </main>
 
       {over && <End state={state} attempts={attempts} onRetry={onRetry} onHome={onHome} />}
