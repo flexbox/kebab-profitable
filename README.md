@@ -12,6 +12,10 @@ a kebab a day. Run out of cash and it's *retour au CDI*.
 The interface is in French and English. The jargon stays in English, as it
 does at the apéro.
 
+The look is a worn metal console with phosphor terminals and an isometric
+room, a nod to late-90s post-apocalyptic RPGs such as Fallout 2. All of the
+art is original and drawn in code.
+
 ## How it plays
 
 - A run starts on 1 January 2027. One turn is one day with three slots:

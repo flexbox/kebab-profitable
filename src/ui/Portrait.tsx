@@ -4,13 +4,14 @@ import { useCallback } from "react";
 import { PixelCanvas } from "./PixelCanvas";
 import { drawPortrait, type PersonId } from "./pixels";
 
+/** Faded identity-photo backdrops, one per person. */
 const TILE: Record<PersonId, string> = {
-  david: "#1f5f5c",
-  karl: "#4a5568",
-  mickael: "#8a4a1c",
-  christophe: "#1f3f7a",
-  matthys: "#4c2f91",
-  chef: "#7a2419",
+  david: "#2f5e59",
+  karl: "#56594c",
+  mickael: "#7a4a22",
+  christophe: "#2f4470",
+  matthys: "#4f3a78",
+  chef: "#6e2a1e",
 };
 
 export function Portrait({ who, className }: { who: PersonId; className?: string }) {

@@ -55,7 +55,9 @@ export function Room({
   else if (state.phase === "won") pose = "eat";
   else if (shown) ({ pose, screen } = POSES[shown]);
 
-  const time = state.phase === "lost" ? 3 : Math.min(3, state.slot);
+  // Lunch is always eaten in daylight, even on a day that a pivot swallowed.
+  const time =
+    state.phase === "lost" ? 3 : state.phase === "meal" ? 1 : Math.min(3, state.slot);
   const raining = rand(state.seed, "weather", state.day) < 0.38;
   const goal = Math.min(1, mrrOf(state) / B.kebabMrr);
   const who = state.character;
