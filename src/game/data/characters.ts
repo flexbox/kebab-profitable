@@ -26,7 +26,7 @@ export const CHARACTERS: CharacterDef[] = [
       name: { fr: "100 % over-engineered", en: "100% over-engineered" },
       desc: {
         fr: "Chaque feature lui prend plus de temps : Coder rapporte 20 % de points en moins.",
-        en: "Every feature takes him longer: Coder yields 20% fewer points.",
+        en: "Every feature takes him longer: Code yields 20% fewer points.",
       },
     },
     signatureIdea: "app-mobile",
@@ -69,7 +69,7 @@ export const CHARACTERS: CharacterDef[] = [
       name: { fr: "Pas dev, et alors ?", en: "Not a dev, so what?" },
       desc: {
         fr: "Il sait vendre : Poster et Démarcher rapportent 50 % de plus.",
-        en: "He knows how to sell: Poster and Démarcher yield 50% more.",
+        en: "He knows how to sell: Post and Outreach yield 50% more.",
       },
     },
     flaw: {

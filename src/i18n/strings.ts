@@ -1,0 +1,277 @@
+import type { L } from "@/game/types";
+
+/** Interface text. Game content (cards, ideas, events) lives in src/game/data. */
+export const UI = {
+  tagline: {
+    fr: "Deviens rentable, un kebab à la fois.",
+    en: "Get profitable, one kebab at a time.",
+  },
+  pitch: {
+    fr: "Tu viens de quitter ton CDI. Tu as 2 500 €, un studio à Lille et un kebab en bas de chez toi. Objectif : 270 € de MRR, le prix d'un kebab par jour.",
+    en: "You just quit your job. You have €2,500, a studio in Lille and a kebab shop downstairs. The goal: €270 of MRR, the price of a kebab a day.",
+  },
+  playToday: { fr: "Jouer la partie du jour", en: "Play today's run" },
+  resume: { fr: "Reprendre la partie", en: "Resume your run" },
+  newRun: { fr: "Nouvelle partie", en: "New run" },
+  sameRun: {
+    fr: "Tout le monde joue la même partie aujourd'hui : mêmes idées, mêmes événements.",
+    en: "Everyone plays the same run today: same ideas, same events.",
+  },
+  attemptsToday: (n: number): L => ({
+    fr: n === 0 ? "Premier essai du jour." : `Essais aujourd'hui : ${n}.`,
+    en: n === 0 ? "First attempt today." : `Attempts today: ${n}.`,
+  }),
+  bestToday: (days: number): L => ({
+    fr: `Ton record du jour : ${days} jours.`,
+    en: `Your best today: ${days} days.`,
+  }),
+  howTitle: { fr: "Comment on joue", en: "How to play" },
+  how: [
+    {
+      fr: "Chaque jour a trois créneaux : matin, après-midi, soir. Une action par créneau.",
+      en: "Each day has three slots: morning, afternoon, evening. One action per slot.",
+    },
+    {
+      fr: "Code ton MVP, shippe-le, fais grandir ton audience. Si l'idée fait un flop, pivote.",
+      en: "Code your MVP, ship it, grow your audience. If the idea flops, pivot.",
+    },
+    {
+      fr: "Mange le midi. Le loyer tombe à la fin du mois. À zéro euro, c'est retour au CDI.",
+      en: "Eat at midday. Rent is due at month-end. At zero euros, it's back to a day job.",
+    },
+  ] as L[],
+  disclaimer: {
+    fr: "Parodie affectueuse, sans lien avec les personnes citées. Une carte te concerne et te déplaît ? Ouvre une issue, elle sera retirée.",
+    en: "An affectionate parody, not affiliated with the people it mentions. A card about you bothers you? Open an issue and it will be removed.",
+  },
+  madeBy: {
+    fr: "Fait pour les Indie Hackers Lille. Code ouvert sur GitHub.",
+    en: "Made for Indie Hackers Lille. Open source on GitHub.",
+  },
+
+  chooseCharacter: { fr: "Choisis ton indie hacker", en: "Choose your indie hacker" },
+  perk: { fr: "Atout", en: "Perk" },
+  flaw: { fr: "Défaut", en: "Flaw" },
+  signature: { fr: "Idée fétiche", en: "Signature idea" },
+  playAs: (name: string): L => ({
+    fr: `Jouer avec ${name}`,
+    en: `Play as ${name}`,
+  }),
+  custom: { fr: "Crée le tien", en: "Create your own" },
+  customSoon: {
+    fr: "Bientôt. En attendant, propose ta carte par pull request.",
+    en: "Coming soon. Meanwhile, send your card as a pull request.",
+  },
+  back: { fr: "Retour", en: "Back" },
+
+  day: (n: number): L => ({ fr: `Jour ${n}`, en: `Day ${n}` }),
+  slots: [
+    { fr: "Matin", en: "Morning" },
+    { fr: "Après-midi", en: "Afternoon" },
+    { fr: "Soir", en: "Evening" },
+    { fr: "Bonus", en: "Bonus" },
+  ] as L[],
+  askSlot: [
+    { fr: "Que fais-tu ce matin ?", en: "What do you do this morning?" },
+    { fr: "Que fais-tu cet après-midi ?", en: "What do you do this afternoon?" },
+    { fr: "Que fais-tu ce soir ?", en: "What do you do this evening?" },
+    {
+      fr: "Raccourci Raycast : une action bonus. Laquelle ?",
+      en: "Raycast shortcut: a bonus action. Which one?",
+    },
+  ] as L[],
+  askMeal: { fr: "Midi. Tu manges quoi ?", en: "Midday. What are you eating?" },
+  askIdea: { fr: "Choisis ton projet", en: "Choose your project" },
+  askIdeaSub: {
+    fr: "Trois idées. Le marché dira laquelle valait le coup, une fois lancée.",
+    en: "Three ideas. The market will say which one was worth it, once launched.",
+  },
+
+  faim: { fr: "Faim", en: "Hunger" },
+  energie: { fr: "Énergie", en: "Energy" },
+  moral: { fr: "Moral", en: "Morale" },
+  cash: { fr: "Cash", en: "Cash" },
+  audience: { fr: "Audience", en: "Audience" },
+  mrr: { fr: "MRR", en: "MRR" },
+  goal: { fr: "Objectif kebab", en: "Kebab goal" },
+  efficiency: (pct: number): L => ({
+    fr: `Efficacité : ${pct} %`,
+    en: `Efficiency: ${pct}%`,
+  }),
+  effWhy: {
+    faim: { fr: "ventre vide", en: "empty stomach" },
+    energie: { fr: "fatigue", en: "tired" },
+    moral: { fr: "moral en berne", en: "low morale" },
+    welsh: { fr: "digestion du welsh", en: "digesting the welsh" },
+  },
+
+  project: { fr: "Projet", en: "Project" },
+  noProject: { fr: "Aucun projet", en: "No project" },
+  mvp: { fr: "MVP", en: "MVP" },
+  quality: { fr: "Qualité", en: "Quality" },
+  customers: { fr: "Clients", en: "Customers" },
+  price: { fr: "Prix", en: "Price" },
+  perMonth: { fr: "/mois", en: "/mo" },
+  potential: { fr: "Potentiel", en: "Potential" },
+  potentials: [
+    { fr: "Flop", en: "Flop" },
+    { fr: "Tiède", en: "Lukewarm" },
+    { fr: "Correct", en: "Decent" },
+    { fr: "Bon", en: "Good" },
+    { fr: "Pépite", en: "Gem" },
+  ] as L[],
+  potentialUnknown: { fr: "Inconnu avant le lancement", en: "Unknown until launch" },
+  awaiting: { fr: "Lancement en attente de résultats", en: "Launch awaiting results" },
+  readyToShip: { fr: "Prêt à shipper", en: "Ready to ship" },
+  updateReady: { fr: "Mise à jour prête", en: "Update ready" },
+  churn: (pct: number): L => ({
+    fr: `Churn estimé : ${pct} % par mois`,
+    en: `Estimated churn: ${pct}% a month`,
+  }),
+  ideaMvp: (slots: number): L => ({
+    fr: `MVP : environ ${slots} créneaux de code`,
+    en: `MVP: about ${slots} slots of code`,
+  }),
+  ideaNeed: (n: number): L => ({
+    fr: `${n} ${n > 1 ? "clients" : "client"} pour l'objectif`,
+    en: `${n} ${n > 1 ? "customers" : "customer"} to reach the goal`,
+  }),
+  tags: {
+    mobile: { fr: "Mobile", en: "Mobile" },
+    ai: { fr: "IA", en: "AI" },
+    b2b: { fr: "B2B", en: "B2B" },
+    content: { fr: "Contenu", en: "Content" },
+  },
+  yours: { fr: "Ton idée fétiche", en: "Your signature idea" },
+
+  kinds: {
+    cameo: { fr: "Caméo", en: "Cameo" },
+    admin: { fr: "Paperasse", en: "Paperwork" },
+    lille: { fr: "Lille", en: "Lille" },
+    scene: { fr: "La scène", en: "The scene" },
+  },
+  continue: { fr: "Continuer", en: "Continue" },
+  odds: (pct: number): L => ({ fr: `${pct} %`, en: `${pct}%` }),
+
+  reportTitle: (month: string): L => ({
+    fr: `Bilan de ${month}`,
+    en: `${month} report`,
+  }),
+  revenue: { fr: "Revenus du mois", en: "Revenue this month" },
+  held: { fr: "Retenu par Stripe", en: "Held by Stripe" },
+  released: { fr: "Débloqué par Stripe", en: "Released by Stripe" },
+  urssaf: { fr: "URSSAF (22 %)", en: "URSSAF (22%)" },
+  rent: { fr: "Loyer", en: "Rent" },
+  balance: { fr: "Sur ton compte", en: "In your account" },
+  reportSummary: (gained: number, lost: number, mrr: string): L => ({
+    fr: `Clients gagnés : ${gained} · Clients perdus : ${lost} · MRR : ${mrr}`,
+    en: `Customers gained: ${gained} · Customers lost: ${lost} · MRR: ${mrr}`,
+  }),
+  nextMonth: { fr: "Mois suivant", en: "Next month" },
+
+  journal: { fr: "Journal", en: "Journal" },
+  quit: { fr: "Abandonner", en: "Give up" },
+  quitConfirm: {
+    fr: "Abandonner cette partie ? Elle comptera comme un essai.",
+    en: "Give up this run? It will count as an attempt.",
+  },
+  aperoIn: (days: number): L => ({
+    fr: days === 0 ? "Apéro ce soir au Charlatan" : `Apéro dans ${days} j`,
+    en: days === 0 ? "Apéro tonight at Le Charlatan" : `Apéro in ${days}d`,
+  }),
+  rentIn: (days: number): L => ({
+    fr: days === 0 ? "Loyer ce soir" : `Loyer dans ${days} j`,
+    en: days === 0 ? "Rent due tonight" : `Rent in ${days}d`,
+  }),
+  out: { fr: "Sorti", en: "Out" },
+
+  wonTitle: { fr: "Kebab profitable !", en: "Kebab profitable!" },
+  wonSub: (days: number, name: string): L => ({
+    fr: `En ${days} jours, avec ${name}.`,
+    en: `In ${days} days, as ${name}.`,
+  }),
+  lostCashTitle: { fr: "Retour au CDI", en: "Back to the day job" },
+  lostCashSub: (days: number): L => ({
+    fr: `Tu as tenu ${days} jours. Le loyer, lui, n'a pas attendu.`,
+    en: `You lasted ${days} days. The rent did not wait.`,
+  }),
+  lostCdiTitle: { fr: "La cage dorée", en: "The golden cage" },
+  lostCdiSub: (days: number): L => ({
+    fr: `Tu as signé au jour ${days}. 55 k€, des tickets resto et un baby-foot.`,
+    en: `You signed on day ${days}. €55k, meal vouchers and table football.`,
+  }),
+  bestMrr: (mrr: string): L => ({
+    fr: `MRR à la fin : ${mrr}`,
+    en: `MRR at the end: ${mrr}`,
+  }),
+  stats: {
+    kebabs: { fr: "Kebabs", en: "Kebabs" },
+    pates: { fr: "Pâtes au beurre", en: "Buttered pastas" },
+    welshs: { fr: "Welshs", en: "Welshes" },
+    posts: { fr: "Posts", en: "Posts" },
+    pivots: { fr: "Pivots", en: "Pivots" },
+    launches: { fr: "Mises en ligne", en: "Releases" },
+    freelance: { fr: "Missions freelance", en: "Freelance gigs" },
+    aperos: { fr: "Apéros", en: "Apéros" },
+    lostDays: { fr: "Jours perdus", en: "Lost days" },
+  },
+  retry: { fr: "Rejouer", en: "Play again" },
+  share: { fr: "Copier pour partager", en: "Copy to share" },
+  copied: { fr: "Copié !", en: "Copied!" },
+  shareWon: (days: number, name: string): L => ({
+    fr: `Kebab profitable en ${days} jours avec ${name} 🥙 Et toi ?`,
+    en: `Kebab profitable in ${days} days as ${name} 🥙 How about you?`,
+  }),
+  shareLost: (days: number, name: string): L => ({
+    fr: `Retour au CDI après ${days} jours avec ${name} 🥙 Tu fais mieux ?`,
+    en: `Back to a day job after ${days} days as ${name} 🥙 Can you do better?`,
+  }),
+
+  leaderboard: { fr: "Classement", en: "Leaderboard" },
+  today: { fr: "Aujourd'hui", en: "Today" },
+  allTime: { fr: "Depuis toujours", en: "All-time" },
+  rank: { fr: "#", en: "#" },
+  pseudo: { fr: "Pseudo", en: "Name" },
+  who: { fr: "Perso", en: "Character" },
+  days: { fr: "Jours", en: "Days" },
+  tries: { fr: "Essais", en: "Tries" },
+  date: { fr: "Date", en: "Date" },
+  noScores: {
+    fr: "Personne n'est encore kebab profitable. À toi.",
+    en: "Nobody is kebab profitable yet. Your move.",
+  },
+  yourPseudo: { fr: "Ton pseudo", en: "Your name" },
+  submit: { fr: "Inscrire mon score", en: "Submit my score" },
+  submitting: { fr: "Vérification…", en: "Checking…" },
+  submitted: (rank: number): L => ({
+    fr: `Score inscrit. Tu es ${rank === 1 ? "1er" : `${rank}e`} aujourd'hui.`,
+    en: `Score saved. You are #${rank} today.`,
+  }),
+  errors: {
+    pseudo: {
+      fr: "Choisis un pseudo de 2 à 16 caractères, sans gros mots.",
+      en: "Pick a name of 2 to 16 characters, and keep it clean.",
+    },
+    stale: {
+      fr: "Cette partie n'est plus celle du jour : le score ne peut plus être inscrit.",
+      en: "This run is no longer today's: the score can no longer be submitted.",
+    },
+    invalid: {
+      fr: "Le serveur n'a pas pu rejouer cette partie.",
+      en: "The server could not replay this run.",
+    },
+    network: {
+      fr: "Classement injoignable. Réessaie dans un instant.",
+      en: "The leaderboard is unreachable. Try again in a moment.",
+    },
+  },
+  loadingScores: { fr: "Chargement du classement…", en: "Loading the leaderboard…" },
+
+  mute: { fr: "Couper le son", en: "Mute" },
+  unmute: { fr: "Activer le son", en: "Unmute" },
+  language: { fr: "Langue", en: "Language" },
+  keyHint: {
+    fr: "Astuce : les touches 1 à 9 choisissent une action, Entrée valide.",
+    en: "Tip: keys 1 to 9 pick an action, Enter confirms.",
+  },
+};

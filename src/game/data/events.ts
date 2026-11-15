@@ -787,15 +787,6 @@ export const EVENTS: EventDef[] = [
     when: { minDay: 25 },
     choices: [
       {
-        label: { fr: "Signer le CDI", en: "Sign the contract" },
-        outcomes: [
-          {
-            effect: { end: "cdi" },
-            text: { fr: "Tu signes.", en: "You sign." },
-          },
-        ],
-      },
-      {
         label: { fr: "Refuser poliment", en: "Decline politely" },
         outcomes: [
           {
@@ -816,6 +807,15 @@ export const EVENTS: EventDef[] = [
               fr: "Une journée de mission facturée. Le baby-foot était cassé.",
               en: "One day of billed work. The table football was broken.",
             },
+          },
+        ],
+      },
+      {
+        label: { fr: "Signer le CDI", en: "Sign the contract" },
+        outcomes: [
+          {
+            effect: { end: "cdi" },
+            text: { fr: "Tu signes.", en: "You sign." },
           },
         ],
       },

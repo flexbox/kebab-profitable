@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { B } from "./balance";
-import { isAperoDay, dateOf } from "./calendar";
+import { dateOf, isAperoDay, isLastDayOfMonth } from "./calendar";
 import { decodeMoves, encodeMoves } from "./codec";
 import { ACTIONS } from "./data/actions";
 import { CHARACTERS, CHARACTER_IDS } from "./data/characters";
@@ -187,7 +187,9 @@ describe("rules", () => {
       state = toSlot(apply(state, { t: "act", id: "repos" }));
     }
     expect(state.outcome).toMatchObject({ result: "lost", reason: "cash" });
-    expect(state.outcome!.day).toBe(120);
+    // Rent is what ends it, so the last day is always a month-end.
+    expect(isLastDayOfMonth(state.outcome!.day)).toBe(true);
+    expect(state.outcome!.day).toBeGreaterThanOrEqual(120);
     expect(state.phase).toBe("lost");
   });
 
