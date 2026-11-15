@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local reference material (member photos never ship)
+/reference/
+
+# local leaderboard stand-in
+/.data/
