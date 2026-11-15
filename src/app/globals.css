@@ -536,25 +536,26 @@ button {
   flex: none;
 }
 
+/* Portraits are 32px pictures: every size is a whole multiple, so pixels stay square. */
 .portrait-xs {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border-radius: var(--r-small);
 }
 
 .portrait-md {
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
 }
 
 .portrait-lg {
-  width: 72px;
-  height: 72px;
+  width: 96px;
+  height: 96px;
 }
 
 .portrait-xl {
-  width: 96px;
-  height: 96px;
+  width: 128px;
+  height: 128px;
 }
 
 .portrait-empty {

@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The pixel-art source is a pxl script, and the skill that renders it is a local clone.
+    "art/**",
+    ".claude/**",
   ]),
 ]);
 

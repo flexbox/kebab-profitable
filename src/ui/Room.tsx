@@ -5,7 +5,16 @@ import { rand } from "@/game/rng";
 import type { ActionId, GameState } from "@/game/types";
 import { B, mrrOf } from "@/game";
 import { PixelCanvas } from "./PixelCanvas";
-import { drawRoom, ROOM_H, ROOM_W, type Pose, type RoomScene, type Screen } from "./pixels";
+import {
+  drawRoom,
+  loadArt,
+  ROOM_H,
+  ROOM_W,
+  type Art,
+  type Pose,
+  type RoomScene,
+  type Screen,
+} from "./pixels";
 
 const POSES: Record<ActionId, { pose: Pose; screen: Screen }> = {
   coder: { pose: "desk", screen: "code" },
@@ -42,6 +51,18 @@ export function Room({
   label: string;
 }) {
   const [frame, setFrame] = useState(0);
+  // The pictures load once; until then the frame stays empty.
+  const [art, setArt] = useState<Art | null>(null);
+  useEffect(() => {
+    let wanted = true;
+    loadArt().then(
+      (loaded) => wanted && setArt(loaded),
+      () => undefined,
+    );
+    return () => {
+      wanted = false;
+    };
+  }, []);
   useEffect(() => {
     const id = window.setInterval(() => setFrame((f) => (f + 1) % 840), 420);
     return () => window.clearInterval(id);
@@ -81,9 +102,9 @@ export function Room({
         frame,
         seed: seedNumber,
       };
-      drawRoom(ctx, scene);
+      if (art) drawRoom(ctx, art, scene);
     },
-    [who, time, pose, screen, raining, moral, goal, kebabs, pates, frame, seedNumber],
+    [art, who, time, pose, screen, raining, moral, goal, kebabs, pates, frame, seedNumber],
   );
 
   return <PixelCanvas width={ROOM_W} height={ROOM_H} draw={draw} className="room" label={label} />;

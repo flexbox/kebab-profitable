@@ -1,23 +1,20 @@
-"use client";
+import type { PersonId } from "./pixels";
 
-import { useCallback } from "react";
-import { PixelCanvas } from "./PixelCanvas";
-import { drawPortrait, type PersonId } from "./pixels";
-
-/** Faded identity-photo backdrops, one per person. */
-const TILE: Record<PersonId, string> = {
-  david: "#2f5e59",
-  karl: "#56594c",
-  mickael: "#7a4a22",
-  christophe: "#2f4470",
-  matthys: "#4f3a78",
-  chef: "#6e2a1e",
-};
-
+/**
+ * A head and shoulders, 32 by 32, scaled up with hard pixels. The pictures are
+ * painted in `art/kebab.px.js`. They are decoration: the name is always written
+ * next to them, so they carry no alternative text.
+ */
 export function Portrait({ who, className }: { who: PersonId; className?: string }) {
-  const draw = useCallback(
-    (ctx: CanvasRenderingContext2D) => drawPortrait(ctx, who, TILE[who]),
-    [who],
+  return (
+    // A plain image on purpose: pixel art must not be resampled or re-encoded.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={`/art/portrait_${who}.png`}
+      width={32}
+      height={32}
+      alt=""
+      className={className ? `pixel ${className}` : "pixel"}
+    />
   );
-  return <PixelCanvas width={16} height={16} draw={draw} className={className} />;
 }

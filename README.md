@@ -39,6 +39,23 @@ pnpm install
 pnpm dev        # http://localhost:3000
 pnpm test       # rules engine tests
 pnpm sim        # balance report: win rates per character
+pnpm art        # redraw the pixel art (see below)
+```
+
+## The pixel art
+
+All of the art is written as code in `art/kebab.px.js`: the room in each light
+(morning, afternoon, rain, evening, night), the five characters in each pose,
+the portraits and the props. It is rendered with
+[pxl](https://github.com/crsolver/claude-pxl), an MIT-licensed pixel-art tool,
+and the resulting PNGs are committed in `public/art/`, so the game builds
+without it.
+
+To change the art, clone the tool once, edit the file and rebuild:
+
+```bash
+git clone https://github.com/crsolver/claude-pxl.git .claude/skills/pxl-pixel-art
+pnpm art
 ```
 
 ## Where things live
@@ -52,7 +69,8 @@ pnpm sim        # balance report: win rates per character
 | `src/game/data/events.ts` | The event deck. |
 | `src/game/data/chef.ts` | What the kebab shop owner says. |
 | `src/game/sim/` | Scripted players used to tune the balance. |
-| `src/ui/` | The screens, and `pixels.ts`, where all the pixel art is drawn in code. |
+| `src/ui/` | The screens, and `pixels.ts`, which puts the room together from the art. |
+| `art/` | The pixel art, as code: `kebab.px.js`. Rendered into `public/art/`. |
 | `src/server/` | The leaderboard: it replays each submitted run before recording it. |
 
 ## Leaderboard

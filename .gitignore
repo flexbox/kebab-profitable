@@ -45,3 +45,9 @@ next-env.d.ts
 
 # local leaderboard stand-in
 /.data/
+
+# pixel art: the build output (the images the game uses are in public/art)
+/art/out/
+
+# the pxl skill is cloned locally, see README
+/.claude/skills/pxl-pixel-art/
