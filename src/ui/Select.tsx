@@ -19,7 +19,7 @@ export function Select({
   return (
     <div className="page">
       <header className="bar">
-        <button type="button" className="btn btn-small" onClick={onBack}>
+        <button type="button" className="btn btn-small btn-back" onClick={onBack}>
           ← {t(UI.back)}
         </button>
         <Controls {...chrome} />

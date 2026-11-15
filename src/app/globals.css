@@ -38,6 +38,13 @@
     repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.32) 0 1px, transparent 1px 3px),
     radial-gradient(ellipse at 50% 35%, #0e2616 0%, #07120a 78%);
   --glow: 0 0 5px rgba(116, 240, 138, 0.35);
+  /* Corners: plates are nearly square, the glass set into them is rounder. */
+  --r-plate: 3px;
+  --r-screen: 6px;
+  --r-part: 2px;
+  /* Pictures get a pure white edge: a tinted one shows as a coloured fringe. */
+  --image-outline: oklch(1 0 0 / 0.1);
+  --ease-swap: cubic-bezier(0.2, 0, 0, 1);
   color-scheme: dark;
 }
 
@@ -178,7 +185,7 @@ button {
   padding: 1px 8px 0;
   background: var(--readout);
   border: 1px solid var(--edge);
-  border-radius: 2px;
+  border-radius: var(--r-part);
   box-shadow: var(--sunk);
   color: var(--amber);
   font-family: var(--font-term), monospace;
@@ -192,7 +199,7 @@ button {
   position: relative;
   background: var(--rivets), var(--metal);
   border: 1px solid var(--edge);
-  border-radius: 3px;
+  border-radius: var(--r-plate);
   box-shadow: var(--bevel), var(--drop);
   padding: 18px;
 }
@@ -222,7 +229,7 @@ button {
   background: linear-gradient(180deg, #5f5b4b, #47443a);
   color: var(--bone);
   border: 1px solid var(--edge);
-  border-radius: 3px;
+  border-radius: var(--r-plate);
   box-shadow:
     inset 1px 1px 0 rgba(255, 255, 255, 0.2),
     inset -1px -1px 0 rgba(0, 0, 0, 0.5),
@@ -233,15 +240,29 @@ button {
   cursor: pointer;
   min-height: 44px;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
-  transition: transform 80ms ease-out;
 }
 
-.btn:hover:not(:disabled) {
-  background: linear-gradient(180deg, #6d6856, #524e42);
+/* Controls draw their own pressed state, so the grey tap flash would double it. */
+.btn,
+.icon-btn,
+.seg button,
+.choice {
+  -webkit-tap-highlight-color: transparent;
 }
 
+/* Hover only where there is a pointer that hovers: on touch it sticks after a tap. */
+@media (hover: hover) {
+  .btn:hover:not(:disabled) {
+    background: linear-gradient(180deg, #6d6856, #524e42);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: linear-gradient(180deg, #ffc869, #dc962f);
+  }
+}
+
+/* Pressed: the key sinks, so its edge shortens. The squeeze is motion on top. */
 .btn:active:not(:disabled) {
-  transform: translateY(2px);
   box-shadow:
     inset 1px 1px 0 rgba(255, 255, 255, 0.2),
     inset -1px -1px 0 rgba(0, 0, 0, 0.5),
@@ -259,14 +280,29 @@ button {
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
-.btn-primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, #ffc869, #dc962f);
-}
-
 .btn-small {
   padding: 5px 10px 4px;
   font-size: 0.95rem;
   min-height: 34px;
+}
+
+/* A leading arrow reads as extra space, so its side gets a little less padding. */
+.btn-back {
+  padding-inline-start: 8px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .btn,
+  .icon-btn {
+    transition-property: scale;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+  }
+
+  .btn:not(:disabled):active,
+  .icon-btn:not(:disabled):active {
+    scale: 0.96;
+  }
 }
 
 .icon-btn {
@@ -274,7 +310,7 @@ button {
   background: linear-gradient(180deg, #5f5b4b, #47443a);
   color: var(--bone);
   border: 1px solid var(--edge);
-  border-radius: 3px;
+  border-radius: var(--r-plate);
   box-shadow:
     inset 1px 1px 0 rgba(255, 255, 255, 0.2),
     inset -1px -1px 0 rgba(0, 0, 0, 0.5),
@@ -286,8 +322,45 @@ button {
   cursor: pointer;
 }
 
+.icon-btn:active {
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.2),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.5),
+    0 1px 0 var(--edge);
+}
+
 .icon-btn[aria-pressed="true"] {
   color: var(--red-text);
+}
+
+/* Two icons share one cell and cross-fade when the sound is switched. */
+.icon-swap {
+  display: grid;
+  place-items: center;
+}
+
+.icon-layer {
+  grid-area: 1 / 1;
+}
+
+.icon-layer-off {
+  opacity: 0;
+}
+
+/* Only after a click: the saved setting must not animate in on page load. */
+.icon-swap-live .icon-layer {
+  transition: opacity 300ms var(--ease-swap);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .icon-swap-live .icon-layer {
+    transition-property: opacity, scale, filter;
+  }
+
+  .icon-layer-off {
+    scale: 0.25;
+    filter: blur(4px);
+  }
 }
 
 /* A two-way switch: the lit side is the one in use. */
@@ -297,7 +370,8 @@ button {
   gap: 2px;
   background: var(--readout);
   border: 1px solid var(--edge);
-  border-radius: 3px;
+  /* Concentric with its keys: their radius, plus the 2px inset and the border. */
+  border-radius: calc(var(--r-part) + 2px + 1px);
   box-shadow: var(--sunk);
 }
 
@@ -305,7 +379,7 @@ button {
   appearance: none;
   background: transparent;
   border: 0;
-  border-radius: 2px;
+  border-radius: var(--r-part);
   padding: 3px 10px;
   min-height: 28px;
   cursor: pointer;
@@ -329,7 +403,7 @@ button {
   gap: 7px;
   background: var(--soot);
   border: 1px solid var(--edge);
-  border-radius: 2px;
+  border-radius: var(--r-part);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
   padding: 4px 9px;
   font-size: 0.74rem;
@@ -371,7 +445,7 @@ button {
   align-items: center;
   gap: 4px;
   border: 1px solid currentColor;
-  border-radius: 2px;
+  border-radius: var(--r-part);
   padding: 0 6px;
   font-size: 0.95rem;
   line-height: 1.25;
@@ -405,23 +479,22 @@ button {
   padding: 0 5px;
   background: var(--phosphor-dim);
   color: var(--crt);
-  border-radius: 2px;
   font-size: 1.15rem;
   line-height: 1;
   text-shadow: none;
 }
 
 .portrait {
-  border: 2px solid var(--edge);
-  border-radius: 2px;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+  border-radius: var(--r-part);
+  outline: 1px solid var(--image-outline);
+  outline-offset: -1px;
+  box-shadow: 0 2px 0 oklch(0 0 0 / 0.5);
   flex: none;
 }
 
 .portrait-xs {
   width: 24px;
   height: 24px;
-  border-width: 1px;
   box-shadow: none;
 }
 
@@ -445,6 +518,7 @@ button {
   place-items: center;
   background: var(--readout);
   border: 2px dashed #5c5747;
+  outline: none;
   box-shadow: none;
   color: var(--dust);
   font-family: var(--font-term), monospace;
@@ -503,7 +577,7 @@ button {
 .tagline {
   background: var(--screen);
   border: 1px solid var(--edge);
-  border-radius: 4px;
+  border-radius: var(--r-screen);
   box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.07);
   color: var(--phosphor);
   font-family: var(--font-term), monospace;
@@ -526,7 +600,12 @@ button {
   margin-left: 6px;
   vertical-align: -0.08em;
   background: var(--phosphor);
-  animation: cursor 1.1s steps(1) infinite;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tagline::after {
+    animation: cursor 1.1s steps(1) infinite;
+  }
 }
 
 @keyframes cursor {
@@ -677,7 +756,7 @@ button {
   padding: 14px;
   background: var(--rivets), var(--metal);
   border: 1px solid var(--edge);
-  border-radius: 3px;
+  border-radius: var(--r-plate);
   box-shadow: var(--bevel), var(--drop);
 }
 
@@ -694,8 +773,8 @@ button {
   height: auto;
   aspect-ratio: 3 / 2;
   background: var(--void);
-  border: 1px solid var(--edge);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.07);
+  outline: 1px solid var(--image-outline);
+  outline-offset: -1px;
 }
 
 .slots {
@@ -713,7 +792,7 @@ button {
 .slot {
   background: rgba(12, 11, 9, 0.8);
   border: 1px solid #4a463b;
-  border-radius: 2px;
+  border-radius: var(--r-part);
   padding: 2px 8px;
   font-size: 0.7rem;
   font-weight: 500;
@@ -741,7 +820,7 @@ button {
   align-items: center;
   background: var(--metal);
   border: 1px solid var(--edge);
-  border-radius: 3px;
+  border-radius: var(--r-plate);
   box-shadow: var(--bevel), var(--drop);
   padding: 10px;
 }
@@ -751,7 +830,7 @@ button {
   min-width: 0;
   background: var(--screen);
   border: 1px solid var(--edge);
-  border-radius: 4px;
+  border-radius: var(--r-screen);
   box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.07);
   color: var(--phosphor);
   font-family: var(--font-term), monospace;
@@ -784,7 +863,7 @@ button {
   min-height: 236px;
   background: var(--screen);
   border: 1px solid var(--edge);
-  border-radius: 6px;
+  border-radius: var(--r-screen);
   box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.07);
   color: var(--phosphor);
   font-family: var(--font-term), monospace;
@@ -834,10 +913,19 @@ button {
   text-shadow: none;
 }
 
-.panel-body .btn:hover:not(:disabled) {
+.panel-body .btn:active:not(:disabled) {
   background: var(--phosphor);
+  box-shadow: none;
   color: var(--crt);
   text-shadow: none;
+}
+
+@media (hover: hover) {
+  .panel-body .btn:hover:not(:disabled) {
+    background: var(--phosphor);
+    color: var(--crt);
+    text-shadow: none;
+  }
 }
 
 .panel-body .btn::before {
@@ -853,7 +941,7 @@ button {
   text-align: left;
   background: rgba(116, 240, 138, 0.05);
   border: 1px solid var(--phosphor-line);
-  border-radius: 2px;
+  border-radius: var(--r-part);
   padding: 8px 10px;
   cursor: pointer;
   display: grid;
@@ -865,16 +953,27 @@ button {
   text-shadow: inherit;
 }
 
-.choice:hover:not(:disabled),
 .choice:focus-visible {
   border-color: var(--phosphor);
   background: rgba(116, 240, 138, 0.16);
 }
 
-.choice:hover:not(:disabled) .key,
 .choice:focus-visible .key {
   background: var(--phosphor);
 }
+
+@media (hover: hover) {
+  .choice:hover:not(:disabled) {
+    border-color: var(--phosphor);
+    background: rgba(116, 240, 138, 0.16);
+  }
+
+  .choice:hover:not(:disabled) .key {
+    background: var(--phosphor);
+  }
+}
+
+/* Choices are pressed dozens of times a run: they answer at once, with no squeeze. */
 
 .choice:active:not(:disabled) {
   background: rgba(116, 240, 138, 0.3);
@@ -1009,7 +1108,7 @@ button {
 .odd {
   font-size: 1rem;
   padding: 0 5px;
-  border-radius: 2px;
+  border-radius: var(--r-part);
   border: 1px solid currentColor;
 }
 
@@ -1120,7 +1219,7 @@ button {
 .stat-value {
   background: var(--readout);
   border: 1px solid var(--edge);
-  border-radius: 2px;
+  border-radius: var(--r-part);
   box-shadow: var(--sunk);
   padding: 5px 9px 2px;
   font-size: 1.9rem;
@@ -1140,7 +1239,7 @@ button {
   padding: 2px;
   background: var(--readout);
   border: 1px solid var(--edge);
-  border-radius: 2px;
+  border-radius: var(--r-part);
   box-shadow: var(--sunk);
   overflow: hidden;
 }
@@ -1150,7 +1249,6 @@ button {
   background: var(--bone);
   -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 5px, transparent 5px 7px);
   mask-image: repeating-linear-gradient(90deg, #000 0 5px, transparent 5px 7px);
-  transition: width 220ms ease-out;
 }
 
 .gauge-faim .meter-fill {
@@ -1204,7 +1302,14 @@ button {
   line-height: 1;
   white-space: nowrap;
   pointer-events: none;
-  animation: rise 1400ms ease-out forwards;
+  /* Shown at once, held, then gone. Everyone gets the fade; the lift is extra. */
+  animation: delta-out 1400ms ease-out both;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .delta {
+    animation-name: delta-out-up;
+  }
 }
 
 .delta-up {
@@ -1217,21 +1322,27 @@ button {
   text-shadow: 0 0 5px rgba(255, 143, 115, 0.35);
 }
 
-@keyframes rise {
-  0% {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  15% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  75% {
+@keyframes delta-out {
+  0%,
+  89% {
     opacity: 1;
   }
   100% {
     opacity: 0;
-    transform: translateY(-8px);
+  }
+}
+
+@keyframes delta-out-up {
+  0%,
+  89% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-12px);
+    filter: blur(4px);
   }
 }
 
@@ -1251,10 +1362,11 @@ button {
 .card .project-name {
   justify-self: start;
   margin: 4px 0 0;
-  padding: 4px 10px 3px;
+  padding: 3px 9px 2px;
   background: #15130f;
-  border-radius: 2px;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+  border: 1px solid transparent;
+  border-radius: var(--r-part);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12);
   color: #efe6cf;
   font-family: var(--font-body), monospace;
   font-size: 0.95rem;
@@ -1345,7 +1457,7 @@ button {
   overflow-y: auto;
   background: var(--screen);
   border: 1px solid var(--edge);
-  border-radius: 6px;
+  border-radius: var(--r-screen);
   box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.07);
   color: var(--phosphor-dim);
   font-family: var(--font-term), monospace;
@@ -1395,7 +1507,9 @@ button {
   place-items: center;
   padding: 16px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   z-index: 10;
+  animation: fade-in 150ms ease-out both;
 }
 
 .end {
@@ -1404,6 +1518,56 @@ button {
   gap: 14px;
   max-height: calc(100dvh - 32px);
   overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* The end of a run arrives in order: verdict, Chef, the numbers, what next. */
+.end-head,
+.end > .chef,
+.end-stats,
+.end > .submit,
+.end-actions {
+  animation: fade-in 300ms ease-out both;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .end-head,
+  .end > .chef,
+  .end-stats,
+  .end > .submit,
+  .end-actions {
+    animation-name: fade-in-up;
+  }
+}
+
+.end > .chef {
+  animation-delay: 100ms;
+}
+
+.end-stats {
+  animation-delay: 200ms;
+}
+
+.end > .submit {
+  animation-delay: 300ms;
+}
+
+.end-actions {
+  animation-delay: 400ms;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(4px);
+  }
 }
 
 .end-won {
@@ -1442,7 +1606,7 @@ button {
 .end-stats div {
   background: var(--readout);
   border: 1px solid var(--edge);
-  border-radius: 2px;
+  border-radius: var(--r-part);
   box-shadow: var(--sunk);
   padding: 6px 9px 3px;
 }
@@ -1495,9 +1659,10 @@ button {
   background: var(--screen);
   color: var(--phosphor);
   caret-color: var(--phosphor);
-  border: 1px solid var(--edge);
-  border-radius: 4px;
-  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.07);
+  /* A field needs an edge that stands out from the plate around it. */
+  border: 1px solid var(--phosphor-dim);
+  border-radius: var(--r-screen);
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.8);
   padding: 0 12px;
   font-family: var(--font-term), monospace;
   font-size: 1.4rem;
@@ -1527,7 +1692,7 @@ button {
   overflow-x: auto;
   background: var(--screen);
   border: 1px solid var(--edge);
-  border-radius: 6px;
+  border-radius: var(--r-screen);
   box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.07);
   padding: 6px 8px;
 }
@@ -1712,13 +1877,5 @@ button {
   .gauge-row,
   .stat-row {
     gap: 8px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 1ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 1ms !important;
   }
 }

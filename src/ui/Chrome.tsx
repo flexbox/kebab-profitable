@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { UI } from "@/i18n/strings";
 import { useLang } from "./lang";
 
@@ -8,9 +9,29 @@ export interface ChromeProps {
   toggleMute: () => void;
 }
 
+/** The speaker, with either sound waves or a cross beside it. */
+function SpeakerIcon({ hidden, waves }: { hidden: boolean; waves: string }) {
+  return (
+    <svg
+      className={hidden ? "icon-layer icon-layer-off" : "icon-layer"}
+      viewBox="0 0 12 12"
+      width="18"
+      height="18"
+      shapeRendering="crispEdges"
+    >
+      <path d="M1 4h3l3-3v10L4 8H1z" fill="currentColor" />
+      {/* 1.33 units paint as 2px at this size, the weight of the labels next to it. */}
+      <path d={waves} stroke="currentColor" strokeWidth="1.33" fill="none" />
+    </svg>
+  );
+}
+
 /** Language and sound controls, shown on every screen. */
 export function Controls({ muted, toggleMute }: ChromeProps) {
   const { lang, setLang, t } = useLang();
+  // The icons cross-fade only once the player has used the switch, so the
+  // saved setting does not animate in when the page loads.
+  const [live, setLive] = useState(false);
   return (
     <div className="controls">
       <div className="seg" role="group" aria-label={t(UI.language)}>
@@ -34,19 +55,18 @@ export function Controls({ muted, toggleMute }: ChromeProps) {
       <button
         type="button"
         className="icon-btn"
-        onClick={toggleMute}
+        onClick={() => {
+          setLive(true);
+          toggleMute();
+        }}
         aria-pressed={muted}
         aria-label={t(muted ? UI.unmute : UI.mute)}
         title={t(muted ? UI.unmute : UI.mute)}
       >
-        <svg viewBox="0 0 12 12" width="18" height="18" aria-hidden="true" shapeRendering="crispEdges">
-          <path d="M1 4h3l3-3v10L4 8H1z" fill="currentColor" />
-          {muted ? (
-            <path d="M8 4l3 4M11 4l-3 4" stroke="currentColor" strokeWidth="1.2" fill="none" />
-          ) : (
-            <path d="M8.5 4v4M10.5 2.5v7" stroke="currentColor" strokeWidth="1.2" fill="none" />
-          )}
-        </svg>
+        <span className={live ? "icon-swap icon-swap-live" : "icon-swap"} aria-hidden="true">
+          <SpeakerIcon hidden={muted} waves="M8.5 4v4M10.5 2.5v7" />
+          <SpeakerIcon hidden={!muted} waves="M8 4l3 4M11 4l-3 4" />
+        </span>
       </button>
     </div>
   );
