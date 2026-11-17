@@ -571,6 +571,126 @@ button {
 }
 
 /* ------------------------------------------------------------------------ */
+/* Intro                                                                     */
+/* ------------------------------------------------------------------------ */
+
+/* A small cinema: the picture, the caption under it, then the way on. The
+   column is as wide as the window's height allows, so nothing has to scroll. */
+.intro {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  max-width: clamp(320px, calc((100dvh - 330px) * 16 / 9), 1024px);
+  margin-inline: auto;
+}
+
+.intro-stage {
+  background: var(--color-bg-sunken);
+  border: 1px solid transparent;
+  border-radius: var(--r-card);
+  box-shadow: 0 0 0 1px var(--color-ring);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.intro-screen {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+/* As tall for the narrator as for Chef, so the way on never moves. */
+.intro-box {
+  display: grid;
+  gap: 12px 16px;
+  align-content: center;
+  min-height: 8.75rem;
+  padding: 16px 20px;
+  background: var(--color-bg-sunken);
+  border: 1px solid transparent;
+  border-radius: var(--r-card);
+  box-shadow: 0 0 0 1px var(--color-ring);
+}
+
+/* Chef speaks with his picture and his name beside the words. */
+.intro-box-chef {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  box-shadow: 0 0 0 1px var(--color-brand);
+}
+
+.intro-who {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  text-align: center;
+}
+
+.intro-who p {
+  display: grid;
+  line-height: 1.25;
+}
+
+.intro-who strong {
+  color: var(--color-brand);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.intro-who span {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.intro-text {
+  color: var(--color-text-strong);
+  font-size: var(--text-lg);
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.intro-rest {
+  visibility: hidden;
+}
+
+.intro-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  flex-wrap: wrap;
+}
+
+.intro-actions .hint {
+  margin-inline: auto 0;
+}
+
+.intro-dots {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 6px;
+}
+
+.intro-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-border);
+}
+
+.intro-dot-done {
+  background: var(--color-border-control);
+}
+
+.intro-dot-on {
+  background: var(--color-brand);
+}
+
+/* ------------------------------------------------------------------------ */
 /* Title                                                                     */
 /* ------------------------------------------------------------------------ */
 

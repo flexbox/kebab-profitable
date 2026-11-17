@@ -73,7 +73,7 @@ export interface Art {
   rooms: Record<RoomName, HTMLImageElement>;
 }
 
-function image(src: string): Promise<HTMLImageElement> {
+export function image(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);

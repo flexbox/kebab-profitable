@@ -6,12 +6,13 @@ import type { CharacterId, GameState, Move } from "@/game/types";
 import { seedFor } from "@/lib/seed";
 import { setMuted as setSoundMuted, sfx } from "@/lib/sound";
 import { store } from "@/lib/storage";
+import { Intro } from "./Intro";
 import { LangProvider } from "./lang";
 import { Play } from "./Play";
 import { Select } from "./Select";
 import { Title } from "./Title";
 
-type View = "title" | "select" | "play";
+type View = "title" | "intro" | "select" | "play";
 
 /** The current state and the one before it, so the screen can show what changed. */
 export interface Turn {
@@ -156,6 +157,10 @@ function GameInner() {
       />
     );
   }
+  // A new run opens on the intro; trying again after a run goes straight to the roster.
+  if (view === "intro") {
+    return <Intro onDone={() => setView("select")} {...chrome} />;
+  }
   if (view === "select") {
     return <Select onPick={start} onBack={() => setView("title")} {...chrome} />;
   }
@@ -165,7 +170,7 @@ function GameInner() {
       attempts={boot?.attempts ?? 0}
       best={boot?.best ?? null}
       canResume={!!boot?.saved && !boot.saved.outcome}
-      onPlay={() => setView("select")}
+      onPlay={() => setView("intro")}
       onResume={resume}
       {...chrome}
     />

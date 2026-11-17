@@ -20,6 +20,10 @@ with indiehackers.com.
 
 ## How it plays
 
+- A new run opens on a short intro: you walk home through Lille with your box
+  on the evening you signed your rupture conventionnelle, and Chef, who owns
+  the kebab shop downstairs, dares you to make more money than he does. It can
+  be skipped at any moment.
 - A run starts on 1 January 2027. One turn is one day with three slots:
   matin, après-midi, soir.
 - Nine actions: Coder, Shipper, Poster, Démarcher, Support, Freelance,
@@ -54,7 +58,9 @@ pnpm art        # redraw the pixel art (see below)
 
 All of the art is written as code in `art/kebab.px.js`: the room in each light
 (morning, afternoon, rain, evening, night), the five characters in each pose,
-the portraits and the props. It is rendered with
+the portraits and the props. The intro has its own file, `art/intro.px.js`,
+included by the first: a street much wider than the screen, the skyline behind
+it, and Chef. It is rendered with
 [pxl](https://github.com/crsolver/claude-pxl), an MIT-licensed pixel-art tool,
 and the resulting PNGs are committed in `public/art/`, so the game builds
 without it.
@@ -83,7 +89,8 @@ stays on without flickering.
 | `src/game/data/chef.ts` | What the kebab shop owner says. |
 | `src/game/sim/` | Scripted players used to tune the balance. |
 | `src/ui/` | The screens, and `pixels.ts`, which puts the room together from the art. |
-| `art/` | The pixel art, as code: `kebab.px.js`. Rendered into `public/art/`. |
+| `src/ui/Intro.tsx` | The intro before a new run; `intro-pixels.ts` draws it. Its lines are `UI.intro` in `src/i18n/strings.ts`. |
+| `art/` | The pixel art, as code: `kebab.px.js` and `intro.px.js`. Rendered into `public/art/`. |
 | `src/server/` | The leaderboard: it replays each submitted run before recording it. |
 
 ## Leaderboard
@@ -127,6 +134,10 @@ and to the leaderboard, a missed card is a move like any other, and it is
 never the best one. The stopwatch button at the top of every screen turns the
 countdown off for players who need more time; the cards then wait like the
 others. The clock also stops while the tab is hidden.
+
+The intro follows the same switch. With the clock on it plays by itself, one
+caption after another; with the clock off, each caption waits for a press.
+With reduced motion it is a series of stills, with every caption shown whole.
 
 ## About the people in the game
 

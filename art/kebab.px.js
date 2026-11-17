@@ -1353,6 +1353,9 @@ for (const [who, guest] of Object.entries(GUESTS)) {
 }
 
 // Everything the game places, on one sheet.
+// The intro has its own pictures, and its own sheet.
+include("intro.px.js")
+
 sheet(
   "sprites",
   ["chart_*", "plant_*", "bowl_*", "wrapper_*", "screen_*", "*_front_*", "*_arm_*", "*_back_*", "*_asleep_*", "*_eat_*", "phone_*", "bubble_*", "neon"],

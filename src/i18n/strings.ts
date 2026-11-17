@@ -53,6 +53,75 @@ export const UI = {
     en: "Made for Indie Hackers Lille. Open source on GitHub.",
   },
 
+  /**
+   * The intro, shown before a new run. First the walk home, one caption after
+   * another, then what Chef has to say. `dare` marks the line he says with the
+   * knife catching the light.
+   */
+  intro: {
+    street: [
+      { fr: "Lille, 31 décembre 2026. Il pleut.", en: "Lille, 31 December 2026. It is raining." },
+      {
+        fr: "Tu viens de signer ta rupture conventionnelle.",
+        en: "You have just signed your rupture conventionnelle: the French way to leave a job.",
+      },
+      {
+        fr: "Fini le CDI. Finies les réunions. Fini le salaire.",
+        en: "No more permanent contract. No more meetings. No more salary.",
+      },
+      {
+        fr: "Dans ton carton : une plante, un mug et 1 500 € d'économies.",
+        en: "In your box: a plant, a mug and €1,500 of savings.",
+      },
+      {
+        fr: "En bas de chez toi, quelqu'un t'attend.",
+        en: "Downstairs from your flat, someone is waiting.",
+      },
+    ] as L[],
+    chef: [
+      {
+        text: {
+          fr: "Alors comme ça, tu montes ta boîte, chef ?",
+          en: "So you are starting a company, chef?",
+        },
+      },
+      {
+        text: {
+          fr: "Vingt ans que ma broche tourne. Rentable depuis le premier jour.",
+          en: "My spit has turned for twenty years. Profitable since day one.",
+        },
+      },
+      {
+        text: { fr: "Fais plus de thune que moi. Si tu peux.", en: "Make more money than me. If you can." },
+        dare: true,
+      },
+      {
+        text: {
+          fr: "Commence petit, chef : 270 € par mois. Un kebab par jour.",
+          en: "Start small, chef: €270 a month. One kebab a day.",
+        },
+      },
+    ] as { text: L; dare?: boolean }[],
+    chefRole: { fr: "Maître kebabier", en: "Kebab master" },
+    /** How a line of Chef's is read out. */
+    chefSays: (line: string): L => ({ fr: `Chef : ${line}`, en: `Chef: ${line}` }),
+    skip: { fr: "Passer l'intro", en: "Skip the intro" },
+    next: { fr: "Suivant", en: "Next" },
+    accept: { fr: "Relever le défi", en: "Take up the challenge" },
+    hint: {
+      fr: "Entrée ou un clic pour avancer, Échap pour passer.",
+      en: "Enter or a click to move on, Escape to skip.",
+    },
+    streetLabel: {
+      fr: "Une rue de Lille, un soir de pluie. Quelqu'un sort d'une tour de bureaux, un carton dans les bras, et marche jusqu'à un kebab.",
+      en: "A street in Lille on a rainy evening. Someone leaves an office tower with a box in their arms and walks to a kebab shop.",
+    },
+    chefLabel: {
+      fr: "Le patron du kebab, bras croisés, un long couteau à la main, à côté de sa broche.",
+      en: "The owner of the kebab shop, arms crossed, a long knife in his hand, next to his spit.",
+    },
+  },
+
   chooseCharacter: { fr: "Choisis ton indie hacker", en: "Choose your indie hacker" },
   perk: { fr: "Atout", en: "Perk" },
   flaw: { fr: "Défaut", en: "Flaw" },

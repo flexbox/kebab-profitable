@@ -75,6 +75,23 @@ export const sfx = {
       { freq: 784, at: 0.24, dur: 0.12 },
       { freq: 1047, at: 0.36, dur: 0.4 },
     ]),
+  /** One letter of the intro's captions, then one of Chef's: lower, and rougher. */
+  type: () => play([{ freq: 1320, at: 0, dur: 0.025, gain: 0.016 }]),
+  talk: () => play([{ freq: 185, at: 0, dur: 0.045, gain: 0.03 }]),
+  /** Chef lands in front of you. */
+  slam: () =>
+    play([
+      { freq: 110, at: 0, dur: 0.16, type: "sawtooth", gain: 0.07 },
+      { freq: 55, at: 0.03, dur: 0.4, type: "triangle", gain: 0.1 },
+    ]),
+  /** The dare: four notes going up, and the last one held. */
+  dare: () =>
+    play([
+      { freq: 220, at: 0, dur: 0.12, type: "sawtooth", gain: 0.045 },
+      { freq: 262, at: 0.12, dur: 0.12, type: "sawtooth", gain: 0.045 },
+      { freq: 330, at: 0.24, dur: 0.12, type: "sawtooth", gain: 0.045 },
+      { freq: 440, at: 0.36, dur: 0.55, type: "sawtooth", gain: 0.05 },
+    ]),
   lose: () =>
     play([
       { freq: 392, at: 0, dur: 0.18, type: "triangle" },
