@@ -72,6 +72,20 @@ git clone https://github.com/crsolver/claude-pxl.git .claude/skills/pxl-pixel-ar
 pnpm art
 ```
 
+The finish follows the conventions of the Neo Geo's artists, and the art file
+applies them for you:
+
+- a ramp changes hue as it changes value: `darken` leans towards violet and
+  `lighten` towards a warm white, so nothing is shaded with grey;
+- an outline takes the colour of what it surrounds, darker on the side away
+  from the light;
+- one light, from the top left, falls on everything: it catches one edge of
+  every shape and leaves the opposite edge in shade.
+
+Draw a sprite flat, with its outline in `k`, and pass it through `figure`:
+`relight` does the rest. In the room, `p.slab`, `p.strips`, `p.shine` and
+`p.dim` do the same for furniture, metal, glass and corners.
+
 Chef is drawn once, large, for the intro. That picture is the one to follow:
 his portrait and his outline in the shop window are drawn after it, in the
 same file. Change him there first.

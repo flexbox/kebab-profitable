@@ -132,6 +132,14 @@ function onRug(s: RoomScene): Grade {
 // Drawing
 // ---------------------------------------------------------------------------
 
+/** The shadow under someone: a flat ellipse, `w` pixels wide, centred on x. */
+function groundShadow(c: Ctx, x: number, y: number, w: number) {
+  c.fillStyle = "rgba(24,12,40,0.3)";
+  c.fillRect(x - w / 2 + 2, y - 1, w - 4, 1);
+  c.fillRect(x - w / 2, y, w, 2);
+  c.fillRect(x - w / 2 + 2, y + 2, w - 4, 1);
+}
+
 function sprite(c: Ctx, art: Art, name: string, x: number, y: number) {
   const frame = ATLAS[name];
   if (!frame) return;
@@ -230,8 +238,7 @@ export function drawRoom(c: Ctx, art: Art, s: RoomScene) {
     // Sitting on the floor with a kebab, in two frames: a bite, then chewing.
     const [x, y] = s.pose === "eat" ? PLACE.fridgeSeat : PLACE.rugSeat;
     const grade = s.pose === "eat" ? light : onRug(s);
-    c.fillStyle = "rgba(0,0,0,0.26)";
-    c.fillRect(x + 1, y + 23, 16, 2);
+    groundShadow(c, x + 9, y + 23, 18);
     sprite(c, art, `${s.who}_eat_${s.frame % 2}_${grade}`, x, y);
   } else if (s.pose !== "out") {
     const rug = onRug(s);
@@ -239,8 +246,7 @@ export function drawRoom(c: Ctx, art: Art, s: RoomScene) {
     const x = PLACE.rug[0];
     const y = PLACE.rug[1] + bob;
     // The figures are 29 pixels tall: a shadow under the feet.
-    c.fillStyle = "rgba(0,0,0,0.26)";
-    c.fillRect(x + 3, PLACE.rug[1] + 27, 10, 2);
+    groundShadow(c, x + 8, PLACE.rug[1] + 27, 14);
     sprite(c, art, `${s.who}_${s.pose === "phone" ? "arm" : "front"}_${rug}`, x, y);
     if (s.pose === "phone") {
       sprite(c, art, `phone_${rug}`, x + 12, y + 6);

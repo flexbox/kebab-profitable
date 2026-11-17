@@ -104,8 +104,11 @@ function drawStreet(c: Ctx, art: IntroArt, f: IntroFrame) {
   // Standing still, the legs are together.
   const step = f.walking ? Math.floor((f.walker / STRIDE) * 4) % 4 : 1;
   const x = Math.round(f.walker) - camera;
-  c.fillStyle = "rgba(0,0,0,0.28)";
-  c.fillRect(x + 3, GROUND, 13, 2);
+  // Their shadow on the wet pavement: a flat ellipse.
+  c.fillStyle = "rgba(8,6,24,0.34)";
+  c.fillRect(x + 5, GROUND - 1, 10, 1);
+  c.fillRect(x + 3, GROUND, 14, 2);
+  c.fillRect(x + 5, GROUND + 2, 10, 1);
   sprite(c, art, `intro_walk_${step}`, x, GROUND - 28);
 
   drawRain(c, f.clock);

@@ -27,23 +27,30 @@ const LANTERN = "#ffe9a8"
 // The sky and the skyline
 // ---------------------------------------------------------------------------
 
-// Overcast, with the glow of the town under the clouds.
+// Overcast, with the glow of the town under the clouds. The sky goes from
+// night overhead to that glow in many narrow bands, each melting into the next.
 scene("intro_sky", { w: VIEW_W, h: VIEW_H }, (c) => {
-  const bands = ["#0e1430", "#151c3e", "#1f254e", "#2d2c5e", "#403668", "#57426e"]
-  const edges = [0, 26, 50, 72, 92, 108, VIEW_H]
-  bands.forEach((band, i) => {
-    c.rect(0, edges[i], VIEW_W, edges[i + 1] - edges[i], band)
-    // Each seam is broken up, so one band melts into the next.
-    if (i > 0) for (let x = 0; x < VIEW_W; x++) if (dithered(x, edges[i] - 1, 0.5)) c.px(x, edges[i] - 1, band)
-    if (i > 0) for (let x = 0; x < VIEW_W; x++) if (dithered(x, edges[i] - 2, 0.25)) c.px(x, edges[i] - 2, band)
-  })
-  // Long flat clouds, lit from below.
+  const stops = [[0, "#090e26"], [0.3, "#161c42"], [0.55, "#28295a"], [0.75, "#44376a"], [0.9, "#684a74"], [1, "#8a5a70"]]
+  const at = (t) => {
+    const i = Math.max(1, stops.findIndex(([edge]) => edge >= t))
+    const [t0, a] = stops[i - 1]
+    const [t1, b] = stops[i]
+    return hex(mix(rgb(a), rgb(b), (t - t0) / (t1 - t0)))
+  }
+  const bands = 16
+  const top = (i) => Math.round((i * PAVE_Y) / bands)
+  for (let i = 0; i < bands; i++) {
+    const band = at(i / (bands - 1))
+    c.rect(0, top(i), VIEW_W, (i === bands - 1 ? VIEW_H : top(i + 1)) - top(i), band)
+    if (i > 0) for (let x = 0; x < VIEW_W; x++) if (dithered(x, top(i) - 1, 0.5)) c.px(x, top(i) - 1, band)
+  }
+  // Long flat clouds, darker than the sky behind them, lit from below.
   const clouds = [[18, 14, 70], [120, 8, 96], [196, 22, 60], [60, 36, 110], [-10, 46, 50], [170, 44, 86], [30, 62, 64], [128, 66, 120]]
   for (const [x, y, w] of clouds) {
-    const tone = y < 26 ? "#1a2146" : y < 50 ? "#272c58" : "#373266"
-    c.rect(x + 3, y, w - 6, 1, tone)
-    c.rect(x, y + 1, w, 2, tone)
-    c.rect(x + 5, y + 3, w - 12, 1, tone)
+    const body = darken(at(y / PAVE_Y), 0.22)
+    c.rect(x + 3, y, w - 6, 1, body)
+    c.rect(x, y + 1, w, 2, body)
+    c.rect(x + 5, y + 3, w - 12, 1, lighten(at(y / PAVE_Y), 0.12))
   }
 })
 
@@ -400,6 +407,20 @@ function paintStreet(c, grade) {
     p.adjust(x, KERB_Y + 6, w, 2, (px) => mix(px, [200, 210, 230], 0.3))
     p.adjust(x + 3, KERB_Y + 10, w - 6, 1, (px) => mix(px, [200, 210, 230], 0.2))
   }
+  // Under each light, its reflection on the cobbles: broken up by the joints,
+  // and fainter the further it runs.
+  const reflect = (x, w, colour, strength) => {
+    for (let y = KERB_Y + 4; y < VIEW_H; y += 2) {
+      const fade = strength * (1 - (y - KERB_Y - 4) / (VIEW_H - KERB_Y))
+      const sway = y % 4 === 0 ? 1 : 0
+      p.adjust(x + sway, y, w, 1, (px) => mix(px, rgb(colour), fade))
+    }
+  }
+  for (const x of LAMPS) reflect(x - 2, 6, LANTERN, 0.55)
+  reflect(SHOP.x + 4, SHOP.w - 8, WINDOW_LIGHT, 0.32)
+  reflect(46, 40, OFFICE_LIGHT, 0.3)
+  // And the neon, red on the wet pavement in front of the shop.
+  p.adjust(K + 8, PAVE_Y + 3, 68, 9, (px) => mix(px, rgb(KEBAB_NEON), 0.2), 0.5)
 }
 
 // The street in each light it needs, then put together: dark, with a pool of
@@ -508,7 +529,7 @@ sprite("intro_neon", { w: 76 + NEON_REACH * 2, h: 12 + NEON_REACH * 2 }, (c) => 
   // The body drops a pixel when the legs are apart.
   const walk = [[STRIDE_NEAR, 1], [TOGETHER, 0], [STRIDE_FAR, 1], [TOGETHER, 0]]
   walk.forEach(([legs, drop], i) => {
-    sprite(`intro_walk_${i}`, { w: 18, h: 27, outline: "k" }, grid(0, drop, TOP), grid(0, 18 + drop, legs))
+    figure(`intro_walk_${i}`, { w: 18, h: 27 }, look.k, grid(0, drop, TOP), grid(0, 18 + drop, legs))
   })
 }
 
@@ -588,9 +609,10 @@ const CHEF_FACES = [
 ]
 
 CHEF_FACES.forEach((face, i) => {
-  sprite(
+  figure(
     `intro_chef_${i}`,
-    { w: 80, h: 104, outline: "k" },
+    { w: 80, h: 104 },
+    BODY.k,
     stamp("_chef_half", 0, 0),
     (c) => {
       // Light comes from the left: the far side of the face and the hat is in shade.
@@ -668,9 +690,10 @@ sprite("_chef_small_half", { w: 32, h: 32, mx: true }, (c) => {
   c.rect(9, 21, 1, 2, "K")
   c.px(15, 25, "m")
 })
-sprite(
+figure(
   "_chef_small",
-  { w: 32, h: 32, outline: "k" },
+  { w: 32, h: 32 },
+  BODY.k,
   stamp("_chef_small_half", 0, 0),
   (c) => {
     // The far side is in shade, as on the big picture.
@@ -704,7 +727,7 @@ sprite("portrait_chef", { w: 32, h: 32 }, (c) => {
 // The spit: meat on a rod, turning in front of the grill.
 const SPIT_FRAMES = 8
 for (let f = 0; f < SPIT_FRAMES; f++) {
-  sprite(`intro_spit_${f}`, { w: 40, h: 88, outline: "k" }, (c) => {
+  figure(`intro_spit_${f}`, { w: 40, h: 88 }, BODY.k, (c) => {
     const steel = "#8f989e"
     const meat = ["#7a4526", "#93552c", "#b06a34", "#c98445"]
     // The grill, behind: its bars glow, and the glow moves.
