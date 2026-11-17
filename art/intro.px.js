@@ -357,11 +357,15 @@ function paintStreet(c, grade) {
   p.e(SHOP.x + 40, 99, 7, 4, "#8a4a26")
   p.e(SHOP.x + 41, 103, 5, 3, "#8a4a26")
   p.e(SHOP.x + 38, 107, 11, 2, "#5a3a26")
-  p.e(SHOP.x + 13, 94, 9, 4, "#fff8dc")
+  p.e(SHOP.x + 14, 94, 7, 1, "#fff8dc")
+  p.e(SHOP.x + 12, 95, 11, 2, "#fff8dc")
+  p.e(SHOP.x + 14, 97, 7, 2, "#fff8dc")
   p.e(SHOP.x + 14, 98, 7, 1, "#e8dcb8")
   p.e(SHOP.x + 14, 99, 7, 4, shade)
   p.e(SHOP.x + 10, 103, 15, 6, shade)
-  p.e(SHOP.x + 16, 101, 3, 1, "#33201a")
+  p.e(SHOP.x + 15, 101, 5, 1, "#33201a")
+  p.e(SHOP.x + 14, 100, 1, 1, "#33201a")
+  p.e(SHOP.x + 20, 100, 1, 1, "#33201a")
   // The counter, along the bottom of the glass.
   p.e(SHOP.x + 1, 108, SHOP.w - 2, 1, "#b8802e")
   p.box(K + 70, 93, 10, PAVE_Y - 93, "#5a3a26")
@@ -627,6 +631,75 @@ CHEF_FACES.forEach((face, i) => {
     },
   )
 })
+
+// Chef's portrait, 32 by 32, as shown beside what he says. The picture above is
+// the one to follow: the same hat, brows, moustache, apron and knife, at the
+// size of the other portraits.
+sprite("_chef_small_half", { w: 32, h: 32, mx: true }, (c) => {
+  // The shoulders, the neck, the apron and its straps.
+  c.poly([3, 32, 5, 28, 10, 26, 16, 26, 16, 32], "C")
+  c.poly([3, 32, 5, 28, 6, 28, 5, 32], "c")
+  c.rect(14, 25, 2, 2, "Y")
+  c.rect(12, 28, 4, 4, "x")
+  c.rect(12, 28, 1, 4, "X")
+  c.rect(12, 26, 1, 2, "x")
+  // The head, with its heavy jaw.
+  c.ellipse(16, 18, 7, 5, "H")
+  c.rect(10, 18, 6, 4, "H")
+  c.ellipse(16, 22, 5, 3, "H")
+  c.rect(8, 17, 1, 2, "H")
+  c.px(8, 18, "Y")
+  c.rect(10, 13, 1, 2, "Z")
+  // The hat: the band, and the cloud on top of it.
+  c.ellipse(16, 6, 8, 4, "x")
+  c.ellipse(10, 8, 3, 3, "x")
+  c.rect(10, 10, 6, 3, "x")
+  c.rect(10, 10, 6, 1, "X")
+  c.rect(12, 11, 1, 2, "X")
+  c.px(8, 10, "X")
+  // Brows, eyes, nose.
+  c.rect(11, 15, 4, 1, "K")
+  c.rect(11, 17, 3, 2, "x")
+  c.rect(12, 17, 1, 2, "k")
+  c.px(14, 21, "Y")
+  // The moustache, turned up at the ends.
+  c.rect(12, 22, 4, 2, "K")
+  c.rect(10, 23, 2, 1, "K")
+  c.rect(9, 21, 1, 2, "K")
+  c.px(15, 25, "m")
+})
+sprite(
+  "_chef_small",
+  { w: 32, h: 32, outline: "k" },
+  stamp("_chef_small_half", 0, 0),
+  (c) => {
+    // The far side is in shade, as on the big picture.
+    c.rect(22, 16, 1, 4, "Y")
+    c.rect(21, 20, 1, 3, "Y")
+    c.rect(16, 19, 1, 3, "Y")
+    c.rect(21, 11, 1, 2, "X")
+    c.poly([21, 3, 24, 6, 24, 9, 22, 10, 21, 6], "X")
+    c.rect(19, 28, 1, 4, "X")
+    c.poly([26, 32, 27, 28, 29, 32], "c")
+    // The knife, held upright: only the blade is in the picture.
+    c.rect(26, 14, 2, 18, "v")
+    c.rect(27, 10, 1, 4, "v")
+    c.rect(26, 14, 1, 18, "V")
+    c.rect(27, 12, 1, 18, "W")
+  },
+)
+// Behind him, the disc of the intro on its dark ground.
+sprite("portrait_chef", { w: 32, h: 32 }, (c) => {
+  c.rect(0, 0, 32, 32, "#081726")
+  for (let y = 0; y < 32; y++) {
+    for (let x = 0; x < 32; x++) {
+      const far = Math.hypot(x - 15.5, y - 14.5)
+      if (far < 13.5) c.px(x, y, "#e8a53a")
+      else if (far < 15) { if (dithered(x, y, 0.75)) c.px(x, y, "#e8a53a") }
+      else if (far < 16.5) { if (dithered(x, y, 0.5)) c.px(x, y, "#c9812e") }
+    }
+  }
+}, stamp("_chef_small", -1, -1))
 
 // The spit: meat on a rod, turning in front of the grill.
 const SPIT_FRAMES = 8

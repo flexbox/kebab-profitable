@@ -1064,12 +1064,6 @@ function bustProps(who) {
       return [rect(6, 11, 20, 3, "r"), rect(6, 13, 20, 1, "R"), rect(10, 11, 3, 2, "x"), rect(19, 11, 3, 2, "x")]
     case "matthys":
       return [rect(7, 3, 18, 5, "y"), rect(7, 6, 18, 2, "w"), rect(22, 8, 8, 2, "w"), rect(8, 11, 16, 3, "k"), rect(9, 11, 3, 1, "s"), rect(17, 11, 3, 1, "s")]
-    case "chef":
-      return [
-        rect(8, 0, 16, 7, "x"), rect(6, 1, 20, 4, "x"), rect(8, 5, 16, 2, "X"), rect(8, 7, 16, 1, "x"),
-        rect(11, 15, 10, 2, "Z"), rect(10, 16, 3, 2, "Z"), rect(19, 16, 3, 2, "Z"),
-        rect(10, 21, 12, 5, "x"), rect(12, 20, 2, 2, "x"), rect(18, 20, 2, 2, "x"), rect(10, 25, 12, 1, "X"),
-      ]
     default:
       return []
   }
@@ -1081,8 +1075,9 @@ const PORTRAITS = {
   mickael: { shirt: "#d98234", tile: "#7a4a22" },
   christophe: { shirt: "#4a6fc0", tile: "#2f4470" },
   matthys: { shirt: "#8a62cc", tile: "#4f3a78" },
-  chef: { shirt: "#b8452f", tile: "#6e2a1e" },
 }
+// Chef is not one of these busts: his portrait is in intro.px.js, next to the
+// picture of him it is taken from.
 
 for (const [who, look] of Object.entries(PORTRAITS)) {
   pal({

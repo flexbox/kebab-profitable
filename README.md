@@ -72,6 +72,10 @@ git clone https://github.com/crsolver/claude-pxl.git .claude/skills/pxl-pixel-ar
 pnpm art
 ```
 
+Chef is drawn once, large, for the intro. That picture is the one to follow:
+his portrait and his outline in the shop window are drawn after it, in the
+same file. Change him there first.
+
 The sign on the wall is a neon after dark. Its colour is `NEON` in the art
 file, and its flicker is `FLICKER` in `src/ui/Room.tsx`. With reduced motion it
 stays on without flickering.
