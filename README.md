@@ -47,6 +47,11 @@ with indiehackers.com.
   no customers, followers but no sales. His shop makes money, and he would
   like you to notice. He has some hundred lines, dealt like a shuffled deck,
   so he does not repeat himself.
+- The room shows what you are doing, and each thing has its own movement:
+  elbows going at the keyboard, hearts rising from the phone while posting,
+  pacing the rug with the phone at the ear for cold outreach, a hand on the
+  chin in front of the wall chart for a pivot, hands in the air and a jump
+  when something urgent lands, z's drifting up from the pillow.
 - A new customer is a small victory, and is marked like one: a chest opens in
   the sound, and in the room the founder spins twice and throws a fist in the
   air, beaming, for two seconds.

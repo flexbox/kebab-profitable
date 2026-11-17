@@ -22,8 +22,8 @@ const POSES: Record<ActionId, { pose: Pose; screen: Screen }> = {
   shipper: { pose: "desk", screen: "ship" },
   support: { pose: "desk", screen: "chat" },
   freelance: { pose: "desk", screen: "invoice" },
-  poster: { pose: "phone", screen: "off" },
-  demarcher: { pose: "phone", screen: "off" },
+  poster: { pose: "post", screen: "off" },
+  demarcher: { pose: "call", screen: "off" },
   repos: { pose: "bed", screen: "off" },
   pivoter: { pose: "think", screen: "off" },
   apero: { pose: "out", screen: "off" },
@@ -119,7 +119,10 @@ export function Room({
   cheer?: number;
   label: string;
 }) {
-  const [frame, setFrame] = useState(0);
+  // The room's clock: one beat is the pace of the founder's movements, and
+  // three of them make a frame, the pace of everything else.
+  const [beat, setBeat] = useState(0);
+  const frame = Math.floor(beat / 3);
   // The pictures load once; until then the frame stays empty.
   const [art, setArt] = useState<Art | null>(null);
   useEffect(() => {
@@ -133,7 +136,7 @@ export function Room({
     };
   }, []);
   useEffect(() => {
-    const id = window.setInterval(() => setFrame((f) => (f + 1) % 840), 420);
+    const id = window.setInterval(() => setBeat((b) => (b + 1) % 2520), 140);
     return () => window.clearInterval(id);
   }, []);
 
@@ -177,12 +180,13 @@ export function Room({
         pates,
         cheer: cheering ?? 0,
         frame,
+        beat,
         neon,
         seed: seedNumber,
       };
       if (art) drawRoom(ctx, art, scene);
     },
-    [art, who, time, pose, screen, raining, moral, goal, kebabs, pates, cheering, frame, neon, seedNumber],
+    [art, who, time, pose, screen, raining, moral, goal, kebabs, pates, cheering, frame, beat, neon, seedNumber],
   );
 
   return <PixelCanvas width={ROOM_W} height={ROOM_H} draw={draw} className="room" label={label} />;

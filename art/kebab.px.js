@@ -1389,6 +1389,101 @@ for (const g of GRADES) {
         }
       }
     })
+    // --- One pose for each thing a founder does --------------------------
+    // All of them are the standing figure with a few pixels changed: a face,
+    // an arm. The cape hangs behind whatever the body does.
+    const shades = who === "matthys"
+    const smiling = [
+      ...(shades || cape ? [] : [grid(3, 6, ".k.\nkHk\n.H."), grid(8, 6, ".k.\nkHk\n.H.")]),
+      grid(5, 9, "MxxM\n.MM."),
+    ]
+    const maskSmiling = cape ? [grid(3, 7, ".k....k.\nkrk..krk")] : []
+
+    // Idle: a blink. Shades do not blink; the mask's eyes do.
+    figure(
+      `${who}_blink_${g}`,
+      { w: 14, h: 27 },
+      base.k,
+      ...behind,
+      stamp(`_${who}_front_${g}`, 0, 1),
+      ...(shades || cape ? [] : [grid(4, 7, "H\nk"), grid(9, 7, "H\nk")]),
+      ...props(who, false),
+      ...(cape ? [px(4, 7, "r"), px(9, 7, "r")] : []),
+    )
+
+    // Posting: the phone held up, and the face of someone being liked.
+    figure(
+      `${who}_post_${g}`,
+      { w: 16, h: 27 },
+      base.k,
+      ...behind,
+      stamp(`_${who}_front_${g}`, 0, 1),
+      ...smiling,
+      grid(12, 14, "__\n__\n__\n__"),
+      grid(12, 10, ".H\n.C\nCC\nC."),
+      ...props(who, false),
+      ...maskSmiling,
+    )
+
+    // Cold outreach: the phone at the ear. Listening, then talking, with the
+    // free hand joining in.
+    const atTheEar = [grid(12, 14, "_\n_\n_\n_"), grid(12, 6, "QQ.\nQQ.\nQHH\nQHH\n.Cc\n.Cc\n.Cc\nCCc")]
+    figure(
+      `${who}_call_0_${g}`,
+      { w: 16, h: 27 },
+      base.k,
+      ...behind,
+      stamp(`_${who}_front_${g}`, 0, 1),
+      ...props(who, false),
+      ...atTheEar,
+    )
+    figure(
+      `${who}_call_1_${g}`,
+      { w: 16, h: 27 },
+      base.k,
+      ...behind,
+      stamp(`_${who}_front_${g}`, 0, 1),
+      grid(6, 10, "MM"),
+      ...props(who, false),
+      ...atTheEar,
+      grid(1, 14, "_\n_\n_\n_"),
+      grid(0, 10, "H.\nC.\nCC\n.C"),
+    )
+
+    // A pivot is thought over in front of the wall chart, in profile: a hand
+    // on the chin, then a finger pointing at the curve.
+    const profile = [
+      ...(cape ? [rect(0, 13, 3, 11, "r"), rect(0, 13, 3, 1, "R"), rect(0, 22, 3, 2, "R")] : []),
+      stamp(`_${who}_side_${g}`, 0, 1),
+      ...sideProps(who),
+      px(4, 17, "C"),
+    ]
+    figure(`${who}_ponder_0_${g}`, { w: 10, h: 27 }, base.k, ...profile, grid(5, 11, ".HH\n.Cc\n.Cc\nCCc\nCc."))
+    figure(`${who}_ponder_1_${g}`, { w: 10, h: 27 }, base.k, ...profile, grid(5, 13, "CCCCH\ncccc."))
+
+    // Something urgent: both hands in the air, eyes wide, mouth open. The
+    // body sits one column in, to leave room for the arms.
+    sprite(`_${who}_handsup_${g}`, { mx: true }, `
+      HI......
+      HH......
+      cC......
+      cC......
+      cC......
+      cC......
+      .cC.....`)
+    figure(
+      `${who}_alarm_${g}`,
+      { w: 16, h: 27 },
+      base.k,
+      ...(cape ? [rect(2, 13, 12, 11, "r"), rect(2, 13, 12, 1, "R"), rect(2, 22, 12, 2, "R")] : []),
+      stamp(`_${who}_front_${g}`, 1, 1),
+      ...(shades || cape ? [] : [grid(4, 7, "xx\nxk"), grid(10, 7, "xx\nkx")]),
+      grid(7, 10, "MM\nMM"),
+      stamp(`_${who}_worn_${g}`, 1, 0),
+      grid(2, 14, "_\n_\n_\n_"),
+      grid(13, 14, "_\n_\n_\n_"),
+      stamp(`_${who}_handsup_${g}`, 0, 7),
+    )
     // Seated at the terminal, seen from behind. The cape covers the back.
     sprite(`_${who}_back_${g}`, { mx: true }, BACK)
     figure(
@@ -1396,6 +1491,19 @@ for (const g of GRADES) {
       { w: 14, h: 19 },
       base.k,
       stamp(`_${who}_back_${g}`, 0, 1),
+      ...(cape ? [rect(2, 13, 10, 6, "r"), rect(3, 12, 8, 1, "R")] : []),
+      ...props(who, true),
+    )
+    // Typing: the same back, elbows out and hands gone forward to the keys.
+    figure(
+      `${who}_type_${g}`,
+      { w: 14, h: 19 },
+      base.k,
+      stamp(`_${who}_back_${g}`, 0, 1),
+      grid(0, 14, "c\nc"),
+      grid(13, 14, "c\nc"),
+      px(1, 17, "c"),
+      px(12, 17, "c"),
       ...(cape ? [rect(2, 13, 10, 6, "r"), rect(3, 12, 8, 1, "R")] : []),
       ...props(who, true),
     )
@@ -1456,6 +1564,55 @@ sprite("bubble_growl", { outline: "k" }, `
   ppprpppr.
   ppppppppp
   .ppppppp.
+  ..pp.....
+  .p.......`)
+// What rises from a phone when a post is liked: a heart, then a smaller one.
+pal({ k: "#2a1c18", r: "#e0483f", R: "#a8322c", x: "#fffaf0", z: "#dfe8f4", Z: "#9fb3c8" })
+sprite("heart_0", { outline: "k" }, `
+  rx.rr
+  rrrrr
+  .rrR.
+  ..R..`)
+sprite("heart_1", { outline: "k" }, `
+  r.r
+  rrR
+  .R.`)
+// What rises from someone asleep: a z, in three sizes.
+sprite("zed_0", `
+  zz
+  zZ`)
+sprite("zed_1", { outline: "k" }, `
+  zzz
+  .z.
+  zzZ`)
+sprite("zed_2", { outline: "k" }, `
+  zzzz
+  ..z.
+  .z..
+  zzzZ`)
+pal({ k: "#2a1c18", p: "#f4eedd", r: "#c0432f", a: "#e8b04a", n: "#4a5568" })
+// Talking on the phone: one dot, two, three.
+for (const [i, dots] of ["pnppppp", "pnpnppp", "pnpnpnp"].entries()) {
+  sprite(`bubble_talk_${i}`, { outline: "k" }, `
+  .ppppppp.
+  ppppppppp
+  ppppppppp
+  p${dots}p
+  ppppppppp
+  ppppppppp
+  .ppppppp.
+  ..pp.....
+  .p.......`)
+}
+// A doubt.
+sprite("bubble_what", { outline: "k" }, `
+  .ppppppp.
+  pppnnnppp
+  ppnpppnpp
+  pppppnppp
+  ppppnpppp
+  ppppppppp
+  .pppnppp.
   ..pp.....
   .p.......`)
 // What flies off a fist held high: a big sparkle and a small one.
@@ -1871,6 +2028,6 @@ include("intro.px.js")
 
 sheet(
   "sprites",
-  ["chart_*", "plant_*", "bowl_*", "wrapper_*", "screen_*", "*_front_*", "*_arm_*", "*_back_*", "*_asleep_*", "*_eat_*", "*_hungry_*", "*_side_*", "*_away_*", "*_cheer_*", "phone_*", "bubble_*", "sweat", "sparkle_*", "neon"],
+  ["chart_*", "plant_*", "bowl_*", "wrapper_*", "screen_*", "*_front_*", "*_arm_*", "*_back_*", "*_asleep_*", "*_eat_*", "*_hungry_*", "*_side_*", "*_away_*", "*_cheer_*", "*_blink_*", "*_post_*", "*_call_*", "*_ponder_*", "*_alarm_*", "*_type_*", "phone_*", "bubble_*", "sweat", "sparkle_*", "heart_*", "zed_*", "neon"],
   { pad: 1 },
 )

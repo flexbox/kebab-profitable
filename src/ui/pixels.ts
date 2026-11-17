@@ -43,7 +43,8 @@ export const CHEER = {
 export type Pose =
   | "idle"
   | "desk"
-  | "phone"
+  | "post"
+  | "call"
   | "bed"
   | "eat"
   | "feast"
@@ -71,6 +72,8 @@ export interface RoomScene {
   cheer: number;
   /** Animation frame, toggles a few times a second. */
   frame: number;
+  /** A finer clock for the founder's own movements: three beats to a frame. */
+  beat: number;
   /** How bright the neon sign is, from 0 (off, by day) to 1. */
   neon: number;
   seed: number;
@@ -203,6 +206,8 @@ const PLACE = {
   pillow: [15, 55],
   /** Whoever stands on the rug. */
   rug: [96, 68],
+  /** Whoever stands by the wall chart, in profile, looking at it. */
+  board: [39, 27],
   /** Whoever sits on the rug to eat. */
   rugSeat: [95, 72],
   /** Whoever sits against the fridge to eat. */
@@ -267,11 +272,20 @@ export function drawRoom(c: Ctx, art: Art, s: RoomScene) {
   sprite(c, art, `plant_${plant}_${light}`, PLACE.plant[0], PLACE.plant[1]);
 
   if (s.pose === "desk") {
-    sprite(c, art, `${s.who}_back_${desk}`, PLACE.seat[0], PLACE.seat[1]);
+    // Typing comes in bursts: elbows out and in, then a pause to read.
+    const typing = s.beat % 10 < 7 && s.beat % 2 === 1;
+    sprite(c, art, `${s.who}_${typing ? "type" : "back"}_${desk}`, PLACE.seat[0], PLACE.seat[1]);
   } else if (s.pose === "bed") {
+    // Asleep: the head rises and falls, and one z after another drifts up,
+    // growing as it goes.
     const [x, y] = PLACE.pillow;
-    sprite(c, art, `${s.who}_asleep_${light}`, x, y);
-    sprite(c, art, "bubble_zzz", x + 15, y - 12 - (s.frame % 2));
+    sprite(c, art, `${s.who}_asleep_${light}`, x, y + (Math.floor(s.beat / 6) % 2));
+    for (let i = 0; i < 3; i++) {
+      const rise = (s.beat + i * 6) % 18;
+      if (rise >= 14) continue;
+      const size = rise < 5 ? 0 : rise < 10 ? 1 : 2;
+      sprite(c, art, `zed_${size}`, x + 14 + Math.round(rise / 2) + (rise % 4 < 2 ? 0 : 1), y - 2 - rise);
+    }
   } else if (s.pose === "eat" || s.pose === "feast") {
     // Sitting on the floor with a kebab, in two frames: a bite, then chewing.
     const [x, y] = s.pose === "eat" ? PLACE.fridgeSeat : PLACE.rugSeat;
@@ -314,19 +328,61 @@ export function drawRoom(c: Ctx, art: Art, s: RoomScene) {
         else if (size === 1) sprite(c, art, "sparkle_1", x + dx, y + dy);
       });
     }
-  } else if (s.pose !== "out") {
+  } else if (s.pose === "think") {
+    // A pivot is thought over by the wall chart, in profile and facing it:
+    // a hand on the chin and a doubt, then a finger on the curve and an idea.
+    const [x, y] = PLACE.board;
+    const found = s.beat % 20 >= 12;
+    groundShadow(c, x + 6, y + 27, 12);
+    sprite(c, art, `${s.who}_ponder_${found ? 1 : 0}_${light}`, x, y, true);
+    const lift = found ? (s.beat % 20 < 14 ? 2 : 1) : Math.floor(s.beat / 3) % 2;
+    sprite(c, art, found ? "bubble_idea" : "bubble_what", x + 9, y - 10 - lift);
+  } else if (s.pose === "post") {
+    // Posting: the phone held up. Hearts rise from it one after the other,
+    // and every so often the face lights up and the feet leave the floor.
     const rug = onRug(s);
-    const bob = s.pose === "idle" ? 0 : s.frame % 2;
-    const x = PLACE.rug[0];
-    const y = PLACE.rug[1] + bob;
-    // The figures are 29 pixels tall: a shadow under the feet.
-    groundShadow(c, x + 8, PLACE.rug[1] + 27, 14);
-    sprite(c, art, `${s.who}_${s.pose === "phone" ? "arm" : "front"}_${rug}`, x, y);
-    if (s.pose === "phone") {
-      sprite(c, art, `phone_${rug}`, x + 12, y + 6);
-      if (s.frame % 2 === 0) sprite(c, art, "bubble_heart", x + 15, y - 10);
+    const [x, y0] = PLACE.rug;
+    const liked = s.beat % 12 < 6;
+    const y = y0 - (s.beat % 12 < 2 ? 1 : 0);
+    groundShadow(c, x + 8, y0 + 27, 14);
+    sprite(c, art, `${s.who}_${liked ? "post" : "arm"}_${rug}`, x, y);
+    sprite(c, art, `phone_${rug}`, x + 12, y + 6);
+    for (let i = 0; i < 3; i++) {
+      const rise = (s.beat + i * 5) % 15;
+      if (rise >= 11) continue;
+      sprite(c, art, `heart_${rise < 6 ? 0 : 1}`, x + 13 + [0, 1, 0, -1][rise % 4], y0 - 3 - Math.round(rise * 1.5));
     }
-    if (s.pose === "think") sprite(c, art, "bubble_idea", x + 13, y - 10);
-    if (s.pose === "alert") sprite(c, art, "bubble_alert", x + 13, y - 11);
+  } else if (s.pose === "call") {
+    // Cold outreach: pacing the rug with the phone at the ear, listening,
+    // then talking with the free hand.
+    const rug = onRug(s);
+    const [x0, y] = PLACE.rug;
+    const x = x0 + [0, 1, 2, 3, 2, 1, 0, -1, -2, -3, -2, -1][Math.floor(s.beat / 2) % 12];
+    const talking = Math.floor(s.beat / 5) % 2 === 1;
+    groundShadow(c, x + 8, y + 27, 14);
+    sprite(c, art, `${s.who}_call_${talking ? 1 : 0}_${rug}`, x, y);
+    if (talking) sprite(c, art, `bubble_talk_${Math.floor(s.beat / 2) % 3}`, x + 14, y - 11);
+  } else if (s.pose === "alert") {
+    // Something urgent: hands in the air, a jump every second or so, and
+    // sweat flying off.
+    const rug = onRug(s);
+    const [x, y0] = PLACE.rug;
+    const jump = s.beat % 7;
+    const y = y0 - (jump === 0 ? 2 : jump === 1 ? 3 : jump === 2 ? 1 : 0);
+    groundShadow(c, x + 8, y0 + 27, 14);
+    // The body is one column in, to leave room for the arms.
+    sprite(c, art, `${s.who}_alarm_${rug}`, x - 1, y);
+    sprite(c, art, "bubble_alert", x + 14 + (s.beat % 2), y - 11);
+    if (jump < 3) {
+      sprite(c, art, "sweat", x - 5, y + 2 + jump);
+      sprite(c, art, "sweat", x + 16, y + 4 + jump);
+    }
+  } else if (s.pose !== "out") {
+    // Standing on the rug, with nothing to do but blink.
+    const rug = onRug(s);
+    const [x, y] = PLACE.rug;
+    const blink = s.beat % 24 === 23 && ATLAS[`${s.who}_blink_${rug}`];
+    groundShadow(c, x + 8, y + 27, 14);
+    sprite(c, art, `${s.who}_${blink ? "blink" : "front"}_${rug}`, x, y);
   }
 }
