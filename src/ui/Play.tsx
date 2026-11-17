@@ -721,7 +721,11 @@ export function Play({
           {latest ? t(latest.text) : ""}
         </p>
         {/* On the left, what you do: the question, then the journal of what came of it. */}
-        <section className={urgent ? "card panel panel-urgent" : "card panel"}>
+        {/* Each urgent card makes its own entrance, even right after another one. */}
+        <section
+          key={urgent ? `urgent-${turn.n}` : "panel"}
+          className={urgent ? "card panel panel-urgent" : "card panel"}
+        >
           {/* The space is kept even when empty, so the question does not jump. */}
           {!showResult && (
             <div className="just-now">

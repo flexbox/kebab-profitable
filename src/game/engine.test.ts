@@ -5,7 +5,7 @@ import { decodeMoves, encodeMoves } from "./codec";
 import { ACTIONS } from "./data/actions";
 import { CHARACTERS, CHARACTER_IDS } from "./data/characters";
 import { CHEF, MILESTONES } from "./data/chef";
-import { EVENTS } from "./data/events";
+import { EVENTS, FOLLOW_UPS, eventCard, outcomesOf } from "./data/events";
 import { IDEAS } from "./data/ideas";
 import { MEALS } from "./data/meals";
 import {
@@ -21,7 +21,7 @@ import {
 } from "./engine";
 import { BOTS } from "./sim/bots";
 import { playRun } from "./sim/run";
-import type { GameState, L, Move } from "./types";
+import type { EventDef, GameState, L, Move } from "./types";
 
 const filled = (text: L) => text.fr.trim().length > 0 && text.en.trim().length > 0;
 
@@ -94,6 +94,12 @@ describe("content", () => {
     }
     expect(IDEAS).toHaveLength(15);
     expect(EVENTS.filter((e) => e.kind === "cameo").every((e) => !!e.who)).toBe(true);
+    // A card dealt by another one exists, and is answered the same way.
+    for (const e of EVENTS) {
+      for (const o of outcomesOf(e)) {
+        if (o.then) expect(!!eventCard(o.then).urgent, e.id).toBe(!!e.urgent);
+      }
+    }
   });
 
   it("gives every event a choice that is always open", () => {
@@ -119,18 +125,29 @@ describe("content", () => {
   });
 
   it("never lets an urgent card end a run by itself", () => {
-    for (const e of EVENTS.filter((card) => card.urgent)) {
-      const floor = e.when?.minCash ?? 0;
-      for (const o of e.urgent!.missed) {
-        expect(-(o.effect.cash ?? 0), e.id).toBeLessThanOrEqual(floor);
-      }
-      for (const c of e.choices) {
-        const guard = Math.max(floor, c.when?.minCash ?? 0);
-        for (const o of c.outcomes) {
-          expect(-(o.effect.cash ?? 0), e.id).toBeLessThanOrEqual(guard);
+    // Checks a card with the cash it is sure to find, then the cards it deals
+    // with what is left of it.
+    const check = (e: EventDef, floor: number, depth = 0) => {
+      // A chain of reminders always ends.
+      expect(depth, e.id).toBeLessThan(8);
+      const answers = [
+        ...e.choices.map((c) => ({
+          guard: Math.max(floor, c.when?.minCash ?? 0),
+          outcomes: c.outcomes,
+        })),
+        { guard: floor, outcomes: e.urgent!.missed },
+      ];
+      for (const { guard, outcomes } of answers) {
+        for (const o of outcomes) {
+          const cost = Math.max(0, -(o.effect.cash ?? 0));
+          expect(cost, e.id).toBeLessThanOrEqual(guard);
           expect(o.effect.end, e.id).toBeUndefined();
+          if (o.then) check(eventCard(o.then), guard - cost, depth + 1);
         }
       }
+    };
+    for (const e of EVENTS.filter((card) => card.urgent && !FOLLOW_UPS.has(card.id))) {
+      check(e, e.when?.minCash ?? 0);
     }
   });
 });
@@ -250,6 +267,11 @@ describe("rules", () => {
         step(s, BOTS.expert(s));
         if (s.phase !== "event") continue;
         const last = s.history[s.history.length - 1];
+        if (FOLLOW_UPS.has(s.pendingEvent!)) {
+          // A reminder is never drawn: it follows the answer to the card before it.
+          expect(["choice", "miss"]).toContain(last.t);
+          continue;
+        }
         if (EVENTS.find((e) => e.id === s.pendingEvent)!.urgent) {
           urgent++;
           expect(last.t).toBe("act");
@@ -278,11 +300,62 @@ describe("rules", () => {
         continue;
       }
       const next = apply(s, { t: "miss" });
-      expect(next.eventResult).toMatchObject({ id: ev.id, missed: true, tone: "bad" });
+      const reminders = ev.urgent.missed.flatMap((o) => (o.then ? [o.then] : []));
+      if (reminders.length > 0) {
+        // Silence is a refusal: the reminder lands at once, with no result to read.
+        expect(reminders).toContain(next.pendingEvent);
+        expect(next.eventResult).toBeNull();
+      } else {
+        expect(next.eventResult).toMatchObject({ id: ev.id, missed: true, tone: "bad" });
+      }
       expect(next.stats.missed).toBe(1);
       expect(next.pendingEvent === ev.id).toBe(false);
       expect(next.history[next.history.length - 1]).toEqual({ t: "miss" });
     }
+  });
+
+  it("brings a refused fine back three times in a row, dearer each time", () => {
+    const start = toSlot(createRun("vat", "david"));
+    start.pendingEvent = "vat-error";
+    start.phase = "event";
+    const price = (s: GameState) => {
+      const label = eventCard(s.pendingEvent!).choices[0].label.en;
+      return Number(label.match(/\d+/)![0]);
+    };
+
+    // Refusing, or letting the clock run out, deals the next card at once.
+    let state = start;
+    const asked = [price(state)];
+    for (const move of [{ t: "choice", id: 1 }, { t: "miss" }, { t: "choice", id: 1 }] as Move[]) {
+      const before = state.pendingEvent;
+      state = apply(state, move);
+      expect(state.phase).toBe("event");
+      expect(state.pendingEvent).not.toBe(before);
+      expect(FOLLOW_UPS.has(state.pendingEvent!)).toBe(true);
+      expect(state.eventResult).toBeNull();
+      expect(state.cash).toBe(start.cash);
+      asked.push(price(state));
+    }
+    expect(asked).toEqual([120, 132, 168, 216]);
+
+    // Paying closes it, at the price it has reached.
+    const paid = apply(state, { t: "choice", id: 0 });
+    expect(paid.cash).toBe(start.cash - 216);
+    expect(paid.pendingEvent).toBeNull();
+    expect(paid.eventResult).toMatchObject({ id: "vat-seizure", tone: "bad" });
+
+    // A fourth refusal ends it too: the fine is waived or taken, bank fee included.
+    const lost = new Set<number>();
+    for (let i = 0; i < 40; i++) {
+      const s = toSlot(createRun(`vat-${i}`, "david"));
+      s.pendingEvent = "vat-seizure";
+      s.phase = "event";
+      const end = apply(s, { t: "choice", id: 1 });
+      expect(end.pendingEvent).toBeNull();
+      expect(end.eventResult).toMatchObject({ id: "vat-seizure" });
+      lost.add(s.cash - end.cash);
+    }
+    expect([...lost].sort((a, b) => a - b)).toEqual([0, 236]);
   });
 
   it("rejects illegal moves and leaves the state untouched", () => {

@@ -114,6 +114,12 @@ runs out. Keep its text short, because it is read while the counter runs, and
 guard anything that costs money with `minCash`: the tests refuse a card that
 could end a run by itself.
 
+An outcome can deal another card at once with `then`, in place of a result to
+read. The VAT fine comes back this way when it is refused: three reminders in
+a row, each dearer than the last. A card dealt by another one is never drawn
+from the deck and needs no `when`. The first card's `minCash` has to cover the
+whole chain, and the tests check that it does.
+
 ## The clock
 
 The countdown on urgent cards runs in the browser only. To the rules engine

@@ -1,4 +1,4 @@
-import type { EventDef } from "../types";
+import type { EventDef, EventOutcome } from "../types";
 import { URGENT_CARDS } from "./urgent";
 
 /**
@@ -1141,3 +1141,13 @@ export function eventCard(id: string): EventDef {
   if (!found) throw new Error(`Unknown event: ${id}`);
   return found;
 }
+
+/** Everything a card can lead to, whichever way it is answered. */
+export function outcomesOf(e: EventDef): EventOutcome[] {
+  return [...e.choices.flatMap((c) => c.outcomes), ...(e.urgent?.missed ?? [])];
+}
+
+/** Cards dealt by another card (see `then`): they are never drawn from the deck. */
+export const FOLLOW_UPS: ReadonlySet<string> = new Set(
+  EVENTS.flatMap(outcomesOf).flatMap((o) => (o.then ? [o.then] : [])),
+);

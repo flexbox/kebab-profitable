@@ -307,6 +307,12 @@ export interface EventOutcome {
   when?: Condition;
   effect: Effect;
   text: L;
+  /**
+   * The card this outcome deals at once, in place of a result to read: a
+   * reminder after a refusal, say. A card dealt this way is never drawn from
+   * the deck.
+   */
+  then?: string;
 }
 
 export interface EventChoice {

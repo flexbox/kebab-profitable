@@ -11,7 +11,7 @@ import { dateOf, daysToApero, isAperoDay, SLOT_COUNT } from "./calendar";
 import { ACTIONS, action } from "./data/actions";
 import { character } from "./data/characters";
 import { CHEF, MILESTONES, type ChefCue } from "./data/chef";
-import { EVENTS, eventCard } from "./data/events";
+import { EVENTS, FOLLOW_UPS, eventCard } from "./data/events";
 import { IDEAS, idea } from "./data/ideas";
 import { meal } from "./data/meals";
 import { M, WHY } from "./messages";
@@ -34,10 +34,12 @@ import type {
 
 const clamp = (v: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, v));
 
+/** Cards drawn at random. The others only come when another card deals them. */
+const DECK = EVENTS.filter((e) => !FOLLOW_UPS.has(e.id));
 /** Cards dealt overnight and answered in the morning, at leisure. */
-const OVERNIGHT = EVENTS.filter((e) => !e.urgent);
+const OVERNIGHT = DECK.filter((e) => !e.urgent);
 /** Cards dealt in the middle of the day and answered against the clock. */
-const URGENT = EVENTS.filter((e) => !!e.urgent);
+const URGENT = DECK.filter((e) => !!e.urgent);
 
 // ---------------------------------------------------------------------------
 // Selectors
@@ -644,10 +646,15 @@ function settle(
     ];
   applyEffect(s, picked.effect);
   const tone = effectTone(picked.effect);
+  log(s, { fr: `${ev.title.fr} — ${picked.text.fr}`, en: `${ev.title.en} — ${picked.text.en}` }, tone, -1);
+  if (picked.then && !s.outcome) {
+    // The next card lands at once, and the journal says what led to it.
+    s.pendingEvent = eventCard(picked.then).id;
+    return;
+  }
   s.eventResult = missed
     ? { id: ev.id, text: picked.text, tone, missed }
     : { id: ev.id, text: picked.text, tone };
-  log(s, { fr: `${ev.title.fr} — ${picked.text.fr}`, en: `${ev.title.en} — ${picked.text.en}` }, tone, -1);
 }
 
 function choose(s: GameState, index: number) {

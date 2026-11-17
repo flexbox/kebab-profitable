@@ -10,7 +10,10 @@ import type { EventDef } from "../types";
  *  - one choice is safe and small, the other is a gamble on your progress;
  *  - letting the clock run out is never the best answer;
  *  - a choice or a missed outcome that costs money needs a `minCash` guard,
- *    so that a card never ends a run on its own.
+ *    so that a card never ends a run on its own;
+ *  - an outcome can deal another card at once with `then`, as the VAT fine
+ *    does with its reminders. Such a card is never drawn from the deck and
+ *    has no `when`: the first card's `minCash` covers the whole chain.
  */
 export const URGENT_CARDS: EventDef[] = [
   {
@@ -763,6 +766,221 @@ export const URGENT_CARDS: EventDef[] = [
             text: {
               fr: "Il hoche la tête et s'inscrit sur la liste d'attente. Avec trois collègues.",
               en: "He nods and joins the waitlist. With three colleagues.",
+            },
+          },
+        ],
+      },
+    ],
+  },
+  // The VAT fine and its three reminders. Refusing, or saying nothing, brings
+  // the next one at once, with the surcharges French tax law really has: 10,
+  // 40, then 80 %. Only the last refusal is a gamble.
+  {
+    id: "vat-error",
+    kind: "urgent",
+    tone: "bad",
+    title: { fr: "Erreur de TVA", en: "A VAT mistake" },
+    text: {
+      fr: "Ton comptable s'est trompé de case dans ta déclaration de TVA. Les impôts réclament 120 €, amende comprise, tout de suite. Sa facture à lui était juste.",
+      en: "Your accountant ticked the wrong box on your VAT return. The tax office wants €120, fine included, right now. The accountant's own invoice had no mistakes.",
+    },
+    when: { minDay: 10, minCash: 300 },
+    urgent: {
+      seconds: 12,
+      missed: [
+        {
+          effect: { moral: -2 },
+          then: "vat-reminder",
+          text: {
+            fr: "Pas de réponse. Pour les impôts, c'est un refus.",
+            en: "No answer. To the tax office, that is a no.",
+          },
+        },
+      ],
+    },
+    choices: [
+      {
+        label: { fr: "Payer (120 €)", en: "Pay (€120)" },
+        when: { minCash: 120 },
+        outcomes: [
+          {
+            effect: { cash: -120, moral: -3 },
+            text: {
+              fr: "Tu paies. Ton comptable t'envoie un pouce levé.",
+              en: "You pay. Your accountant sends a thumbs-up.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Refuser de payer", en: "Refuse to pay" },
+        outcomes: [
+          {
+            effect: {},
+            then: "vat-reminder",
+            text: {
+              fr: "Tu refuses. Le rappel était déjà imprimé.",
+              en: "You refuse. The reminder was already printed.",
+            },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "vat-reminder",
+    kind: "urgent",
+    tone: "bad",
+    title: { fr: "TVA : premier rappel", en: "VAT: first reminder" },
+    text: {
+      fr: "Le même courrier, en gras. Avec la majoration de 10 %, c'est 132 €, tout de suite.",
+      en: "The same letter, in bold. With the 10% surcharge it comes to €132, right now.",
+    },
+    urgent: {
+      seconds: 10,
+      missed: [
+        {
+          effect: { moral: -2 },
+          then: "vat-notice",
+          text: {
+            fr: "Toujours rien. Le courrier suivant part en recommandé.",
+            en: "Still nothing. The next letter goes by registered post.",
+          },
+        },
+      ],
+    },
+    choices: [
+      {
+        label: { fr: "Payer (132 €)", en: "Pay (€132)" },
+        when: { minCash: 132 },
+        outcomes: [
+          {
+            effect: { cash: -132, moral: -3 },
+            text: {
+              fr: "Tu paies. Dire non t'a coûté 12 €.",
+              en: "You pay. Saying no cost you €12.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Refuser encore", en: "Refuse again" },
+        outcomes: [
+          {
+            effect: {},
+            then: "vat-notice",
+            text: {
+              fr: "Tu refuses encore. Ils ont une réserve d'enveloppes à fenêtre.",
+              en: "You refuse again. They have plenty of window envelopes.",
+            },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "vat-notice",
+    kind: "urgent",
+    tone: "bad",
+    title: { fr: "TVA : mise en demeure", en: "VAT: formal notice" },
+    text: {
+      fr: "Lettre recommandée. Majoration de 40 % : 168 €, tout de suite. Ton comptable est en congés.",
+      en: "A registered letter. A 40% surcharge: €168, right now. Your accountant is on holiday.",
+    },
+    urgent: {
+      seconds: 10,
+      missed: [
+        {
+          effect: { moral: -2 },
+          then: "vat-seizure",
+          text: {
+            fr: "Tu n'as pas signé le recommandé. Il compte quand même.",
+            en: "You did not sign for the letter. It counts all the same.",
+          },
+        },
+      ],
+    },
+    choices: [
+      {
+        label: { fr: "Payer (168 €)", en: "Pay (€168)" },
+        when: { minCash: 168 },
+        outcomes: [
+          {
+            effect: { cash: -168, moral: -4 },
+            text: {
+              fr: "Tu paies. Deux refus, 48 € de plus.",
+              en: "You pay. Two refusals, €48 more.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Refuser toujours", en: "Keep refusing" },
+        outcomes: [
+          {
+            effect: {},
+            then: "vat-seizure",
+            text: {
+              fr: "Tu refuses toujours. Ton dossier change d'étage.",
+              en: "You keep refusing. Your file moves up a floor.",
+            },
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "vat-seizure",
+    kind: "urgent",
+    tone: "bad",
+    title: { fr: "TVA : dernier avis avant saisie", en: "VAT: final notice before seizure" },
+    text: {
+      fr: "Majoration de 80 % : 216 €. Après ce courrier, ils se servent sur ton compte.",
+      en: "An 80% surcharge: €216. After this letter, they help themselves from your account.",
+    },
+    urgent: {
+      seconds: 10,
+      missed: [
+        {
+          effect: { cash: -236, moral: -6 },
+          text: {
+            fr: "Saisie sur ton compte : 216 €, plus 20 € de frais de banque.",
+            en: "They take it from your account: €216, plus a €20 bank fee.",
+          },
+        },
+      ],
+    },
+    choices: [
+      {
+        label: { fr: "Payer (216 €)", en: "Pay (€216)" },
+        when: { minCash: 216 },
+        outcomes: [
+          {
+            effect: { cash: -216, moral: -5 },
+            text: {
+              fr: "Tu paies 216 € pour une case mal cochée.",
+              en: "You pay €216 for one wrongly ticked box.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Refuser jusqu'au bout", en: "Refuse to the end" },
+        outcomes: [
+          {
+            p: 0.35,
+            effect: { moral: 8 },
+            text: {
+              fr: "Ton comptable rappelle enfin : « ah oui, la mauvaise case ». Déclaration corrigée, amende annulée.",
+              en: "Your accountant calls back at last: “ah yes, the wrong box.” Return corrected, fine waived.",
+            },
+          },
+          {
+            p: 0.65,
+            effect: { cash: -236, moral: -6 },
+            text: {
+              fr: "Saisie sur ton compte : 216 €, plus 20 € de frais de banque.",
+              en: "They take it from your account: €216, plus a €20 bank fee.",
             },
           },
         ],
