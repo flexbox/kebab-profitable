@@ -747,11 +747,10 @@ export function Play({
           className={urgent ? "card panel panel-urgent" : "card panel"}
         >
           {/* The space is kept even when empty, so the question does not jump. */}
-          {!showResult && (
-            <div className="just-now">
-              <JustNow key={turn.n} turn={turn} />
-            </div>
-          )}
+          {/* Always on show, even over the result of a card. */}
+          <div className="just-now">
+            <JustNow key={turn.n} turn={turn} />
+          </div>
           {showResult ? (
             <ResultPanel state={state} onContinue={ack} />
           ) : state.phase === "idea" ? (
