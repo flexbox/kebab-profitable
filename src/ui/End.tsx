@@ -5,6 +5,7 @@ import { character, mrrOf } from "@/game";
 import type { GameState, L } from "@/game/types";
 import { UI } from "@/i18n/strings";
 import { submitScore, type Board } from "@/lib/api";
+import { postOnX } from "@/lib/share";
 import { store } from "@/lib/storage";
 import { useLang } from "./lang";
 import { Leaderboard } from "./Leaderboard";
@@ -80,14 +81,7 @@ export function End({
     else setSent({ status: "error", error: result.error });
   }
 
-  // X's web intent: a plain link that opens the composer prefilled, no widget script.
-  const shareUrl = (() => {
-    const params = new URLSearchParams({
-      text: t(won ? UI.shareWon(outcome.day, first) : UI.shareLost(outcome.day, first)),
-      url: typeof window === "undefined" ? "" : window.location.origin,
-    });
-    return `https://x.com/intent/post?${params}`;
-  })();
+  const shareUrl = postOnX(t(won ? UI.shareWon(outcome.day, first) : UI.shareLost(outcome.day, first)));
 
   return (
     <dialog

@@ -12,6 +12,8 @@ import {
   efficiencyNow,
   eventCard,
   eventChoices,
+  guest,
+  guestsMet,
   idea,
   isLive,
   legalActions,
@@ -23,6 +25,7 @@ import { effectTone } from "@/game/engine";
 import type { ActionId, GameState, L, Move } from "@/game/types";
 import { monthName } from "@/i18n/format";
 import { UI } from "@/i18n/strings";
+import { postOnX } from "@/lib/share";
 import { sfx } from "@/lib/sound";
 import { Controls, type ChromeProps } from "./Chrome";
 import { End } from "./End";
@@ -555,9 +558,20 @@ function ResultPanel({ state, onContinue }: { state: GameState; onContinue: () =
   );
 }
 
+/** How many guests a call for support names. */
+const FORCE_TAGS = 2;
+
 function ReportPanel({ state, play }: { state: GameState; play: (m: Move) => void }) {
   const { t, euro, lang } = useLang();
   const r = state.report!;
+  // Asking for support thanks the guests met so far, by their handle: their
+  // followers see the post. Two at most, the latest first, or it reads as spam.
+  const handles = guestsMet(state)
+    .slice(0, FORCE_TAGS)
+    .map((who) => guest(who).handle);
+  const forceUrl = postOnX(
+    t(UI.forcePost(monthName(r.month, lang), euro(r.mrr), euro(r.cashAfter), handles)),
+  );
   const line = (label: string, amount: number, sign: 1 | -1) => (
     <div className={sign > 0 ? "line line-in" : "line line-out"}>
       <dt>{label}</dt>
@@ -584,9 +598,15 @@ function ReportPanel({ state, play }: { state: GameState; play: (m: Move) => voi
       <p className="muted">
         {t(UI.reportSummary(r.newCustomers, r.churned, euro(r.mrr)))}
       </p>
-      <button type="button" className="btn btn-primary" onClick={() => play({ t: "ok" })} autoFocus>
-        {t(UI.nextMonth)}
-      </button>
+      <div className="report-actions">
+        <button type="button" className="btn btn-primary" onClick={() => play({ t: "ok" })} autoFocus>
+          {t(UI.nextMonth)}
+        </button>
+        <a className="btn" href={forceUrl} target="_blank" rel="noopener noreferrer">
+          {t(UI.askForce)}
+          <span className="sr-only"> {t(UI.newTab)}</span>
+        </a>
+      </div>
     </div>
   );
 }
@@ -677,7 +697,11 @@ export function Play({
         return;
       }
       if (state.outcome) return;
-      if (state.phase === "report" && confirm) return play({ t: "ok" });
+      if (state.phase === "report" && confirm) {
+        // Enter on a link follows the link: it does not also close the month.
+        if (target?.closest("a")) return;
+        return play({ t: "ok" });
+      }
       if (!n) return;
       if (state.phase === "slot") {
         const def = ACTIONS.find((a) => a.key === e.key);

@@ -51,6 +51,10 @@ with indiehackers.com.
   decisions, not luck. The luck is the same for everyone playing the same
   founder: who drops by overnight, and which guest walks on at a milestone,
   change with the founder and with what you have done so far.
+- Each month's report has a button that asks X for support: it opens the
+  composer with the month's numbers and a thank-you to the last two guests
+  met, by their handle, so that their followers see the game. Nothing is
+  posted until the player presses the button on X.
 
 ## Run it
 

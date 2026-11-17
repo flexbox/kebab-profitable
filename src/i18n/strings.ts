@@ -272,6 +272,31 @@ export const UI = {
     en: `Customers gained: ${gained} · Customers lost: ${lost} · MRR: ${mrr}`,
   }),
   nextMonth: { fr: "Passer au mois suivant", en: "Start next month" },
+  askForce: { fr: "Demander de la force sur X", en: "Ask X for a boost" },
+  /**
+   * The post behind that button: the month's numbers, a thank-you to the
+   * guests met in the run (their handles on X), and a call for support.
+   * "For the cameo" says they were met in the game, not in real life.
+   */
+  forcePost: (month: string, mrr: string, cash: string, handles: string[]): L => {
+    const tags = handles.map((handle) => `@${handle}`);
+    const thanks = (and: string) =>
+      tags.length > 1 ? `${tags.slice(0, -1).join(", ")} ${and} ${tags[tags.length - 1]}` : tags[0];
+    return {
+      fr: [
+        `Bilan de ${month} dans Kebab Profitable 🥙`,
+        `MRR : ${mrr} · En caisse : ${cash}`,
+        ...(tags.length ? [`Merci à ${thanks("et")} pour le caméo 🙏`] : []),
+        "Envoyez de la force 💪",
+      ].join("\n"),
+      en: [
+        `${month} in Kebab Profitable 🥙`,
+        `MRR: ${mrr} · Cash: ${cash}`,
+        ...(tags.length ? [`Thanks ${thanks("and")} for the cameo 🙏`] : []),
+        "Send some support 💪",
+      ].join("\n"),
+    };
+  },
 
   quit: { fr: "Abandonner", en: "Give up" },
   quitConfirm: {

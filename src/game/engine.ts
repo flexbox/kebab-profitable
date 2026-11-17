@@ -24,6 +24,7 @@ import type {
   EventDef,
   EventOutcome,
   GameState,
+  GuestId,
   L,
   MealId,
   Move,
@@ -1069,6 +1070,17 @@ export function replay(
   const s = createRun(seed, characterId);
   for (const move of moves) step(s, move);
   return s;
+}
+
+/** The guests whose cards this run has answered: the latest first, each one once. */
+export function guestsMet(s: GameState): GuestId[] {
+  const met: GuestId[] = [];
+  for (let i = s.eventsSeen.length - 1; i >= 0; i--) {
+    // A saved run may hold a card that no longer exists.
+    const who = EVENTS.find((e) => e.id === s.eventsSeen[i])?.who;
+    if (who && !met.includes(who)) met.push(who);
+  }
+  return met;
 }
 
 /** Which event choices are open, and for Karl, their odds. */

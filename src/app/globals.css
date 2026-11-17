@@ -1185,6 +1185,13 @@ button {
   justify-self: start;
 }
 
+/* The month goes on, or it is shown off first. */
+.report-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 /* --- what just happened ------------------------------------------------- */
 
 /* The outcome of the last move, right above the next question: a small

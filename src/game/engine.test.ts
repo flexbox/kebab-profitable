@@ -14,6 +14,7 @@ import {
   createRun,
   drawIdeas,
   effectTone,
+  guestsMet,
   legalActions,
   mrrOf,
   potentialOf,
@@ -326,6 +327,17 @@ describe("rules", () => {
       }
     }
     expect(walkOns.size).toBe(MILESTONES.firstCustomer.length);
+  });
+
+  it("lists the guests met, the latest first and each one once", () => {
+    const s = createRun("met", "david");
+    expect(guestsMet(s)).toEqual([]);
+    const cameos = EVENTS.filter((e) => e.kind === "cameo");
+    const marc = cameos.filter((e) => e.who === "marc");
+    const levels = cameos.find((e) => e.who === "levels")!;
+    const other = EVENTS.find((e) => e.kind !== "cameo")!;
+    s.eventsSeen.push(marc[0].id, other.id, levels.id, marc[1].id, "a-card-that-is-gone");
+    expect(guestsMet(s)).toEqual(["marc", "levels"]);
   });
 
   it("takes a missed clock as a move, on urgent cards only", () => {
