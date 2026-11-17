@@ -1095,6 +1095,38 @@ const BACK = `
   .cCcCCC
   .HccCCC
   ..cCCCC`
+/**
+ * Doubled over with hunger, the way a role-playing hero drops to one knee
+ * when hurt: head down, brows knit, eyes screwed shut, mouth open, both hands pressed
+ * to the stomach, knees giving way. Half of it: fourteen wide once mirrored.
+ */
+const HUNCH = `
+  .......
+  .......
+  ...KKKK
+  ..KLLKK
+  .KKLLKK
+  .KKKKLK
+  .KKKKYY
+  .KKHHHK
+  .KHHKKH
+  .ZHkHHH
+  .YHHkHH
+  ..YkHmM
+  ...YYYY
+  ..cCCCC
+  .cCcDDC
+  .cCcCCC
+  .cccHHH
+  .ccHHHH
+  ..cCCCC
+  ..UUUUU
+  ..UQqQQ
+  ..UQQ..
+  .UQQ...
+  .UQQ...
+  .SOS...
+  SSSS...`
 const ASLEEP = `
   ...KKKK
   ..KLLKK
@@ -1232,6 +1264,28 @@ for (const g of GRADES) {
       grid(3, 11, KEBAB),
     )
     figure(`${who}_eat_1_${g}`, { w: 16, h: 23 }, base.k, ...seated, grid(3, 13, KEBAB_BITTEN))
+    // Hungry: doubled over, in two frames. The second is the pang itself,
+    // flushed red, as a hero flashes when hit.
+    sprite(`_${who}_hunch_${g}`, { mx: true }, HUNCH)
+    figure(
+      `${who}_hungry_0_${g}`,
+      { w: 14, h: 27 },
+      base.k,
+      ...(cape ? [rect(1, 15, 12, 9, "r"), rect(1, 15, 12, 1, "R"), rect(1, 23, 12, 1, "R")] : []),
+      stamp(`_${who}_hunch_${g}`, 0, 1),
+      stamp(`_${who}_worn_${g}`, 0, 2),
+      // The mask has eyes of its own: screw them shut too.
+      ...(cape ? [grid(4, 9, "k....k")] : []),
+    )
+    sprite(`${who}_hungry_1_${g}`, { w: 16, h: 29 }, stamp(`${who}_hungry_0_${g}`, 0, 0), (c) => {
+      for (let y = 0; y < c.h; y++) {
+        for (let x = 0; x < c.w; x++) {
+          const v = c.get(x, y)
+          if ((v & 255) === 0) continue
+          c.px(x, y, hex(mix(parts(v), [236, 70, 56], 0.32)))
+        }
+      }
+    })
     // Seated at the terminal, seen from behind. The cape covers the back.
     sprite(`_${who}_back_${g}`, { mx: true }, BACK)
     figure(
@@ -1290,6 +1344,25 @@ sprite("bubble_idea", { outline: "k" }, `
   .ppppppp.
   ..pp.....
   .p.......`)
+// An empty stomach, growling: a jagged line, like a wound in a battle menu.
+sprite("bubble_growl", { outline: "k" }, `
+  .ppppppp.
+  ppppppppp
+  prppprppp
+  pprprprpr
+  ppprpppr.
+  ppppppppp
+  .ppppppp.
+  ..pp.....
+  .p.......`)
+// A drop of sweat, for the pang.
+pal({ k: "#2a1c18", s: "#bfe6f8", S: "#7fb8d8" })
+sprite("sweat", { outline: "k" }, `
+  .s.
+  sss
+  sSs
+  .S.`)
+pal({ k: "#2a1c18", p: "#f4eedd", r: "#c0432f", a: "#e8b04a", n: "#4a5568" })
 // Something urgent: the clock is running.
 sprite("bubble_alert", { outline: "k" }, `
   .ppppppp.
@@ -1639,6 +1712,6 @@ include("intro.px.js")
 
 sheet(
   "sprites",
-  ["chart_*", "plant_*", "bowl_*", "wrapper_*", "screen_*", "*_front_*", "*_arm_*", "*_back_*", "*_asleep_*", "*_eat_*", "phone_*", "bubble_*", "neon"],
+  ["chart_*", "plant_*", "bowl_*", "wrapper_*", "screen_*", "*_front_*", "*_arm_*", "*_back_*", "*_asleep_*", "*_eat_*", "*_hungry_*", "phone_*", "bubble_*", "sweat", "neon"],
   { pad: 1 },
 )

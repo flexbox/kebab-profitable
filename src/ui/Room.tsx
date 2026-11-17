@@ -84,7 +84,7 @@ export function Room({
   state: GameState;
   /** The action being hovered: the room shows it before you commit. */
   preview: ActionId | null;
-  /** At lunch, pointing at "skip lunch": standing in the middle of the room, eating nothing. */
+  /** At lunch, pointing at "skip lunch": in the middle of the room, doubled over with hunger. */
   fasting?: boolean;
   label: string;
 }) {
@@ -109,7 +109,7 @@ export function Room({
   const shown = preview ?? lastAction(state);
   let pose: Pose = "idle";
   let screen: Screen = "off";
-  if (state.phase === "meal") pose = fasting ? "idle" : "eat";
+  if (state.phase === "meal") pose = fasting ? "hungry" : "eat";
   // Something urgent: on your feet, whatever you were doing.
   else if (state.pendingEvent && eventCard(state.pendingEvent).urgent) pose = "alert";
   else if (state.phase === "idea") pose = "think";

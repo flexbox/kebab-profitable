@@ -31,6 +31,7 @@ export type Pose =
   | "feast"
   | "think"
   | "alert"
+  | "hungry"
   | "out";
 export type Screen = "code" | "ship" | "chat" | "invoice" | "off";
 
@@ -240,6 +241,19 @@ export function drawRoom(c: Ctx, art: Art, s: RoomScene) {
     const grade = s.pose === "eat" ? light : onRug(s);
     groundShadow(c, x + 9, y + 23, 18);
     sprite(c, art, `${s.who}_eat_${s.frame % 2}_${grade}`, x, y);
+  } else if (s.pose === "hungry") {
+    // An empty stomach: doubled over, and every other beat the pang hits,
+    // the body flinches and flushes, and the sweat starts.
+    const [x0, y] = PLACE.rug;
+    const pang = s.frame % 2 === 1;
+    const x = x0 + (pang ? 1 : 0);
+    groundShadow(c, x0 + 8, y + 27, 14);
+    sprite(c, art, `${s.who}_hungry_${pang ? 1 : 0}_${onRug(s)}`, x, y);
+    sprite(c, art, "bubble_growl", x + 13, y - 8 - (pang ? 1 : 0));
+    if (pang) {
+      sprite(c, art, "sweat", x - 2, y + 6);
+      sprite(c, art, "sweat", x + 13, y + 9);
+    }
   } else if (s.pose !== "out") {
     const rug = onRug(s);
     const bob = s.pose === "idle" ? 0 : s.frame % 2;
