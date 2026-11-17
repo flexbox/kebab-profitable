@@ -9,6 +9,7 @@ import type { Move } from "./types";
  *   a-i  an action (by position in ACTIONS)
  *   0-3  a meal (by position in MEALS)
  *   x-z  an event choice (0, 1, 2)
+ *   T    an urgent card the clock ran out on
  *   k    a dismissed month report
  *   Ixx  an idea (two base-36 digits, by position in IDEAS)
  */
@@ -24,6 +25,9 @@ export function encodeMoves(moves: readonly Move[]): string {
         break;
       case "choice":
         out += String.fromCharCode(120 + move.id);
+        break;
+      case "miss":
+        out += "T";
         break;
       case "ok":
         out += "k";
@@ -45,6 +49,8 @@ export function decodeMoves(code: string): Move[] {
       if (!def) throw new Error("Bad idea code");
       moves.push({ t: "idea", id: def.id });
       i += 2;
+    } else if (c === "T") {
+      moves.push({ t: "miss" });
     } else if (c === "k") {
       moves.push({ t: "ok" });
     } else if (c >= "x" && c <= "z") {

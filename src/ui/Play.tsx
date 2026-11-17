@@ -23,6 +23,7 @@ import { effectTone } from "@/game/engine";
 import type { ActionId, GameState, L, Move } from "@/game/types";
 import { monthName } from "@/i18n/format";
 import { UI } from "@/i18n/strings";
+import { sfx } from "@/lib/sound";
 import { Controls, type ChromeProps } from "./Chrome";
 import { End } from "./End";
 import type { Turn } from "./Game";
@@ -402,16 +403,83 @@ function MealPanel({ state, play }: { state: GameState; play: (m: Move) => void 
   );
 }
 
-function EventPanel({ state, play }: { state: GameState; play: (m: Move) => void }) {
+/** How long a card ignores input after it lands, in milliseconds. */
+const ARMING = 600;
+
+/**
+ * The clock on an urgent card. It only runs while the page is in view: a
+ * hidden tab, an open dialog or a sleeping laptop does not eat the time.
+ */
+function Countdown({ seconds, onExpire }: { seconds: number; onExpire: () => void }) {
+  const { t } = useLang();
+  const total = seconds * 1000;
+  const [left, setLeft] = useState(total);
+
+  useEffect(() => {
+    let last = performance.now();
+    const id = window.setInterval(() => {
+      const now = performance.now();
+      const elapsed = Math.min(now - last, 250);
+      last = now;
+      if (!document.hidden) setLeft((ms) => Math.max(0, ms - elapsed));
+    }, 100);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const secs = Math.ceil(left / 1000);
+  useEffect(() => {
+    if (left <= 0) onExpire();
+  }, [left, onExpire]);
+  useEffect(() => {
+    if (secs > 0 && secs <= 3) sfx.tick();
+  }, [secs]);
+
+  // The bar drains smoothly, or one step a second when motion is reduced.
+  const style = { "--left": left / total, "--left-step": secs / seconds } as React.CSSProperties;
+  return (
+    <div className={secs <= 3 ? "clock clock-last" : "clock"} role="timer" aria-label={t(UI.timeLeft)}>
+      <div className="clock-track" aria-hidden="true">
+        <div className="clock-fill" style={style} />
+      </div>
+      <span className="clock-count">{t(UI.seconds(secs))}</span>
+    </div>
+  );
+}
+
+function EventPanel({
+  state,
+  play,
+  timed,
+  armed,
+}: {
+  state: GameState;
+  play: (m: Move) => void;
+  /** Urgent cards run against the clock. */
+  timed: boolean;
+  /** False for a moment after the card lands, so no stray click answers it. */
+  armed: boolean;
+}) {
   const { t } = useLang();
   const ev = eventCard(state.pendingEvent!);
   const seesOdds = !!character(state.character).mods.seesHidden;
+  const onExpire = useCallback(() => play({ t: "miss" }), [play]);
   return (
     <div className={`panel-body event event-${ev.kind}`}>
       <p className="event-kind">
         <span className={`badge badge-${ev.kind}`}>{t(UI.kinds[ev.kind])}</span>
         {ev.who && <span className="event-who">{ev.who}</span>}
       </p>
+      {ev.urgent &&
+        (timed ? (
+          <>
+            <Countdown seconds={ev.urgent.seconds} onExpire={onExpire} />
+            <p className="sr-only" role="alert">
+              {t(UI.urgentAlert(ev.urgent.seconds))}
+            </p>
+          </>
+        ) : (
+          <p className="muted clock-off">{t(UI.clockIsOff)}</p>
+        ))}
       <h2 className="ask">{t(ev.title)}</h2>
       <p className="event-text">{t(ev.text)}</p>
       <div className="event-choices">
@@ -421,7 +489,7 @@ function EventPanel({ state, play }: { state: GameState; play: (m: Move) => void
             type="button"
             className="choice"
             disabled={!choice.enabled}
-            onClick={() => play({ t: "choice", id: choice.index })}
+            onClick={() => armed && play({ t: "choice", id: choice.index })}
           >
             <span className="key">{choice.index + 1}</span>
             <span className="choice-title">{t(choice.label)}</span>
@@ -454,8 +522,12 @@ function ResultPanel({ state, onContinue }: { state: GameState; onContinue: () =
       <p className="event-kind">
         <span className={`badge badge-${ev.kind}`}>{t(UI.kinds[ev.kind])}</span>
         {ev.who && <span className="event-who">{ev.who}</span>}
-        {result.tone !== "neutral" && (
-          <span className={`badge tone-${result.tone}`}>{t(UI.tones[result.tone])}</span>
+        {result.missed ? (
+          <span className="badge tone-bad">{t(UI.tooLate)}</span>
+        ) : (
+          result.tone !== "neutral" && (
+            <span className={`badge tone-${result.tone}`}>{t(UI.tones[result.tone])}</span>
+          )
         )}
       </p>
       <h2 className="ask">{t(ev.title)}</h2>
@@ -503,6 +575,36 @@ function ReportPanel({ state, play }: { state: GameState; play: (m: Move) => voi
   );
 }
 
+/**
+ * The last three lines of the journal, right above the next question. The
+ * ones the last move wrote are lit; the older ones are there for context.
+ */
+function JustNow({ turn }: { turn: Turn }) {
+  const { t } = useLang();
+  const { state, prev } = turn;
+  // On a run just started or resumed, the last line counts as new.
+  const written = Math.min(prev ? state.logCount - prev.logCount : 1, state.log.length);
+  const fresh = state.log.slice(state.log.length - written);
+  // With more news than room, keep what the move itself did and the latest two.
+  const lines =
+    written > 3
+      ? [fresh[0], ...fresh.slice(-2)].map((entry) => ({ entry, isNew: true }))
+      : state.log.slice(-3).map((entry, i, shown) => ({
+          entry,
+          isNew: i >= shown.length - written,
+        }));
+  if (lines.length === 0) return null;
+  return (
+    <ul aria-label={t(UI.justNow)}>
+      {lines.map(({ entry, isNew }, i) => (
+        <li key={i} className={`log log-${entry.tone} ${isNew ? "log-new" : "log-old"}`}>
+          {t(entry.text)}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // The play screen
 // ---------------------------------------------------------------------------
@@ -532,6 +634,17 @@ export function Play({
   const over = !!state.outcome && !showResult;
   const ack = useCallback(() => setAcked(turn.n), [turn.n]);
 
+  // A card can land under a finger already on its way to a button. Its
+  // choices open a moment after it appears, so it is never answered unread.
+  const [armedFor, setArmedFor] = useState(-1);
+  useEffect(() => {
+    if (state.phase !== "event") return;
+    const id = window.setTimeout(() => setArmedFor(turn.n), ARMING);
+    return () => window.clearTimeout(id);
+  }, [state.phase, turn.n]);
+  const armed = armedFor === turn.n;
+  const urgent = state.phase === "event" && !!eventCard(state.pendingEvent!).urgent && !showResult;
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -559,12 +672,12 @@ export function Play({
         if (id) play({ t: "idea", id });
       } else if (state.phase === "event") {
         const choice = eventChoices(state)[n - 1];
-        if (choice?.enabled) play({ t: "choice", id: choice.index });
+        if (armed && choice?.enabled) play({ t: "choice", id: choice.index });
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [state, showResult, ack, play]);
+  }, [state, showResult, ack, play, armed]);
 
   const today = dateOf(state.day);
   const rentIn = today.daysInMonth - today.dayOfMonth;
@@ -608,7 +721,13 @@ export function Play({
           {latest ? t(latest.text) : ""}
         </p>
         {/* On the left, what you do: the question, then the journal of what came of it. */}
-        <section className="card panel">
+        <section className={urgent ? "card panel panel-urgent" : "card panel"}>
+          {/* The space is kept even when empty, so the question does not jump. */}
+          {!showResult && (
+            <div className="just-now">
+              <JustNow key={turn.n} turn={turn} />
+            </div>
+          )}
           {showResult ? (
             <ResultPanel state={state} onContinue={ack} />
           ) : state.phase === "idea" ? (
@@ -616,7 +735,13 @@ export function Play({
           ) : state.phase === "meal" ? (
             <MealPanel state={state} play={play} />
           ) : state.phase === "event" ? (
-            <EventPanel state={state} play={play} />
+            <EventPanel
+              key={turn.n}
+              state={state}
+              play={play}
+              timed={chrome.timed}
+              armed={armed}
+            />
           ) : state.phase === "report" ? (
             <ReportPanel state={state} play={play} />
           ) : state.phase === "slot" ? (

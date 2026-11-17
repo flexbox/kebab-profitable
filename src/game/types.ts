@@ -42,6 +42,8 @@ export type Move =
   | { t: "act"; id: ActionId }
   | { t: "meal"; id: MealId }
   | { t: "choice"; id: number }
+  /** The clock ran out on an urgent card. */
+  | { t: "miss" }
   | { t: "ok" };
 
 export interface Project {
@@ -123,10 +125,12 @@ export interface RunStats {
   coded: number;
   lostDays: number;
   coffees: number;
+  /** Urgent cards the clock ran out on. */
+  missed: number;
 }
 
 export interface GameState {
-  v: 1;
+  v: 2;
   seed: string;
   character: CharacterId;
   /** 1 = 1 January 2027. */
@@ -164,13 +168,15 @@ export interface GameState {
   eventsSeen: string[];
   pendingEvent: string | null;
   /** What the last event choice led to, until the next move. */
-  eventResult: { id: string; text: L; tone: Tone } | null;
+  eventResult: { id: string; text: L; tone: Tone; missed?: boolean } | null;
   report: MonthReport | null;
 
   milestones: string[];
   /** What the kebab shop owner last said. */
   chef: L | null;
   log: LogEntry[];
+  /** Entries ever written to the log, including the ones it has dropped. */
+  logCount: number;
   history: Move[];
   outcome: Outcome | null;
   stats: RunStats;
@@ -281,6 +287,8 @@ export interface Effect {
   mvpCut?: number;
   /** Adds this many points to the MVP. */
   mvpAdd?: number;
+  /** Points of work gained, or lost when negative. */
+  built?: number;
   skipSlots?: number;
   awayDays?: number;
   /** An immediate launch-like burst with this multiplier. */
@@ -307,7 +315,7 @@ export interface EventChoice {
   outcomes: EventOutcome[];
 }
 
-export type EventKind = "cameo" | "admin" | "lille" | "scene";
+export type EventKind = "cameo" | "admin" | "lille" | "scene" | "urgent";
 
 export interface EventDef {
   id: string;
@@ -320,6 +328,11 @@ export interface EventDef {
   when?: Condition;
   repeatable?: boolean;
   choices: EventChoice[];
+  /**
+   * Urgent cards turn up in the middle of the day and are answered against
+   * the clock. When it runs out, one of the `missed` outcomes applies.
+   */
+  urgent?: { seconds: number; missed: EventOutcome[] };
 }
 
 export interface MealDef {

@@ -12,6 +12,7 @@ import {
   apply,
   createRun,
   drawIdeas,
+  effectTone,
   legalActions,
   mrrOf,
   potentialOf,
@@ -78,6 +79,7 @@ describe("content", () => {
         expect(c.outcomes.length, e.id).toBeGreaterThan(0);
         for (const o of c.outcomes) expect(filled(o.text), e.id).toBe(true);
       }
+      for (const o of e.urgent?.missed ?? []) expect(filled(o.text), e.id).toBe(true);
     }
     for (const lines of Object.values(CHEF)) for (const l of lines) expect(filled(l)).toBe(true);
     for (const l of Object.values(MILESTONES)) expect(filled(l)).toBe(true);
@@ -99,13 +101,45 @@ describe("content", () => {
       expect(e.choices.some((c) => !c.when), e.id).toBe(true);
     }
   });
+
+  it("gives every urgent card a real choice, a short clock and a price for missing it", () => {
+    const urgent = EVENTS.filter((e) => e.urgent);
+    expect(urgent.length).toBeGreaterThanOrEqual(10);
+    for (const e of urgent) {
+      expect(e.kind, e.id).toBe("urgent");
+      expect(e.choices.length, e.id).toBeGreaterThanOrEqual(2);
+      expect(e.urgent!.seconds, e.id).toBeGreaterThanOrEqual(6);
+      expect(e.urgent!.seconds, e.id).toBeLessThanOrEqual(15);
+      // Letting the clock run out always costs something.
+      expect(e.urgent!.missed.some((o) => !o.when), e.id).toBe(true);
+      for (const o of e.urgent!.missed) expect(effectTone(o.effect), e.id).toBe("bad");
+    }
+    // Cards answered at leisure have no clock.
+    expect(EVENTS.filter((e) => e.kind === "urgent").every((e) => !!e.urgent)).toBe(true);
+  });
+
+  it("never lets an urgent card end a run by itself", () => {
+    for (const e of EVENTS.filter((card) => card.urgent)) {
+      const floor = e.when?.minCash ?? 0;
+      for (const o of e.urgent!.missed) {
+        expect(-(o.effect.cash ?? 0), e.id).toBeLessThanOrEqual(floor);
+      }
+      for (const c of e.choices) {
+        const guard = Math.max(floor, c.when?.minCash ?? 0);
+        for (const o of c.outcomes) {
+          expect(-(o.effect.cash ?? 0), e.id).toBeLessThanOrEqual(guard);
+          expect(o.effect.end, e.id).toBeUndefined();
+        }
+      }
+    }
+  });
 });
 
 describe("a new run", () => {
   it("starts on day 1 with the agreed pot and the signature idea on offer", () => {
     for (const c of CHARACTERS) {
       const s = createRun("seed", c.id);
-      expect(s.cash).toBe(2500);
+      expect(s.cash).toBe(1500);
       expect(s.day).toBe(1);
       expect(s.phase).toBe("idea");
       expect(s.offer).toHaveLength(3);
@@ -189,7 +223,7 @@ describe("rules", () => {
     expect(state.outcome).toMatchObject({ result: "lost", reason: "cash" });
     // Rent is what ends it, so the last day is always a month-end.
     expect(isLastDayOfMonth(state.outcome!.day)).toBe(true);
-    expect(state.outcome!.day).toBeGreaterThanOrEqual(120);
+    expect(state.outcome!.day).toBeGreaterThanOrEqual(59);
     expect(state.phase).toBe("lost");
   });
 
@@ -205,6 +239,50 @@ describe("rules", () => {
       state = toSlot(apply(state, { t: "act", id: "repos" }));
     }
     expect(state.outcome).toMatchObject({ result: "won", reason: "kebab" });
+  });
+
+  it("deals urgent cards right after a slot, and the others overnight", () => {
+    let urgent = 0;
+    let overnight = 0;
+    for (let i = 0; i < 12; i++) {
+      const s = createRun(`urgent-${i}`, "david");
+      while (!s.outcome && s.day <= 60) {
+        step(s, BOTS.expert(s));
+        if (s.phase !== "event") continue;
+        const last = s.history[s.history.length - 1];
+        if (EVENTS.find((e) => e.id === s.pendingEvent)!.urgent) {
+          urgent++;
+          expect(last.t).toBe("act");
+          expect(s.day).toBeGreaterThanOrEqual(B.urgentFirstDay);
+        } else {
+          overnight++;
+          expect(s.slot).toBe(0);
+        }
+      }
+    }
+    expect(urgent).toBeGreaterThan(20);
+    expect(overnight).toBeGreaterThan(20);
+  });
+
+  it("takes a missed clock as a move, on urgent cards only", () => {
+    for (const ev of EVENTS) {
+      const s = toSlot(createRun(`miss-${ev.id}`, "david"));
+      s.project!.launched = true;
+      s.project!.customers = 5;
+      s.project!.quality = 40;
+      s.audience = 400;
+      s.pendingEvent = ev.id;
+      s.phase = "event";
+      if (!ev.urgent) {
+        expect(() => apply(s, { t: "miss" })).toThrow(/Not an urgent card/);
+        continue;
+      }
+      const next = apply(s, { t: "miss" });
+      expect(next.eventResult).toMatchObject({ id: ev.id, missed: true, tone: "bad" });
+      expect(next.stats.missed).toBe(1);
+      expect(next.pendingEvent === ev.id).toBe(false);
+      expect(next.history[next.history.length - 1]).toEqual({ t: "miss" });
+    }
   });
 
   it("rejects illegal moves and leaves the state untouched", () => {
@@ -226,6 +304,8 @@ describe("determinism", () => {
 
   it("round-trips moves through the leaderboard code", () => {
     const played = playRun("codec-seed", "christophe", "random");
+    // The random player lets the clock run out now and then.
+    expect(played.history.some((m) => m.t === "miss")).toBe(true);
     const code = encodeMoves(played.history);
     expect(code.length).toBeLessThanOrEqual(played.history.length * 3);
     expect(decodeMoves(code)).toEqual(played.history);

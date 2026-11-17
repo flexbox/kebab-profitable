@@ -19,7 +19,7 @@ export type PersonId = CharacterId | "chef";
 export const ROOM_W = 192;
 export const ROOM_H = 128;
 
-export type Pose = "idle" | "desk" | "phone" | "bed" | "eat" | "think" | "out";
+export type Pose = "idle" | "desk" | "phone" | "bed" | "eat" | "think" | "alert" | "out";
 export type Screen = "code" | "ship" | "chat" | "invoice" | "off";
 
 export interface RoomScene {
@@ -216,5 +216,6 @@ export function drawRoom(c: Ctx, art: Art, s: RoomScene) {
     }
     if (s.pose === "eat") sprite(c, art, `kebab_${rug}`, x + 11, y + 6);
     if (s.pose === "think") sprite(c, art, "bubble_idea", x + 13, y - 10);
+    if (s.pose === "alert") sprite(c, art, "bubble_alert", x + 13, y - 11);
   }
 }

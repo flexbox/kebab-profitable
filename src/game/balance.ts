@@ -4,7 +4,7 @@
  */
 export const B = {
   // --- start ---------------------------------------------------------------
-  startCash: 2500,
+  startCash: 1500,
   startAudience: 20,
   startFaim: 80,
   startEnergie: 90,
@@ -35,7 +35,7 @@ export const B = {
   lostDayMoral: 38,
 
   // --- work ----------------------------------------------------------------
-  coderPoints: 8,
+  coderPoints: 14,
   /** Quality of a product at its first launch. */
   launchQuality: 32,
   /** Extra quality per point built beyond the MVP, capped. */
@@ -47,12 +47,12 @@ export const B = {
   updateQuality: 0.55,
 
   // --- audience ------------------------------------------------------------
-  postBase: 4,
-  postPct: 0.008,
-  viralChance: 0.04,
+  postBase: 7,
+  postPct: 0.014,
+  viralChance: 0.06,
   viralMult: 4,
   /** Audience gained by outreach before launch (waitlist). */
-  waitlistGain: 6,
+  waitlistGain: 10,
 
   // --- customers -----------------------------------------------------------
   /** Reference price: conversion is scaled against it. */
@@ -69,8 +69,8 @@ export const B = {
   updateBurstRate: 0.002,
   /** Bursts triggered by event cards (Uneed, Product Hunt). */
   eventBurstRate: 0.012,
-  trickleRate: 0.0008,
-  outreachChance: 0.1,
+  trickleRate: 0.0016,
+  outreachChance: 0.18,
   /** Potential multipliers, from flop to gem, and their weights. */
   potentialMult: [0.2, 0.5, 1, 1.5, 2.3],
   potentialWeights: [22, 25, 26, 18, 9],
@@ -86,6 +86,10 @@ export const B = {
   eventChance: 0.34,
   /** No event before this day. */
   eventFirstDay: 3,
+  /** Chance, after each slot played, that something urgent turns up. */
+  urgentChance: 0.1,
+  /** The first day is for learning the buttons: no clock yet. */
+  urgentFirstDay: 2,
 
   // --- limits --------------------------------------------------------------
   /** A replayed run longer than this is rejected by the leaderboard. */

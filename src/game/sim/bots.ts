@@ -43,6 +43,11 @@ function affordable(s: GameState, wanted: MealId): MealId {
   return "skip";
 }
 
+/** How often a player lets the clock run out on an urgent card. */
+function tooSlow(s: GameState, roll: Roll, chance: number): boolean {
+  return !!eventCard(s.pendingEvent!).urgent && roll("clock") < chance;
+}
+
 function effectScore(e: Effect): number {
   const tone = effectTone(e);
   return tone === "good" ? 1 : tone === "bad" ? -1 : 0;
@@ -60,6 +65,7 @@ function randomBot(s: GameState): Move {
       return { t: "meal", id: affordable(s, id) };
     }
     case "event": {
+      if (tooSlow(s, roll, 0.35)) return { t: "miss" };
       const open = eventChoices(s).filter(
         (c) => c.enabled && !c.odds.some((o) => o.effect.end),
       );
@@ -87,6 +93,8 @@ function newcomerBot(s: GameState): Move {
     case "meal":
       return { t: "meal", id: affordable(s, s.cash > 900 ? "kebab" : "pates") };
     case "event": {
+      // A first-timer reads the card to the end, and sometimes past it.
+      if (tooSlow(s, roll, 0.2)) return { t: "miss" };
       const open = eventChoices(s).filter(
         (c) => c.enabled && !c.odds.some((o) => o.effect.end),
       );

@@ -1056,6 +1056,150 @@ button {
   justify-self: start;
 }
 
+/* --- what just happened ------------------------------------------------- */
+
+/* The outcome of the last move, right above the next question: a small
+   readout, like the last lines of a terminal, the newest at the bottom. */
+.just-now {
+  display: grid;
+  align-content: end;
+  margin-block-end: 16px;
+  padding: 10px 12px;
+  background: var(--color-bg-sunken);
+  border-radius: var(--r-control);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.just-now:empty {
+  display: none;
+}
+
+.just-now ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+/* What the last move wrote is lit; the lines before it step back. */
+.just-now .log-new {
+  color: var(--color-text-strong);
+  animation: fade-in 160ms ease-out both;
+}
+
+.just-now .log-old {
+  color: var(--color-text-muted);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .just-now .log-new {
+    animation-name: just-in;
+  }
+
+  .just-now .log-new + .log-new {
+    animation-delay: 60ms;
+  }
+
+  .just-now .log-new + .log-new + .log-new {
+    animation-delay: 120ms;
+  }
+}
+
+@keyframes just-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* --- urgent cards ------------------------------------------------------- */
+
+/* A card answered against the clock: a red edge, the word "Urgent", a
+   counter. The colour never carries the message alone. */
+.panel-urgent {
+  border-color: var(--color-negative);
+  box-shadow: 0 0 0 1px var(--color-negative);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .panel-urgent {
+    animation: urgent-in 450ms ease-out;
+  }
+}
+
+@keyframes urgent-in {
+  from {
+    box-shadow: 0 0 0 10px rgb(255 133 133 / 0.35);
+  }
+}
+
+.badge-urgent {
+  color: var(--color-negative);
+}
+
+.badge-urgent::before {
+  content: "!";
+  font-weight: 800;
+}
+
+.clock {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.clock-track {
+  height: 10px;
+  background: var(--color-bg-sunken);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--color-border);
+  overflow: hidden;
+}
+
+/* One step a second for everyone; a smooth drain where motion is welcome. */
+.clock-fill {
+  width: calc(var(--left-step) * 100%);
+  height: 100%;
+  background: var(--color-text-strong);
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .clock-fill {
+    width: calc(var(--left) * 100%);
+    transition: width 100ms linear;
+  }
+}
+
+.clock-count {
+  min-width: 3ch;
+  color: var(--color-text-strong);
+  font-size: var(--text-md);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-align: end;
+}
+
+/* The last three seconds. */
+.clock-last .clock-fill {
+  background: var(--color-negative);
+}
+
+.clock-last .clock-count {
+  color: var(--color-negative);
+}
+
+.clock-off {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
 /* --- gauges ------------------------------------------------------------- */
 
 .gauges {
@@ -1293,7 +1437,7 @@ button {
   line-height: 1.45;
 }
 
-.log:first-child {
+.journal .log:first-child {
   color: var(--color-text);
 }
 
@@ -1581,6 +1725,11 @@ button {
 @container panel (min-width: 521px) {
   .panel-body {
     min-height: 500px;
+  }
+
+  /* Room for three lines, so the buttons stay where the pointer left them. */
+  .just-now {
+    min-height: calc(4.35em + 28px);
   }
 }
 

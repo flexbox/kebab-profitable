@@ -5,7 +5,7 @@ A small parody management game about indie hacking, made for
 
 **Play it: https://kebab-profitable.vercel.app**
 
-You have just signed your *rupture conventionnelle*. You have €2,500, a studio
+You have just signed your *rupture conventionnelle*. You have €1,500, a studio
 in Lille, a kebab shop downstairs and one goal: **€270 of MRR**, the price of
 a kebab a day. Run out of cash and it's *retour au CDI*.
 
@@ -31,6 +31,12 @@ with indiehackers.com.
 - You pick one of three ideas. How well it really sells is hidden until you
   launch. When it flops, pivot.
 - Each month-end takes €600 of rent and 22% of URSSAF on what you earned.
+- Now and then an urgent card lands in the middle of a day: production is
+  down, your coffee is heading for the keyboard. You get about ten seconds to
+  choose between a safe answer and a gamble on your progress. Let the clock
+  run out and you take the worst of it.
+- A run is short: a good player is kebab profitable in about 45 days, some
+  200 clicks. `pnpm sim` prints the current figures.
 - Everyone plays the same seeded run each day, so the leaderboard compares
   decisions, not luck.
 
@@ -68,7 +74,8 @@ pnpm art
 | `src/game/balance.ts` | Every tunable number. |
 | `src/game/data/characters.ts` | The playable members and their perks. |
 | `src/game/data/ideas.ts` | The fifteen project ideas. |
-| `src/game/data/events.ts` | The event deck. |
+| `src/game/data/events.ts` | The event deck, answered at leisure in the morning. |
+| `src/game/data/urgent.ts` | The urgent cards, answered against the clock. |
 | `src/game/data/chef.ts` | What the kebab shop owner says. |
 | `src/game/sim/` | Scripted players used to tune the balance. |
 | `src/ui/` | The screens, and `pixels.ts`, which puts the room together from the art. |
@@ -96,6 +103,20 @@ English. To add an event, copy one in `src/game/data/events.ts`, give it a new
 `id` and describe what happens with `effect` (see `Effect` in
 `src/game/types.ts`). Then run `pnpm test` and `pnpm sim` to check that
 nothing broke and the balance holds, and open a pull request.
+
+An urgent card is the same thing with a clock, in `src/game/data/urgent.ts`:
+`urgent.seconds` on the counter and `urgent.missed` for what happens when it
+runs out. Keep its text short, because it is read while the counter runs, and
+guard anything that costs money with `minCash`: the tests refuse a card that
+could end a run by itself.
+
+## The clock
+
+The countdown on urgent cards runs in the browser only. To the rules engine
+and to the leaderboard, a missed card is a move like any other, and it is
+never the best one. The stopwatch button at the top of every screen turns the
+countdown off for players who need more time; the cards then wait like the
+others. The clock also stops while the tab is hidden.
 
 ## About the people in the game
 

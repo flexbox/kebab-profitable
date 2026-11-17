@@ -918,6 +918,17 @@ sprite("bubble_idea", { outline: "k" }, `
   .ppppppp.
   ..pp.....
   .p.......`)
+// Something urgent: the clock is running.
+sprite("bubble_alert", { outline: "k" }, `
+  .ppppppp.
+  ppprrrppp
+  ppprrrppp
+  pppprpppp
+  ppppppppp
+  pppprpppp
+  .ppppppp.
+  ..pp.....
+  .p.......`)
 
 // ---------------------------------------------------------------------------
 // Portraits: a head and shoulders, 32 by 32

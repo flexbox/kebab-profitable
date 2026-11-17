@@ -54,6 +54,15 @@ export const sfx = {
       { freq: 660, at: 0, dur: 0.06, type: "triangle" },
       { freq: 880, at: 0.06, dur: 0.1, type: "triangle" },
     ]),
+  /** Something urgent: three quick beeps. */
+  alarm: () =>
+    play([
+      { freq: 1175, at: 0, dur: 0.07, gain: 0.05 },
+      { freq: 1175, at: 0.11, dur: 0.07, gain: 0.05 },
+      { freq: 1568, at: 0.22, dur: 0.14, gain: 0.05 },
+    ]),
+  /** One of the last seconds on the clock. */
+  tick: () => play([{ freq: 880, at: 0, dur: 0.04, type: "triangle", gain: 0.05 }]),
   bad: () =>
     play([
       { freq: 220, at: 0, dur: 0.12, type: "sawtooth", gain: 0.05 },

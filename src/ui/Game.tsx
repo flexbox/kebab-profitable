@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { apply, createRun } from "@/game";
+import { apply, createRun, eventCard } from "@/game";
 import type { CharacterId, GameState, Move } from "@/game/types";
 import { seedFor } from "@/lib/seed";
 import { setMuted as setSoundMuted, sfx } from "@/lib/sound";
@@ -32,9 +32,12 @@ function playSounds(turn: Turn) {
   if (!prev) return;
   const last = state.history[state.history.length - 1];
   if (state.outcome) return state.outcome.result === "won" ? sfx.win() : sfx.lose();
+  const dealt = state.pendingEvent && state.pendingEvent !== prev.pendingEvent;
+  // The alarm comes first: the clock is already running.
+  if (dealt && eventCard(state.pendingEvent!).urgent) return sfx.alarm();
   const customers = (s: GameState) => s.project?.customers ?? 0;
   if (customers(state) > customers(prev)) return sfx.coin();
-  if (state.phase === "event" && prev.phase !== "event") return sfx.card();
+  if (dealt) return sfx.card();
   if (state.eventResult?.tone === "bad") return sfx.bad();
   if (last?.t === "meal" && last.id !== "skip") return sfx.bite();
   if (state.day !== prev.day) return sfx.night();
@@ -46,6 +49,7 @@ function GameInner() {
   const [view, setView] = useState<View>("title");
   const [turn, setTurn] = useState<Turn | null>(null);
   const [muted, setMuted] = useState(false);
+  const [timed, setTimed] = useState(true);
 
   // Browser-only state (the date in Lille, the saved run) is read after hydration.
   useEffect(() => {
@@ -54,6 +58,7 @@ function GameInner() {
     setSoundMuted(isMuted);
     /* eslint-disable react-hooks/set-state-in-effect */
     setMuted(isMuted);
+    setTimed(store.timed());
     setBoot({
       seed,
       saved: store.run(),
@@ -129,7 +134,14 @@ function GameInner() {
     });
   }, []);
 
-  const chrome = { muted, toggleMute };
+  const toggleTimed = useCallback(() => {
+    setTimed((value) => {
+      store.setTimed(!value);
+      return !value;
+    });
+  }, []);
+
+  const chrome = { muted, toggleMute, timed, toggleTimed };
 
   if (view === "play" && turn) {
     return (

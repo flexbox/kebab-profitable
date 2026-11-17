@@ -1,8 +1,10 @@
 import type { EventDef } from "../types";
+import { URGENT_CARDS } from "./urgent";
 
 /**
  * The event deck. One card may turn up overnight and is answered in the
- * morning.
+ * morning. The urgent cards, answered against the clock in the middle of a
+ * day, are in `urgent.ts` and join the deck at the end of this file.
  *
  * House rules for cameo cards (kind: "cameo"):
  *  - the figure appears as a pixel version of themselves, never as a quote;
@@ -1131,6 +1133,7 @@ export const EVENTS: EventDef[] = [
       },
     ],
   },
+  ...URGENT_CARDS,
 ];
 
 export function eventCard(id: string): EventDef {

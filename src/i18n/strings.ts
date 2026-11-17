@@ -7,8 +7,8 @@ export const UI = {
     en: "Get profitable, one kebab at a time.",
   },
   pitch: {
-    fr: "Tu viens de quitter ton CDI. Tu as 2 500 €, un studio à Lille et un kebab en bas de chez toi. Objectif : 270 € de MRR, le prix d'un kebab par jour.",
-    en: "You just quit your job. You have €2,500, a studio in Lille and a kebab shop downstairs. The goal: €270 of MRR, the price of a kebab a day.",
+    fr: "Tu viens de quitter ton CDI. Tu as 1 500 €, un studio à Lille et un kebab en bas de chez toi. Objectif : 270 € de MRR, le prix d'un kebab par jour.",
+    en: "You just quit your job. You have €1,500, a studio in Lille and a kebab shop downstairs. The goal: €270 of MRR, the price of a kebab a day.",
   },
   playToday: { fr: "Jouer la partie du jour", en: "Play today's run" },
   resume: { fr: "Reprendre la partie", en: "Resume your run" },
@@ -38,6 +38,10 @@ export const UI = {
     {
       fr: "Mange le midi. Le loyer tombe à la fin du mois. À zéro euro, c'est retour au CDI.",
       en: "Eat at midday. Rent is due at month-end. At zero euros, it's back to a day job.",
+    },
+    {
+      fr: "Parfois, une carte urgente tombe en pleine journée : quelques secondes pour choisir. Le bouton chronomètre, en haut, coupe le compte à rebours.",
+      en: "Now and then an urgent card lands in the middle of the day: a few seconds to choose. The stopwatch button, at the top, turns the countdown off.",
     },
   ] as L[],
   disclaimer: {
@@ -166,7 +170,21 @@ export const UI = {
     admin: { fr: "Paperasse", en: "Paperwork" },
     lille: { fr: "Lille", en: "Lille" },
     scene: { fr: "La scène", en: "The scene" },
+    urgent: { fr: "Urgent", en: "Urgent" },
   },
+  /** Read out when an urgent card lands. */
+  urgentAlert: (seconds: number): L => ({
+    fr: `Carte urgente : ${seconds} secondes pour répondre.`,
+    en: `Urgent card: ${seconds} seconds to answer.`,
+  }),
+  timeLeft: { fr: "Temps restant", en: "Time left" },
+  seconds: (n: number): L => ({ fr: `${n} s`, en: `${n}s` }),
+  tooLate: { fr: "Trop tard", en: "Too late" },
+  clockIsOff: {
+    fr: "Chronomètre coupé : prends ton temps.",
+    en: "The clock is off: take your time.",
+  },
+  justNow: { fr: "Ce qui vient de se passer", en: "What just happened" },
   continue: { fr: "Continuer", en: "Continue" },
   odds: (pct: number): L => ({ fr: `${pct} %`, en: `${pct}%` }),
 
@@ -289,6 +307,14 @@ export const UI = {
 
   mute: { fr: "Couper le son", en: "Mute" },
   unmute: { fr: "Activer le son", en: "Unmute" },
+  clockOff: {
+    fr: "Couper le chronomètre des cartes urgentes",
+    en: "Turn off the clock on urgent cards",
+  },
+  clockOn: {
+    fr: "Activer le chronomètre des cartes urgentes",
+    en: "Turn on the clock on urgent cards",
+  },
   language: { fr: "Langue", en: "Language" },
   keyHint: {
     fr: "Astuce : les touches 1 à 9 choisissent une action, Entrée valide.",

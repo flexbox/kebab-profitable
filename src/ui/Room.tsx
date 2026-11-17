@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { rand } from "@/game/rng";
 import type { ActionId, GameState } from "@/game/types";
-import { B, mrrOf } from "@/game";
+import { B, eventCard, mrrOf } from "@/game";
 import { PixelCanvas } from "./PixelCanvas";
 import {
   drawRoom,
@@ -72,6 +72,8 @@ export function Room({
   let pose: Pose = "idle";
   let screen: Screen = "off";
   if (state.phase === "meal") pose = "eat";
+  // Something urgent: on your feet, whatever you were doing.
+  else if (state.pendingEvent && eventCard(state.pendingEvent).urgent) pose = "alert";
   else if (state.phase === "idea") pose = "think";
   else if (state.phase === "won") pose = "eat";
   else if (shown) ({ pose, screen } = POSES[shown]);

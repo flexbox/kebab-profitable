@@ -22,6 +22,7 @@ import type {
   Condition,
   Effect,
   EventDef,
+  EventOutcome,
   GameState,
   L,
   MealId,
@@ -32,6 +33,11 @@ import type {
 } from "./types";
 
 const clamp = (v: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, v));
+
+/** Cards dealt overnight and answered in the morning, at leisure. */
+const OVERNIGHT = EVENTS.filter((e) => !e.urgent);
+/** Cards dealt in the middle of the day and answered against the clock. */
+const URGENT = EVENTS.filter((e) => !!e.urgent);
 
 // ---------------------------------------------------------------------------
 // Selectors
@@ -150,6 +156,7 @@ export function legalActions(s: GameState): ActionOption[] {
 // ---------------------------------------------------------------------------
 
 function log(s: GameState, text: L, tone: Tone = "neutral", slot = s.slot) {
+  s.logCount++;
   s.log.push({ day: s.day, slot, text, tone });
   if (s.log.length > B.logSize) s.log.splice(0, s.log.length - B.logSize);
 }
@@ -308,6 +315,7 @@ function applyEffect(s: GameState, e: Effect) {
       p.mvpSize = Math.round(p.mvpSize - remaining * e.mvpCut);
     }
     if (e.mvpAdd && !p.launched) p.mvpSize += e.mvpAdd;
+    if (e.built) p.built = Math.max(0, p.built + e.built);
     if (e.burst && isLive(p)) {
       addCustomers(s, p, burstSignups(s, p, B.eventBurstRate * e.burst, "event"));
     }
@@ -335,7 +343,9 @@ export function effectTone(e: Effect): Tone {
     (e.audiencePct ? 50 : 0) +
     (e.customers ?? 0) * 50 +
     (e.burst ?? 0) * 60 +
-    (e.mvpCut ? 60 : 0) -
+    (e.mvpCut ? 60 : 0) +
+    (e.built ?? 0) * 6 +
+    (e.quality ?? 0) * 6 -
     (e.mvpAdd ?? 0) * 4 -
     (e.skipSlots ?? 0) * 25 +
     (e.boost ? (e.boost.mult < 1 ? -60 : 60) : 0) +
@@ -576,6 +586,9 @@ function act(s: GameState, id: ActionId) {
       s.slot++;
     }
   }
+
+  // Now and then something cannot wait until tomorrow morning.
+  if (!s.outcome && !s.pendingEvent) s.pendingEvent = pickUrgent(s, key[1]);
 }
 
 function eat(s: GameState, id: MealId) {
@@ -609,13 +622,15 @@ function eat(s: GameState, id: MealId) {
   }
 }
 
-function choose(s: GameState, index: number) {
-  const ev = eventCard(s.pendingEvent!);
-  const choice = ev.choices[index];
-  if (!choice || !holds(s, choice.when)) {
-    throw new Error(`Illegal choice ${index} for ${ev.id}`);
-  }
-  const outcomes = choice.outcomes.filter((o) => holds(s, o.when));
+/** Closes the pending card with one of the given outcomes. */
+function settle(
+  s: GameState,
+  ev: EventDef,
+  all: readonly EventOutcome[],
+  key: string | number,
+  missed: boolean,
+) {
+  const outcomes = all.filter((o) => holds(s, o.when));
   s.eventsSeen.push(ev.id);
   s.pendingEvent = null;
   if (outcomes.length === 0) return;
@@ -623,36 +638,78 @@ function choose(s: GameState, index: number) {
     outcomes[
       weighted(
         outcomes.map((o) => o.p ?? 1),
-        rand(s.seed, "outcome", s.day, ev.id, index),
+        // An urgent card can come back the same day: the slot is part of its luck.
+        rand(s.seed, "outcome", s.day, s.slot, ev.id, key),
       )
     ];
   applyEffect(s, picked.effect);
   const tone = effectTone(picked.effect);
-  s.eventResult = { id: ev.id, text: picked.text, tone };
+  s.eventResult = missed
+    ? { id: ev.id, text: picked.text, tone, missed }
+    : { id: ev.id, text: picked.text, tone };
   log(s, { fr: `${ev.title.fr} — ${picked.text.fr}`, en: `${ev.title.en} — ${picked.text.en}` }, tone, -1);
+}
+
+function choose(s: GameState, index: number) {
+  const ev = eventCard(s.pendingEvent!);
+  const choice = ev.choices[index];
+  if (!choice || !holds(s, choice.when)) {
+    throw new Error(`Illegal choice ${index} for ${ev.id}`);
+  }
+  settle(s, ev, choice.outcomes, index, false);
+}
+
+/** The clock ran out on an urgent card. */
+function miss(s: GameState) {
+  const ev = eventCard(s.pendingEvent!);
+  if (!ev.urgent) throw new Error(`Not an urgent card: ${ev.id}`);
+  s.stats.missed++;
+  settle(s, ev, ev.urgent.missed, "missed", true);
 }
 
 // ---------------------------------------------------------------------------
 // Days, nights and month-ends
 // ---------------------------------------------------------------------------
 
+/** A card that can be dealt right now. */
+function playable(s: GameState, e: EventDef): boolean {
+  return (
+    (e.repeatable || !s.eventsSeen.includes(e.id)) &&
+    holds(s, e.when) &&
+    e.choices.some((c) => holds(s, c.when))
+  );
+}
+
+/** An urgent card for the slot that was just played, now and then. */
+function pickUrgent(s: GameState, slot: number): string | null {
+  if (s.day < B.urgentFirstDay) return null;
+  if (rand(s.seed, "urgent", s.day, slot) >= B.urgentChance) return null;
+  const deck = shuffle(URGENT, stream(s.seed, "urgent-deck"));
+  const candidates = deck.filter((e) => playable(s, e));
+  if (candidates.length === 0) return null;
+  // New cards first, starting with the ones about where the project stands:
+  // a force-push before launch, an outage after it. Once all have been seen,
+  // any of them can come back.
+  const unseen = candidates.filter((e) => !s.eventsSeen.includes(e.id));
+  const fitting = unseen.find((e) => e.when?.launched !== undefined);
+  if (unseen.length > 0) return (fitting ?? unseen[0]).id;
+  const i = Math.floor(rand(s.seed, "urgent-again", s.day, slot) * candidates.length);
+  return candidates[i].id;
+}
+
 function pickEvent(s: GameState): string | null {
   if (s.day < B.eventFirstDay) return null;
   const mods = character(s.character).mods;
-  const deck = shuffle(EVENTS, stream(s.seed, "deck"));
-  const playable = (e: EventDef) =>
-    (e.repeatable || !s.eventsSeen.includes(e.id)) &&
-    holds(s, e.when) &&
-    e.choices.some((c) => holds(s, c.when));
+  const deck = shuffle(OVERNIGHT, stream(s.seed, "deck"));
   const fresh = (e: EventDef) => !s.eventsSeen.includes(e.id);
 
   if (rand(s.seed, "event", s.day) < B.eventChance) {
-    const candidates = deck.filter(playable);
+    const candidates = deck.filter((e) => playable(s, e));
     return (candidates.find(fresh) ?? candidates[0])?.id ?? null;
   }
   if (mods.cameoBoost && rand(s.seed, "cameo", s.day) < mods.cameoBoost) {
     const card = deck.find(
-      (e) => e.kind === "cameo" && e.tone === "good" && fresh(e) && playable(e),
+      (e) => e.kind === "cameo" && e.tone === "good" && fresh(e) && playable(s, e),
     );
     return card?.id ?? null;
   }
@@ -868,8 +925,9 @@ export function step(s: GameState, move: Move): void {
       eat(s, move.id);
       break;
     case "event":
-      if (move.t !== "choice") throw new Error("Expected a choice");
-      choose(s, move.id);
+      if (move.t === "miss") miss(s);
+      else if (move.t === "choice") choose(s, move.id);
+      else throw new Error("Expected a choice");
       break;
     case "report":
       if (move.t !== "ok") throw new Error("Expected a dismissal");
@@ -892,7 +950,7 @@ export function apply(state: GameState, move: Move): GameState {
 export function createRun(seed: string, characterId: CharacterId): GameState {
   character(characterId); // throws on an unknown id
   const s: GameState = {
-    v: 1,
+    v: 2,
     seed,
     character: characterId,
     day: 1,
@@ -929,6 +987,7 @@ export function createRun(seed: string, characterId: CharacterId): GameState {
     milestones: [],
     chef: CHEF.start[0],
     log: [],
+    logCount: 0,
     history: [],
     outcome: null,
     stats: {
@@ -944,6 +1003,7 @@ export function createRun(seed: string, characterId: CharacterId): GameState {
       coded: 0,
       lostDays: 0,
       coffees: 0,
+      missed: 0,
     },
   };
   log(s, M.intro(), "neutral", -1);
