@@ -14,8 +14,8 @@ export const UI = {
   resume: { fr: "Reprendre la partie", en: "Resume your run" },
   newRun: { fr: "Nouvelle partie", en: "New run" },
   sameRun: {
-    fr: "Tout le monde joue la même partie aujourd'hui : mêmes idées, mêmes événements.",
-    en: "Everyone plays the same run today: same ideas, same events.",
+    fr: "Tout le monde joue la même partie aujourd'hui : mêmes idées, et la même chance pour un même fondateur.",
+    en: "Everyone plays the same run today: same ideas, and the same luck for the same founder.",
   },
   attemptsToday: (n: number): L => ({
     fr: n === 0 ? "Premier essai du jour." : `Essais aujourd'hui : ${n}.`,

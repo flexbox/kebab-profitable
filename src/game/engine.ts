@@ -217,6 +217,12 @@ function addCash(s: GameState, amount: number) {
   if (s.cash < 0) lose(s, "cash");
 }
 
+/** At a milestone, a guest in pixels walks on: which one is this run's luck. */
+function walkOn(s: GameState, milestone: keyof typeof MILESTONES): L {
+  const lines = MILESTONES[milestone];
+  return lines[Math.floor(rand(s.seed, "walk-on", milestone, s.character) * lines.length)];
+}
+
 function checkMilestones(s: GameState) {
   const hit = (id: string) => {
     if (s.milestones.includes(id)) return false;
@@ -226,18 +232,18 @@ function checkMilestones(s: GameState) {
   const p = s.project;
   const mrr = mrrOf(s);
   if (p && p.launched && p.customers >= 1 && hit("firstCustomer")) {
-    log(s, MILESTONES.firstCustomer, "good", -1);
+    log(s, walkOn(s, "firstCustomer"), "good", -1);
     chef(s, "firstCustomer");
   }
   if (mrr >= 100 && hit("mrr100")) {
-    log(s, MILESTONES.mrr100, "good", -1);
+    log(s, walkOn(s, "mrr100"), "good", -1);
     chef(s, "mrr100");
   }
   if (mrr >= 200 && hit("mrr200")) chef(s, "mrr200");
   if (mrr >= B.kebabMrr && !s.outcome) {
     s.outcome = { result: "won", reason: "kebab", day: s.day };
     log(s, M.won(mrr), "good", -1);
-    log(s, MILESTONES.kebab, "good", -1);
+    log(s, walkOn(s, "kebab"), "good", -1);
     chef(s, "win");
   }
 }
@@ -734,21 +740,26 @@ function pickUrgent(s: GameState, slot: number): string | null {
   return candidates[i].id;
 }
 
+/**
+ * What turns up overnight: a guest, a letter, something in the street.
+ *
+ * On a night when something does, the card is drawn at random from those that
+ * fit where you stand. The night's luck is the same for everyone playing this
+ * founder today, so the same moves bring the same cards; but who it brings
+ * depends on the founder, and on what you have done so far.
+ */
 function pickEvent(s: GameState): string | null {
   if (s.day < B.eventFirstDay) return null;
   const mods = character(s.character).mods;
-  const deck = shuffle(OVERNIGHT, stream(s.seed, "deck"));
-  const fresh = (e: EventDef) => !s.eventsSeen.includes(e.id);
+  const open = OVERNIGHT.filter((e) => playable(s, e));
+  const fresh = open.filter((e) => !s.eventsSeen.includes(e.id));
+  const draw = (cards: EventDef[], luck: string) =>
+    cards.length > 0 ? cards[Math.floor(rand(s.seed, luck, s.character, s.day) * cards.length)].id : null;
 
-  if (rand(s.seed, "event", s.day) < B.eventChance) {
-    const candidates = deck.filter((e) => playable(s, e));
-    return (candidates.find(fresh) ?? candidates[0])?.id ?? null;
-  }
+  // New cards first. Once all have been seen, those that can come back do.
+  if (rand(s.seed, "event", s.day) < B.eventChance) return draw(fresh.length > 0 ? fresh : open, "draw");
   if (mods.cameoBoost && rand(s.seed, "cameo", s.day) < mods.cameoBoost) {
-    const card = deck.find(
-      (e) => e.kind === "cameo" && e.tone === "good" && fresh(e) && playable(s, e),
-    );
-    return card?.id ?? null;
+    return draw(fresh.filter((e) => e.kind === "cameo" && e.tone === "good"), "guest");
   }
   return null;
 }

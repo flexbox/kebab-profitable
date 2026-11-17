@@ -83,7 +83,7 @@ describe("content", () => {
       for (const o of e.urgent?.missed ?? []) expect(filled(o.text), e.id).toBe(true);
     }
     for (const lines of Object.values(CHEF)) for (const l of lines) expect(filled(l)).toBe(true);
-    for (const l of Object.values(MILESTONES)) expect(filled(l)).toBe(true);
+    for (const lines of Object.values(MILESTONES)) for (const l of lines) expect(filled(l)).toBe(true);
   });
 
   it("has unique ids and valid references", () => {
@@ -290,6 +290,42 @@ describe("rules", () => {
     }
     expect(urgent).toBeGreaterThan(20);
     expect(overnight).toBeGreaterThan(20);
+  });
+
+  it("brings each founder different guests, and the same founder the same ones", () => {
+    const guests = (seed: string, who: (typeof CHARACTER_IDS)[number]) => {
+      const s = createRun(seed, who);
+      const met: string[] = [];
+      while (!s.outcome && s.day <= 60) {
+        const before = s.pendingEvent;
+        step(s, BOTS.expert(s));
+        const card = s.pendingEvent && s.pendingEvent !== before ? eventCard(s.pendingEvent) : null;
+        if (card?.kind === "cameo") met.push(`${card.who} on day ${s.day}`);
+      }
+      return met.join(", ");
+    };
+    // Who drops by is the founder's luck: on one day's seed, no two founders get the same visits.
+    const today = CHARACTER_IDS.map((who) => guests("guests", who));
+    expect(new Set(today).size).toBe(CHARACTER_IDS.length);
+    // The same founder playing the same moves gets the same visits: the leaderboard relies on it.
+    expect(guests("guests", "karl")).toBe(guests("guests", "karl"));
+    // And the first guest of a run is not always the same one.
+    const first = new Set<string>();
+    for (let i = 0; i < 30; i++) first.add(guests(`first-${i}`, "david").split(" ")[0]);
+    expect(first.size).toBeGreaterThanOrEqual(5);
+
+    // At a milestone, the guest who walks on changes with the run too.
+    const walkOns = new Set<string>();
+    for (let i = 0; i < 12; i++) {
+      for (const who of CHARACTER_IDS) {
+        const s = createRun(`walk-${i}`, who);
+        // The journal only keeps its last entries: read it as the run goes.
+        while (!s.outcome && s.day <= 60 && !s.milestones.includes("firstCustomer")) step(s, BOTS.expert(s));
+        const line = s.log.find((entry) => MILESTONES.firstCustomer.some((l) => l.fr === entry.text.fr));
+        if (line) walkOns.add(line.text.fr);
+      }
+    }
+    expect(walkOns.size).toBe(MILESTONES.firstCustomer.length);
   });
 
   it("takes a missed clock as a move, on urgent cards only", () => {

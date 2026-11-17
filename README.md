@@ -48,7 +48,9 @@ with indiehackers.com.
 - A run is short: a good player is kebab profitable in about 45 days, some
   200 clicks. `pnpm sim` prints the current figures.
 - Everyone plays the same seeded run each day, so the leaderboard compares
-  decisions, not luck.
+  decisions, not luck. The luck is the same for everyone playing the same
+  founder: who drops by overnight, and which guest walks on at a milestone,
+  change with the founder and with what you have done so far.
 
 ## Run it
 
