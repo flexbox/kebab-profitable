@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { UI } from "@/i18n/strings";
-import { sfx } from "@/lib/sound";
+import { music, sfx } from "@/lib/sound";
 import { Controls, type ChromeProps } from "./Chrome";
 import {
   drawIntro,
@@ -234,6 +234,12 @@ export function Intro({ onDone, ...chrome }: { onDone: () => void } & ChromeProp
   }, [advance, onDone]);
 
   const beat = beats[index];
+  // The walk has its tune; Chef comes in with another, on the cut.
+  const scene = beat.scene;
+  useEffect(() => {
+    music.play(scene === "street" ? "intro_walk" : "intro_dare");
+  }, [scene]);
+  useEffect(() => () => music.stop(), []);
   const shown = still ? beat.text.length : letters;
   const last = index === beats.length - 1;
   return (

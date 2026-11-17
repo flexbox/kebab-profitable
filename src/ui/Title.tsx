@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { UI } from "@/i18n/strings";
+import { music } from "@/lib/sound";
 import { Controls, Footer, type ChromeProps } from "./Chrome";
 import { Leaderboard } from "./Leaderboard";
 import { useLang } from "./lang";
@@ -23,6 +25,11 @@ export function Title({
   onResume: () => void;
 } & ChromeProps) {
   const { t } = useLang();
+  // The intro opens on music: fetch it while the player reads the title.
+  useEffect(() => {
+    const id = window.setTimeout(() => music.preload("intro_walk", "intro_dare", "select"), 1200);
+    return () => window.clearTimeout(id);
+  }, []);
   return (
     <div className="page title-page">
       <header className="bar">

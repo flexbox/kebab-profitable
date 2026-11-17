@@ -52,6 +52,7 @@ pnpm dev        # http://localhost:3000
 pnpm test       # rules engine tests
 pnpm sim        # balance report: win rates per character
 pnpm art        # redraw the pixel art (see below)
+pnpm audio      # re-render the sounds and the music (see below)
 ```
 
 ## The pixel art
@@ -94,6 +95,35 @@ The sign on the wall is a neon after dark. Its colour is `NEON` in the art
 file, and its flicker is `FLICKER` in `src/ui/Room.tsx`. With reduced motion it
 stays on without flickering.
 
+## The sound
+
+Every effect and every tune is written as code in `audio/kebab.cx.js`: the
+effects the game plays (a click, the till, the alarm on an urgent card), and
+three loops of music, one for the walk home in the intro, one for Chef's dare,
+one for choosing a founder. They are original, and in related keys, so one can
+follow another. It is rendered with
+[chirp](https://github.com/uilianks/chirp), an MIT-licensed synthesiser, and
+the resulting MP3s are committed in `public/audio/`, so the game builds
+without it.
+
+To change a sound, clone the tool once, edit the file and rebuild. The export
+needs `ffmpeg` on your path:
+
+```bash
+git clone https://github.com/uilianks/chirp.git .claude/skills/chirp
+(cd .claude/skills/chirp && npm install --omit=dev --ignore-scripts)
+pnpm audio
+```
+
+To hear what you are writing, `node .claude/skills/chirp/bin/chirp.js serve
+audio/kebab.cx.js` opens a player that rebuilds on every save.
+
+The music loops without a seam, whatever the browser: each MP3 ends with a
+repeat of its own first second, and the game loops between two points exactly
+one pass apart (see `audio/export.mjs` and `src/lib/sound.ts`). The speaker
+button at the top of every screen turns everything off, and a hidden tab is
+silent.
+
 ## Where things live
 
 | Path | What |
@@ -109,6 +139,8 @@ stays on without flickering.
 | `src/ui/` | The screens, and `pixels.ts`, which puts the room together from the art. |
 | `src/ui/Intro.tsx` | The intro before a new run; `intro-pixels.ts` draws it. Its lines are `UI.intro` in `src/i18n/strings.ts`. |
 | `art/` | The pixel art, as code: `kebab.px.js` and `intro.px.js`. Rendered into `public/art/`. |
+| `audio/` | The sounds and the music, as code: `kebab.cx.js`. Rendered into `public/audio/`. |
+| `src/lib/sound.ts` | Plays them: effects cut from one file, music in a loop. |
 | `src/server/` | The leaderboard: it replays each submitted run before recording it. |
 
 ## Leaderboard

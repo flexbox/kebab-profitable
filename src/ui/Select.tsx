@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { CHARACTERS, idea } from "@/game";
 import type { CharacterId } from "@/game/types";
 import { UI } from "@/i18n/strings";
+import { music } from "@/lib/sound";
 import { Controls, Footer, type ChromeProps } from "./Chrome";
 import { useLang } from "./lang";
 import { Portrait } from "./Portrait";
@@ -16,6 +18,11 @@ export function Select({
   onBack: () => void;
 } & ChromeProps) {
   const { t } = useLang();
+  // The roster has its own tune, for as long as it is on screen.
+  useEffect(() => {
+    music.play("select");
+    return () => music.stop();
+  }, []);
   return (
     <div className="page">
       <header className="bar">

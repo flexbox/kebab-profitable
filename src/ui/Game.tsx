@@ -97,7 +97,7 @@ function GameInner() {
       setBoot({ seed, saved: null, attempts, best: store.best(seed) });
       setTurn({ state: createRun(seed, who), prev: null, n: 0 });
       setView("play");
-      sfx.card();
+      sfx.pick();
     },
     [boot],
   );
