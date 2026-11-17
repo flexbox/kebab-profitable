@@ -575,9 +575,12 @@ function ReportPanel({ state, play }: { state: GameState; play: (m: Move) => voi
   );
 }
 
+/** How many lines of the journal are on show, right above the next question. */
+const JOURNAL_LINES = 10;
+
 /**
- * The last three lines of the journal, right above the next question. The
- * ones the last move wrote are lit; the older ones are there for context.
+ * The last lines of the journal, right above the next question. The ones the
+ * last move wrote are lit; the older ones are there for context.
  */
 function JustNow({ turn }: { turn: Turn }) {
   const { t } = useLang();
@@ -585,11 +588,11 @@ function JustNow({ turn }: { turn: Turn }) {
   // On a run just started or resumed, the last line counts as new.
   const written = Math.min(prev ? state.logCount - prev.logCount : 1, state.log.length);
   const fresh = state.log.slice(state.log.length - written);
-  // With more news than room, keep what the move itself did and the latest two.
+  // With more news than room, keep what the move itself did and the latest ones.
   const lines =
-    written > 3
-      ? [fresh[0], ...fresh.slice(-2)].map((entry) => ({ entry, isNew: true }))
-      : state.log.slice(-3).map((entry, i, shown) => ({
+    written > JOURNAL_LINES
+      ? [fresh[0], ...fresh.slice(-(JOURNAL_LINES - 1))].map((entry) => ({ entry, isNew: true }))
+      : state.log.slice(-JOURNAL_LINES).map((entry, i, shown) => ({
           entry,
           isNew: i >= shown.length - written,
         }));
@@ -720,7 +723,7 @@ export function Play({
         <p className="sr-only" role="status">
           {latest ? t(latest.text) : ""}
         </p>
-        {/* On the left, what you do: the question, then the journal of what came of it. */}
+        {/* On the left, what you do: what came of the last moves, then the question. */}
         {/* Each urgent card makes its own entrance, even right after another one. */}
         <section
           key={urgent ? `urgent-${turn.n}` : "panel"}
@@ -785,19 +788,6 @@ export function Play({
           <ProjectCard state={state} />
         </div>
 
-        <section className="card journal">
-          <h2>{t(UI.journal)}</h2>
-          <ol>
-            {state.log
-              .slice(-14)
-              .reverse()
-              .map((entry, i) => (
-                <li key={`${state.log.length - i}`} className={`log log-${entry.tone}`}>
-                  <span className="log-day">{t(UI.day(entry.day))}</span> {t(entry.text)}
-                </li>
-              ))}
-          </ol>
-        </section>
       </main>
 
       {over && <End state={state} attempts={attempts} onRetry={onRetry} onHome={onHome} />}

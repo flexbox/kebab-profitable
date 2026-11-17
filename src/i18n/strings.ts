@@ -273,7 +273,6 @@ export const UI = {
   }),
   nextMonth: { fr: "Passer au mois suivant", en: "Start next month" },
 
-  journal: { fr: "Journal", en: "Journal" },
   quit: { fr: "Abandonner", en: "Give up" },
   quitConfirm: {
     fr: "Abandonner cette partie ? Elle comptera comme un essai.",

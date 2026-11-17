@@ -171,7 +171,6 @@ button {
 .ledger,
 .price,
 .idea-facts,
-.log-day,
 .delta {
   font-variant-numeric: tabular-nums;
 }
@@ -848,20 +847,16 @@ button {
 /* ------------------------------------------------------------------------ */
 
 /*
- * Two columns. What you do is on the left: the question, then the journal of
- * what came of it. What you see is on the right: the room, then the numbers.
- * The source order is actions, room and data, journal. That is the reading
- * order here, row by row, and the order on a phone.
+ * Two columns. What you do is on the left: what came of the last moves, then
+ * the question. What you see is on the right: the room, then the numbers. The
+ * source order is actions, then room and data. That is the reading order here,
+ * and the order on a phone.
  */
 .play-grid {
   display: grid;
   gap: var(--gap);
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  /* The journal's row takes the slack, so it always starts right under the actions. */
-  grid-template-rows: auto 1fr;
-  grid-template-areas:
-    "ask side"
-    "log side";
+  grid-template-areas: "ask side";
   align-items: start;
 }
 
@@ -876,10 +871,6 @@ button {
   display: grid;
   gap: var(--gap);
   min-width: 0;
-}
-
-.journal {
-  grid-area: log;
 }
 
 .gauges,
@@ -1562,22 +1553,7 @@ button {
   background: var(--color-positive);
 }
 
-/* --- journal ------------------------------------------------------------ */
-
-.journal ol {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 8px;
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  line-height: 1.45;
-}
-
-.journal .log:first-child {
-  color: var(--color-text);
-}
+/* --- journal lines ------------------------------------------------------ */
 
 /* A shape for how the entry went, so its colour is not the only sign. */
 .log::before {
@@ -1596,14 +1572,6 @@ button {
 .log-bad::before {
   content: "▼";
   color: var(--color-negative);
-}
-
-.log-day {
-  margin-inline-end: 6px;
-  color: var(--color-text-muted);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  white-space: nowrap;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1859,15 +1827,15 @@ button {
 /* ------------------------------------------------------------------------ */
 
 /* With room to spare, the question card keeps one height through a day, so
-   the journal under it does not jump each time the question changes. */
+   nothing under it jumps each time the question changes. */
 @container panel (min-width: 521px) {
   .panel-body {
     min-height: 500px;
   }
 
-  /* Room for three lines, so the buttons stay where the pointer left them. */
+  /* Room for ten lines, so the buttons stay where the pointer left them. */
   .just-now {
-    min-height: calc(4.35em + 28px);
+    min-height: calc(14.5em + 56px);
   }
 }
 
@@ -1945,14 +1913,12 @@ button {
     gap: var(--gap);
   }
 
-  /* One column, in source order: actions, room and data, journal. */
+  /* One column, in source order: actions, then room and data. */
   .play-grid {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto;
     grid-template-areas:
       "ask"
-      "side"
-      "log";
+      "side";
   }
 
   .hero {
