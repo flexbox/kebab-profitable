@@ -378,7 +378,16 @@ function SlotPanel({
   );
 }
 
-function MealPanel({ state, play }: { state: GameState; play: (m: Move) => void }) {
+function MealPanel({
+  state,
+  play,
+  onFasting,
+}: {
+  state: GameState;
+  play: (m: Move) => void;
+  /** Pointing at "skip lunch": the room shows you not eating. */
+  onFasting: (fasting: boolean) => void;
+}) {
   const { t, euro } = useLang();
   return (
     <div className="panel-body">
@@ -390,7 +399,14 @@ function MealPanel({ state, play }: { state: GameState; play: (m: Move) => void 
             type="button"
             className={`choice meal meal-${def.id}`}
             disabled={state.cash < def.price}
-            onClick={() => play({ t: "meal", id: def.id })}
+            onClick={() => {
+              onFasting(false);
+              play({ t: "meal", id: def.id });
+            }}
+            onMouseEnter={() => onFasting(def.id === "skip")}
+            onMouseLeave={() => onFasting(false)}
+            onFocus={() => onFasting(def.id === "skip")}
+            onBlur={() => onFasting(false)}
           >
             <span className="key">{i + 1}</span>
             <span className="choice-title">{t(def.name)}</span>
@@ -631,6 +647,7 @@ export function Play({
   const { t, date, lang } = useLang();
   const state = turn.state;
   const [preview, setPreview] = useState<ActionId | null>(null);
+  const [fasting, setFasting] = useState(false);
   // The result of an event stays on screen until acknowledged.
   const [acked, setAcked] = useState(-1);
   const showResult = !!state.eventResult && acked !== turn.n;
@@ -740,7 +757,7 @@ export function Play({
           ) : state.phase === "idea" ? (
             <IdeaPanel state={state} play={play} />
           ) : state.phase === "meal" ? (
-            <MealPanel state={state} play={play} />
+            <MealPanel state={state} play={play} onFasting={setFasting} />
           ) : state.phase === "event" ? (
             <EventPanel
               key={turn.n}
@@ -772,7 +789,12 @@ export function Play({
                 </li>
               ))}
             </ol>
-            <Room state={state} preview={preview} label={roomLabel} />
+            <Room
+              state={state}
+              preview={preview}
+              fasting={fasting && state.phase === "meal"}
+              label={roomLabel}
+            />
           </section>
 
           {state.chef && (
