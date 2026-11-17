@@ -16,12 +16,29 @@ sfx("click", { vol: 0.5 },
   tone({ wave: "square", duty: 0.25, freq: "A5", to: "E6", slide: 0.02, dur: 0.03, env: [0.001, 0.025, 0.2, 0.03] }),
   noise({ dur: 0.01, env: [0.001, 0.01, 0, 0.01], filter: { type: "hp", cutoff: 6000 }, vol: 0.25 }))
 
-// A new customer: the till. A knock, then two bright notes, the second ringing.
-sfx("coin", { vol: 0.5 },
-  noise({ dur: 0.02, env: [0.001, 0.02, 0, 0.02], filter: { type: "bp", cutoff: 3000, q: 1 }, vol: 0.4 }),
-  tone({ wave: "square", duty: 0.25, freq: "B5", dur: 0.06, env: [0.001, 0.02, 0.6, 0.02] }),
-  at(0.065, tone({ wave: "square", duty: 0.25, freq: "E6", dur: 0.2, env: [0.001, 0.06, 0.5, 0.22] })),
-  at(0.065, tone({ wave: "fm", fm: { ratio: 3.5, index: 3, decay: 0.2 }, freq: "E7", dur: 0.15, env: [0.001, 0.1, 0.2, 0.2], vol: 0.25 })))
+// A new customer: a chest is opened. The latch and the lid, a run that climbs
+// in zigzag while the lid goes up, then the find held high: a chord of G, the
+// major of the music's own key, with a sparkle over it.
+const CHEST_RUN = ["D5", "G5", "E5", "A5", "F#5", "B5", "A5", "D6"]
+const CHEST_STEP = 0.055
+const CHEST_FIND = 0.08 + CHEST_RUN.length * CHEST_STEP + 0.03
+sfx("customer", { vol: 0.38, fx: [reverb({ size: 0.3, mix: 0.14 })] },
+  // The latch gives, and the lid creaks up.
+  tone({ wave: "sine", freq: 150, to: 70, dur: 0.07, env: [0.001, 0.06, 0, 0.03], vol: 0.8 }),
+  noise({ dur: 0.03, env: [0.001, 0.03, 0, 0.02], filter: { type: "bp", cutoff: 2200, q: 1.5 }, vol: 0.45 }),
+  noise({ dur: 0.5, env: [0.05, 0.3, 0.2, 0.1], filter: { type: "bp", from: 500, to: 3200, q: 2 }, vol: 0.1 }),
+  // What is inside is not known yet: the run gets louder as it climbs.
+  CHEST_RUN.map((note, i) => at(0.08 + i * CHEST_STEP,
+    tone({ wave: "square", duty: 0.25, freq: note, dur: 0.045, env: [0.002, 0.02, 0.7, 0.02], vol: 0.45 + i * 0.07 }),
+    tone({ wave: "triangle", freq: note, dur: 0.045, env: [0.002, 0.02, 0.7, 0.02], vol: 0.5 }))),
+  // Held up for all to see.
+  at(CHEST_FIND,
+    tone({ wave: "square", duty: 0.25, freq: "G6", dur: 0.5, env: [0.002, 0.1, 0.7, 0.3], vibrato: { rate: 6, depth: 0.2, delay: 0.15 } }),
+    tone({ wave: "square", duty: 0.5, freq: "B5", dur: 0.5, env: [0.002, 0.1, 0.6, 0.3], vol: 0.5 }),
+    tone({ wave: "triangle", freq: "D5", dur: 0.5, env: [0.002, 0.1, 0.7, 0.3], vol: 0.6 }),
+    tone({ wave: "triangle", freq: "G3", dur: 0.5, env: [0.002, 0.1, 0.8, 0.3], vol: 0.8 }),
+    noise({ dur: 0.25, env: [0.001, 0.2, 0.1, 0.2], filter: { type: "hp", cutoff: 7000 }, vol: 0.18 })),
+  at(CHEST_FIND + 0.06, tone({ wave: "fm", fm: { ratio: 3.5, index: 3, decay: 0.3 }, freq: "G7", dur: 0.4, arp: { notes: [0, 4, 7, 12], rate: 0.06 }, env: [0.001, 0.2, 0.3, 0.3], vol: 0.2 })))
 
 // Lunch: two bites, crisp on top, a thump underneath.
 sfx("bite", { vol: 0.6 },
@@ -103,7 +120,7 @@ sfx("dare", { vol: 0.5, fx: [drive({ amount: 1.8 }), reverb({ size: 0.3, mix: 0.
   tone({ wave: "sine", freq: 80, to: 40, dur: 0.3, env: [0.001, 0.2, 0.3, 0.2], vol: 0.8 }))
 
 // One file for all of them, each with a little silence after it.
-bank("sfx", ["click", "coin", "bite", "night", "card", "alarm", "tick", "bad", "win", "lose", "pick", "type_*", "talk_*", "slam", "dare"], { gap: 0.15 })
+bank("sfx", ["click", "customer", "bite", "night", "card", "alarm", "tick", "bad", "win", "lose", "pick", "type_*", "talk_*", "slam", "dare"], { gap: 0.15 })
 
 // ---------------------------------------------------------------------------
 // Music

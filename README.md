@@ -110,7 +110,7 @@ stays on without flickering.
 ## The sound
 
 Every effect and every tune is written as code in `audio/kebab.cx.js`: the
-effects the game plays (a click, the till, the alarm on an urgent card), and
+effects the game plays (a click, the chest opened by a new customer, the alarm on an urgent card), and
 three loops of music, one for the walk home in the intro, one for Chef's dare,
 one for choosing a founder. They are original, and in related keys, so one can
 follow another. It is rendered with

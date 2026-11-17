@@ -37,7 +37,7 @@ function playSounds(turn: Turn) {
   // The alarm comes first: the clock is already running.
   if (dealt && eventCard(state.pendingEvent!).urgent) return sfx.alarm();
   const customers = (s: GameState) => s.project?.customers ?? 0;
-  if (customers(state) > customers(prev)) return sfx.coin();
+  if (customers(state) > customers(prev)) return sfx.customer();
   if (dealt) return sfx.card();
   if (state.eventResult?.tone === "bad") return sfx.bad();
   if (last?.t === "meal" && last.id !== "skip") return sfx.bite();

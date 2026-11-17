@@ -93,8 +93,8 @@ const oneOf =
 
 export const sfx = {
   click: () => play("click"),
-  /** A new customer: the till everyone waits for. */
-  coin: () => play("coin"),
+  /** A new customer: a chest opened, and what was in it held up high. */
+  customer: () => play("customer"),
   bite: () => play("bite"),
   night: () => play("night"),
   card: () => play("card"),
