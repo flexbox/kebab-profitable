@@ -404,6 +404,44 @@ export const EVENTS: EventDef[] = [
     ],
   },
   {
+    id: "flavie-podcast",
+    kind: "cameo",
+    tone: "good",
+    who: "flavie",
+    title: { fr: "Un micro pour toi", en: "A microphone for you" },
+    text: {
+      fr: "Flavie Prévot t'invite dans son podcast, Le Board, pour raconter comment on vit d'un SaaS en solo. Tu n'en vis pas encore, mais personne n'a posé la question.",
+      en: "Flavie Prévot invites you on her podcast, Le Board, to tell how one lives off a SaaS alone. You do not yet, but nobody asked.",
+    },
+    when: { hasProject: true },
+    choices: [
+      {
+        label: { fr: "Enregistrer l'épisode", en: "Record the episode" },
+        outcomes: [
+          {
+            effect: { audience: 35, audiencePct: 0.12, moral: 5, skipSlots: 1 },
+            text: {
+              fr: "Une heure au micro, un créneau en moins. Des freelances t'écrivent : « et sinon, tu prends des missions ? »",
+              en: "An hour at the microphone, one slot gone. Freelancers write to you: “so, do you take on gigs?”",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Demander un conseil, hors micro", en: "Ask for advice, off air" },
+        outcomes: [
+          {
+            effect: { moral: 8 },
+            text: {
+              fr: "Elle te dit de vendre avant de construire. Tu notes, tu remercies, et tu retournes construire.",
+              en: "She tells you to sell before you build. You write it down, say thanks, and go back to building.",
+            },
+          },
+        ],
+      },
+    ],
+  },
+  {
     id: "benjamin-films",
     kind: "cameo",
     tone: "good",

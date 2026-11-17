@@ -560,6 +560,9 @@ function ResultPanel({ state, onContinue }: { state: GameState; onContinue: () =
   );
 }
 
+/** Where the real apéros of Indie Hackers Lille are announced. */
+const LUMA = "https://luma.com/indiehackerslille";
+
 /** How many guests a call for support names. */
 const FORCE_TAGS = 2;
 
@@ -845,6 +848,17 @@ export function Play({
               <p>
                 <strong>Chef</strong> {t(state.chef)}
               </p>
+            </aside>
+          )}
+
+          {/* The day of the apéro, the real one is one click away. */}
+          {aperoIn === 0 && !over && (
+            <aside className="invite">
+              <p>{t(UI.aperoReal)}</p>
+              <a className="btn btn-small" href={LUMA} target="_blank" rel="noopener noreferrer">
+                {t(UI.aperoJoin)}
+                <span className="sr-only"> {t(UI.newTab)}</span>
+              </a>
             </aside>
           )}
 

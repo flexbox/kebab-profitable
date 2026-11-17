@@ -27,7 +27,9 @@ with indiehackers.com.
 - A run starts on 1 January 2027. One turn is one day with three slots:
   matin, après-midi, soir.
 - Nine actions: Coder, Shipper, Poster, Démarcher, Support, Freelance,
-  Se reposer, Pivoter, and the monthly Apéro at Le Charlatan.
+  Se reposer, Pivoter, and the monthly Apéro at Le Charlatan. On apéro day
+  the game links to the real one, on
+  [Luma](https://luma.com/indiehackerslille).
 - Each midi you pick a meal: nothing, pâtes au beurre (€1), a kebab (€9) or a
   welsh (€16).
 - Seven gauges: Faim, Énergie, Moral for you; Cash, MRR, Produit, Audience
@@ -80,6 +82,10 @@ it, and Chef. It is rendered with
 [pxl](https://github.com/crsolver/claude-pxl), an MIT-licensed pixel-art tool,
 and the resulting PNGs are committed in `public/art/`, so the game builds
 without it.
+
+The picture a link to the game is shared with is painted the same way, as the
+scene `og`: 200 by 105, exported six times larger to
+`src/app/opengraph-image.png`.
 
 To change the art, clone the tool once, edit the file and rebuild:
 

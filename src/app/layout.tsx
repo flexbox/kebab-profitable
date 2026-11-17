@@ -23,6 +23,8 @@ export const metadata: Metadata = {
     locale: "fr_FR",
     alternateLocale: "en_GB",
   },
+  // The picture itself is `opengraph-image.png`, next to this file: X shows it large.
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

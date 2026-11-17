@@ -307,6 +307,12 @@ export const UI = {
     fr: days === 0 ? "Apéro ce soir au Charlatan" : `Apéro dans ${days} j`,
     en: days === 0 ? "Apéro tonight at Le Charlatan" : `Apéro in ${days}d`,
   }),
+  /** On apéro day: the apéro is a real one, and anyone can come. */
+  aperoReal: {
+    fr: "L'apéro existe aussi en vrai : chaque mois à Lille, entre indie hackers. Viens.",
+    en: "The apéro is real too: every month in Lille, among indie hackers. Come along.",
+  },
+  aperoJoin: { fr: "Voir le prochain apéro sur Luma", en: "See the next apéro on Luma" },
   rentIn: (days: number): L => ({
     fr: days === 0 ? "Loyer ce soir" : `Loyer dans ${days} j`,
     en: days === 0 ? "Rent due tonight" : `Rent in ${days}d`,

@@ -1798,6 +1798,27 @@ const GUESTS = {
       ...SQUARE, ...STUBBLE, run(20, 13, 18, "F"),
     ],
   },
+  // Flavie Prévot: long brown hair parted in the middle, a wide smile, a denim
+  // shirt, in front of a wall of wooden slats.
+  flavie: {
+    look: { H: "#e9b99c", Y: "#c59073", I: "#f7d5be", K: "#5c3b26", L: "#83593a", Z: "#3b2517", B: "#6e4a32", m: "#a8473a", C: "#5b7fa8", c: "#3f5f86", D: "#80a1c8", T: "#1c1612", t: "#9a6238", a: "#dcb45c" },
+    mouth: "grin",
+    back: [rect(1, 3, 13, 2, "t"), rect(0, 8, 9, 2, "t"), rect(0, 13, 7, 2, "t"), rect(0, 18, 6, 2, "t"), rect(0, 23, 5, 2, "t")],
+    draw: [
+      // The crown, parted in the middle, then a curtain down each side of the
+      // face that widens as the jaw narrows and lies on the shoulders.
+      ...syms("K", [[3, 11, 15], [4, 8, 15], [5, 6, 15], [6, 5, 15], [7, 4, 12], [8, 4, 9], [9, 3, 7], [10, 3, 6]]),
+      ...syms("K", [[11, 3, 6], [12, 3, 5], [13, 3, 5], [14, 2, 4], [15, 2, 3], [16, 2, 3], [17, 2, 3], [18, 2, 4], [19, 2, 4], [20, 2, 5], [21, 2, 5], [22, 2, 6], [23, 2, 7], [24, 2, 8], [25, 2, 9], [26, 2, 8], [27, 2, 6], [28, 3, 6], [29, 3, 5], [30, 4, 5]]),
+      // The light catches the top, and one long strand on each side.
+      ...runs("L", [[4, 10, 13], [5, 8, 11], [6, 6, 9], [5, 18, 21], [6, 21, 24]]),
+      ...syms("L", [[12, 4, 4], [13, 4, 4], [14, 3, 3], [15, 3, 3], [16, 3, 3], [22, 4, 4], [23, 4, 5], [24, 5, 5], [25, 5, 6]]),
+      // In shade where it meets the cheek and the neck.
+      ...syms("Z", [[22, 6, 6], [23, 7, 7], [24, 8, 8], [25, 9, 9], [26, 8, 8], [27, 6, 6], [28, 6, 6]]),
+      ...runs("Z", [[3, 15, 16], [4, 15, 16]]),
+      // A small gold hoop.
+      px(28, 18, "a"), px(28, 19, "a"),
+    ],
+  },
 }
 
 for (const [who, guest] of Object.entries(GUESTS)) {
@@ -1816,10 +1837,33 @@ for (const [who, guest] of Object.entries(GUESTS)) {
     `guest_${who}`,
     { w: 32, h: 32 },
     rect(0, 0, 32, 32, "T"),
-    ...(who === "tony" ? [circ(16, 15, 13, "t")] : [rect(0, 31, 32, 1, "t")]),
+    // Behind them: a line along the bottom, unless the avatar has more to show.
+    ...(guest.back ?? (who === "tony" ? [circ(16, 15, 13, "t")] : [rect(0, 31, 32, 1, "t")])),
     stamp(`_guest_${who}`, -1, -1),
   )
 }
+
+// ---------------------------------------------------------------------------
+// The picture a link to the game is shared with
+// ---------------------------------------------------------------------------
+//
+// 200 by 105, built six times larger (1200 by 630, what social networks ask
+// for): the title, the goal, Chef, and the five founders with a fist in the
+// air, on the rug.
+pal({ n: "#0e2439", N: "#0a1b2c", a: "#f2b43c", x: "#f4eedd", g: "#9fb3c8", r: "#a8322c", R: "#7e2420", o: "#d9a441", f: "#6e4a30", F: "#5a3a24", e: "#8a6040" })
+scene("og", { w: 200, h: 105, bg: "n" },
+  // The floor: boards, then the rug with its border.
+  layer("floor", rect(0, 84, 200, 21, "f"), rect(0, 84, 200, 1, "e"), rect(0, 94, 200, 1, "F"),
+    rect(8, 88, 184, 17, "r"), rect(8, 88, 184, 1, "R"), rect(10, 90, 180, 1, "o")),
+  layer("title",
+    text(12, 9, "KEBAB", "a", { scale: 4 }),
+    text(12, 33, "PROFITABLE", "x", { scale: 3 }),
+    text(12, 53, "OBJECTIF : UN KEBAB PAR JOUR.", "g"),
+    text(12, 61, "LE JEU DES INDIE HACKERS LILLE", "g")),
+  layer("people",
+    stamp("portrait_chef", 156, 12),
+    ...["david", "karl", "mickael", "christophe", "matthys"].map((who, i) => stamp(`${who}_cheer_0_day`, 24 + i * 34, 70))),
+)
 
 // Everything the game places, on one sheet.
 // The intro has its own pictures, and its own sheet.

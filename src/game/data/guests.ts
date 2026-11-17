@@ -18,6 +18,7 @@ export const GUESTS: Record<GuestId, GuestDef> = {
   danny: { name: "Danny Postma", handle: "dannypostma" },
   arvid: { name: "Arvid Kahl", handle: "arvidkahl" },
   benjamin: { name: "Benjamin Code", handle: "benjamincode" },
+  flavie: { name: "Flavie Prévot", handle: "FlaviePrevot" },
 };
 
 export function guest(id: GuestId): GuestDef {

@@ -336,7 +336,8 @@ export type GuestId =
   | "tony"
   | "danny"
   | "arvid"
-  | "benjamin";
+  | "benjamin"
+  | "flavie";
 
 export interface GuestDef {
   name: string;
