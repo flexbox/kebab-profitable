@@ -529,6 +529,11 @@ button {
   line-height: 1;
 }
 
+/* The key of a plain button sits before its label. */
+.btn .key {
+  margin-inline-end: 10px;
+}
+
 .portrait {
   border-radius: var(--r-control);
   outline: 1px solid var(--image-outline);
@@ -1863,7 +1868,8 @@ button {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .choice .key {
+  .choice .key,
+  .btn .key {
     display: none;
   }
 

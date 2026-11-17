@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import {
   ACTIONS,
   B,
@@ -552,6 +552,7 @@ function ResultPanel({ state, onContinue }: { state: GameState; onContinue: () =
       <h2 className="ask">{t(ev.title)}</h2>
       <p className="event-text">{t(result.text)}</p>
       <button type="button" className="btn btn-primary" onClick={onContinue} autoFocus>
+        <span className="key">1</span>
         {t(UI.continue)}
       </button>
     </div>
@@ -561,7 +562,16 @@ function ResultPanel({ state, onContinue }: { state: GameState; onContinue: () =
 /** How many guests a call for support names. */
 const FORCE_TAGS = 2;
 
-function ReportPanel({ state, play }: { state: GameState; play: (m: Move) => void }) {
+function ReportPanel({
+  state,
+  play,
+  forceLink,
+}: {
+  state: GameState;
+  play: (m: Move) => void;
+  /** The link that asks X for support: the keyboard follows it too. */
+  forceLink: RefObject<HTMLAnchorElement | null>;
+}) {
   const { t, euro, lang } = useLang();
   const r = state.report!;
   // Asking for support thanks the guests met so far, by their handle: their
@@ -600,9 +610,11 @@ function ReportPanel({ state, play }: { state: GameState; play: (m: Move) => voi
       </p>
       <div className="report-actions">
         <button type="button" className="btn btn-primary" onClick={() => play({ t: "ok" })} autoFocus>
+          <span className="key">1</span>
           {t(UI.nextMonth)}
         </button>
-        <a className="btn" href={forceUrl} target="_blank" rel="noopener noreferrer">
+        <a ref={forceLink} className="btn" href={forceUrl} target="_blank" rel="noopener noreferrer">
+          <span className="key">2</span>
           {t(UI.askForce)}
           <span className="sr-only"> {t(UI.newTab)}</span>
         </a>
@@ -673,6 +685,7 @@ export function Play({
   const showResult = !!state.eventResult && acked !== turn.n;
   const over = !!state.outcome && !showResult;
   const ack = useCallback(() => setAcked(turn.n), [turn.n]);
+  const forceLink = useRef<HTMLAnchorElement>(null);
 
   // A card can land under a finger already on its way to a button. Its
   // choices open a moment after it appears, so it is never answered unread.
@@ -691,16 +704,20 @@ export function Play({
       const target = e.target as HTMLElement | null;
       if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
       const confirm = e.key === "Enter";
-      const n = /^[1-9]$/.test(e.key) ? Number(e.key) : 0;
+      // A digit held down answers one question, not the ones that follow it.
+      const n = /^[1-9]$/.test(e.key) && !e.repeat ? Number(e.key) : 0;
+      // A single button is always 1, like the first of several.
       if (showResult) {
-        if (confirm) ack();
+        if (confirm || n === 1) ack();
         return;
       }
       if (state.outcome) return;
-      if (state.phase === "report" && confirm) {
+      if (state.phase === "report") {
         // Enter on a link follows the link: it does not also close the month.
-        if (target?.closest("a")) return;
-        return play({ t: "ok" });
+        if (confirm && target?.closest("a")) return;
+        if (confirm || n === 1) play({ t: "ok" });
+        else if (n === 2) forceLink.current?.click();
+        return;
       }
       if (!n) return;
       if (state.phase === "slot") {
@@ -790,7 +807,7 @@ export function Play({
               armed={armed}
             />
           ) : state.phase === "report" ? (
-            <ReportPanel state={state} play={play} />
+            <ReportPanel state={state} play={play} forceLink={forceLink} />
           ) : state.phase === "slot" ? (
             <SlotPanel state={state} play={play} onPreview={setPreview} />
           ) : null}
