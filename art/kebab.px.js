@@ -129,7 +129,7 @@ function painter(c, tint) {
         }
       })
     },
-    text: (x, y, str, hx) => c.text(x, y, str, tint(hx)),
+    text: (x, y, str, hx, opts) => c.text(x, y, str, tint(hx), opts),
     /** Changes the pixels already painted. */
     adjust: (x, y, w, h, fn, density = 1) => {
       for (let j = y; j < y + h; j++) {
@@ -320,16 +320,16 @@ function paintWallThings(p) {
   p.r(P + 1, 11, 1, 1, C.red)
   p.r(P + 26, 11, 1, 1, C.red)
 
-  // A sign, and a shelf of books that have all been started.
-  p.box(70, 12, 19, 9, "#33261f")
-  p.text(72, 14, "SHIP", C.gold)
-  p.adjust(69, 34, 22, 1, (px) => mul(px, [0.74, 0.72, 0.76]))
-  p.box(68, 32, 23, 2, C.wood)
-  p.r(68, 32, 23, 1, C.woodLight)
+  // The sign, on two lines, and under it a shelf of books that have all been started.
+  p.box(66, 11, 35, 13, "#33261f")
+  p.text(83, 12, "WESHIPIT\n.TODAY", C.gold, { align: "c" })
+  p.adjust(70, 38, 23, 1, (px) => mul(px, [0.74, 0.72, 0.76]))
+  p.box(70, 35, 23, 2, C.wood)
+  p.r(70, 35, 23, 1, C.woodLight)
   const books = [["#c0432f", 7], ["#3f8f86", 6], [C.gold, 8], ["#4f6f8a", 7], ["#7a58b8", 6], [C.white, 8]]
   books.forEach(([col, h], i) => {
-    p.r(70 + i * 3, 32 - h, 2, h, col)
-    p.r(72 + i * 3, 32 - h, 1, h, C.ink)
+    p.r(72 + i * 3, 35 - h, 2, h, col)
+    p.r(74 + i * 3, 35 - h, 1, h, C.ink)
   })
 }
 
