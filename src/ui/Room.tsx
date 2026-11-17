@@ -28,6 +28,41 @@ const POSES: Record<ActionId, { pose: Pose; screen: Screen }> = {
   apero: { pose: "out", screen: "off" },
 };
 
+/** One flicker of the neon sign: how bright, then for how long, in milliseconds. */
+const FLICKER: [level: number, ms: number][] = [
+  [0.3, 90],
+  [1, 70],
+  [0.5, 60],
+];
+
+/**
+ * How bright the neon sign is. It is off by day and steady after dark, apart
+ * from one short flicker as it comes on and another every ten seconds or so.
+ */
+function useNeon(lit: boolean): number {
+  const [level, setLevel] = useState(1);
+  useEffect(() => {
+    // With reduced motion the sign simply stays on.
+    if (!lit || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let timer = 0;
+    const flicker = (i: number) => {
+      if (i < FLICKER.length) {
+        setLevel(FLICKER[i][0]);
+        timer = window.setTimeout(() => flicker(i + 1), FLICKER[i][1]);
+      } else {
+        setLevel(1);
+        timer = window.setTimeout(() => flicker(0), 8000 + Math.random() * 8000);
+      }
+    };
+    timer = window.setTimeout(() => flicker(0), 150);
+    return () => {
+      window.clearTimeout(timer);
+      setLevel(1);
+    };
+  }, [lit]);
+  return lit ? level : 0;
+}
+
 function lastAction(state: GameState): ActionId | null {
   // What was done in the previous slot of the same day, if anything.
   if (state.slot === 0) return null;
@@ -81,6 +116,8 @@ export function Room({
   // Lunch is always eaten in daylight, even on a day that a pivot swallowed.
   const time =
     state.phase === "lost" ? 3 : state.phase === "meal" ? 1 : Math.min(3, state.slot);
+  // The sign is a neon: it comes on with the lamp, at the end of the afternoon.
+  const neon = useNeon(time >= 2);
   const raining = rand(state.seed, "weather", state.day) < 0.38;
   const goal = Math.min(1, mrrOf(state) / B.kebabMrr);
   const who = state.character;
@@ -102,11 +139,12 @@ export function Room({
         kebabs,
         pates,
         frame,
+        neon,
         seed: seedNumber,
       };
       if (art) drawRoom(ctx, art, scene);
     },
-    [art, who, time, pose, screen, raining, moral, goal, kebabs, pates, frame, seedNumber],
+    [art, who, time, pose, screen, raining, moral, goal, kebabs, pates, frame, neon, seedNumber],
   );
 
   return <PixelCanvas width={ROOM_W} height={ROOM_H} draw={draw} className="room" label={label} />;

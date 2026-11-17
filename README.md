@@ -66,6 +66,10 @@ git clone https://github.com/crsolver/claude-pxl.git .claude/skills/pxl-pixel-ar
 pnpm art
 ```
 
+The sign on the wall is a neon after dark. Its colour is `NEON` in the art
+file, and its flicker is `FLICKER` in `src/ui/Room.tsx`. With reduced motion it
+stays on without flickering.
+
 ## Where things live
 
 | Path | What |

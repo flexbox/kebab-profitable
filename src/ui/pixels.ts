@@ -5,6 +5,8 @@
  * `pnpm art`: the room in each light, and one sheet of everything that moves.
  * This file only decides which pieces to place, and where, for a given moment
  * of a run. Nothing is tinted here: each piece was painted in the right light.
+ * The one exception is the neon sign, which is light itself: it is see-through,
+ * and drawn fainter while it flickers.
  */
 import type { CharacterId } from "@/game/types";
 import atlasJson from "./atlas.json";
@@ -37,6 +39,8 @@ export interface RoomScene {
   pates: number;
   /** Animation frame, toggles a few times a second. */
   frame: number;
+  /** How bright the neon sign is, from 0 (off, by day) to 1. */
+  neon: number;
   seed: number;
 }
 
@@ -129,6 +133,8 @@ function sprite(c: Ctx, art: Art, name: string, x: number, y: number) {
 const PLACE = {
   /** The bars of the wall chart, over the bed. */
   chart: [11, 16],
+  /** The neon sign, with the light around it. */
+  neon: [61, 6],
   /** The terminal's screen. */
   screen: [110, 24],
   /** The plant, above its pot. */
@@ -175,6 +181,12 @@ export function drawRoom(c: Ctx, art: Art, s: RoomScene) {
   if (step > 0) sprite(c, art, `chart_${step}_${light}`, PLACE.chart[0], PLACE.chart[1]);
 
   if (s.raining && s.time < 2) drawRain(c, s.frame);
+
+  if (s.neon > 0) {
+    c.globalAlpha = s.neon;
+    sprite(c, art, "neon", PLACE.neon[0], PLACE.neon[1]);
+    c.globalAlpha = 1;
+  }
 
   // Kebab wrappers pile up on the floor, bowls of pasta on the desk.
   const wrappers = Math.min(WRAPPERS.length, Math.floor(s.kebabs / 2));

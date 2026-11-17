@@ -159,6 +159,8 @@ const SKIES = {
   night: { top: "#10142a", bottom: "#222a48", town: "#161426", lit: true, sun: null },
 }
 const WINDOW_LIGHT = "#f8c868"
+/** The sign on the wall: its board, and what it says. After dark it is a neon. */
+const SIGN = { x: 66, y: 11, w: 35, h: 13, words: "WESHIPIT\n.TODAY" }
 /** The glass of the window, on the picture. The game draws the rain on it. */
 const GLASS = [150, 8, 32, 24]
 
@@ -321,8 +323,8 @@ function paintWallThings(p) {
   p.r(P + 26, 11, 1, 1, C.red)
 
   // The sign, on two lines, and under it a shelf of books that have all been started.
-  p.box(66, 11, 35, 13, "#33261f")
-  p.text(83, 12, "WESHIPIT\n.TODAY", C.gold, { align: "c" })
+  p.box(SIGN.x, SIGN.y, SIGN.w, SIGN.h, "#33261f")
+  p.text(SIGN.x + 17, SIGN.y + 1, SIGN.words, C.gold, { align: "c" })
   p.adjust(70, 38, 23, 1, (px) => mul(px, [0.74, 0.72, 0.76]))
   p.box(70, 35, 23, 2, C.wood)
   p.r(70, 35, 23, 1, C.woodLight)
@@ -545,6 +547,29 @@ for (const [name, { sky, steps }] of Object.entries(DARK)) {
 // ---------------------------------------------------------------------------
 // Things the game places in the room
 // ---------------------------------------------------------------------------
+
+// The sign after dark: the tubes, lit, and the light they throw on the board
+// and on the brick around it. It is one colour, and it is see-through, so it
+// sits on the wall in whatever light the wall is in.
+const NEON = "#61dafb"
+const NEON_REACH = 5
+/** How strong the light still is, by distance from a tube, in pixels. */
+const NEON_FALLOFF = [[1.5, 0.3], [2.5, 0.2], [3.7, 0.12], [NEON_REACH, 0.06]]
+sprite("neon", { w: SIGN.w + NEON_REACH * 2, h: SIGN.h + NEON_REACH * 2 }, (c) => {
+  const w = SIGN.w + NEON_REACH * 2
+  const h = SIGN.h + NEON_REACH * 2
+  c.text(NEON_REACH + 17, NEON_REACH + 1, SIGN.words, lighten(NEON, 0.45), { align: "c" })
+  const tubes = []
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (c.get(x, y) & 255) tubes.push([x, y])
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (c.get(x, y) & 255) continue
+      const far = Math.min(...tubes.map(([tx, ty]) => Math.hypot(tx - x, ty - y)))
+      const step = NEON_FALLOFF.find(([reach]) => far <= reach)
+      if (step) c.px(x, y, NEON + Math.round(step[1] * 255).toString(16).padStart(2, "0"))
+    }
+  }
+})
 
 for (const g of GRADES) {
   const tint = grader(g)
@@ -1024,6 +1049,6 @@ for (const [who, look] of Object.entries(PORTRAITS)) {
 // Everything the game places, on one sheet.
 sheet(
   "sprites",
-  ["chart_*", "plant_*", "bowl_*", "wrapper_*", "screen_*", "*_front_*", "*_arm_*", "*_back_*", "*_asleep_*", "phone_*", "kebab_*", "bubble_*"],
+  ["chart_*", "plant_*", "bowl_*", "wrapper_*", "screen_*", "*_front_*", "*_arm_*", "*_back_*", "*_asleep_*", "phone_*", "kebab_*", "bubble_*", "neon"],
   { pad: 1 },
 )
