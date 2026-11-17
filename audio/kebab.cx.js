@@ -82,13 +82,7 @@ sfx("bad", { vol: 0.5 },
 
 // Kebab profitable has no effect here: it is a piece of music, at the end of this file.
 
-// Back to the day job: three steps down, and a long last note.
-sfx("lose", { vol: 0.45, fx: [reverb({ size: 0.35, mix: 0.15 })] },
-  [["E5", 0], ["D5", 0.2], ["C5", 0.4]].map(([note, t]) =>
-    at(t, tone({ wave: "triangle", freq: note, dur: 0.17, env: [0.004, 0.05, 0.7, 0.05] }))),
-  at(0.6,
-    tone({ wave: "triangle", freq: "A4", dur: 0.6, env: [0.004, 0.2, 0.6, 0.5], vibrato: { rate: 5, depth: 0.2, delay: 0.2 } }),
-    tone({ wave: "sine", freq: "A2", dur: 0.6, env: [0.004, 0.2, 0.7, 0.5], vol: 0.8 })))
+// Back to the day job is a piece of music too, after the other one.
 
 // A founder is chosen: a quick run up a major chord, and off you go.
 sfx("pick", { vol: 0.45, fx: [reverb({ size: 0.25, mix: 0.1 })] },
@@ -212,6 +206,7 @@ song("intro_dare", { bpm: 160, vol: 0.8, fx: [chorus({ mix: 0.2 }), reverb({ siz
 const WALK = ["Em", "C", "Am", "B", "Em", "C", "Am", "B"]
 const TRIADS = { Em: chord("Em", 3), C: chord("C", 3), Am: chord("Am", 3), B: chord("B", 2) }
 const held = (token) => line([token, 32])
+const held16 = (token) => line([token, 16])
 const walkTune = bars(
   line(["B4", 4], ["E5", 8], ["F#5", 4]), line(["G5", 8], ["F#5", 4], ["E5", 4]),
   line(["E5", 4], ["G5", 8], ["E5", 4]), line(["C5", 8], ["D5", 4], ["E5", 4]),
@@ -322,3 +317,29 @@ song("_victory", { bpm: 160, loop: false, vol: 0.8, fx: [chorus({ mix: 0.2 }), r
 
 // The game plays it once, like any other effect.
 sfx("win", { vol: 0.9 }, play("_victory"))
+
+// --- Back to the day job: the dare, lost ----------------------------------------
+//
+// Four bars at the same tempo, felt at half speed like the walk home. The
+// dare's first four notes come back the other way round, going down, and the
+// phrase is repeated a step lower each bar: E minor, C, B, and E minor again,
+// low, where it stays. No band this time: the lonely voice of the walk, a
+// piano, a bass, and a drum like a slow heart.
+const falling = (name) => {
+  const [low, mid, high] = HARMONY[name].run
+  return times(2, `${high} . ${mid} . ${low} . . .`).replaceAll(" | ", " ")
+}
+song("_gameover", { bpm: 160, loop: false, vol: 0.8, fx: [chorus({ mix: 0.3 }), reverb({ size: 0.75, mix: 0.3 }), limiter({ ceiling: 0.8 })] },
+  track("lonely", bars(
+    line(["G5", 4], ["F#5", 2], ["E5", 2], ["B4", 8]),
+    line(["E5", 4], ["D5", 2], ["C5", 2], ["G4", 8]),
+    line(["F#5", 4], ["E5", 2], ["D#5", 2], ["B4", 4], ["F#4", 4]),
+    line(["E4", 13], [null, 3]))),
+  track("keys", bars(held16(TRIADS.Em), held16(TRIADS.C), held16(TRIADS.B), line([TRIADS.Em, 13], [null, 3]))),
+  track("bass", bars(line(["E2", 16]), line(["C2", 16]), line(["B1", 16]), line(["E1", 13], [null, 3])), { vol: 0.8 }),
+  // The notes of each chord, dropping, an octave down: they stop before the end.
+  track("pluck", bars(falling("Em"), falling("C"), falling("B"), silence), { transpose: -12, pan: 0.3, vol: 0.6 }),
+  track("kick", bars(times(3, "x . . . . . . . . . x . . . . ."), "x . . . . . . . . . . . . . . ."), { vol: 0.7 }),
+  track("tom", bars(silence, silence, ". . . . . . . . . . . . x . x .", silence), { vol: 0.6 }))
+
+sfx("lose", { vol: 0.85 }, play("_gameover"))

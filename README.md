@@ -115,6 +115,7 @@ alarm on an urgent card), and three loops of music, one for the walk home in
 the intro, one for Chef's dare, one for choosing a founder. They are original,
 and in related keys, so one can follow another. Winning has its own four bars:
 the dare's tune comes back in E major, and the band lands on one last chord.
+Losing has four too: the same notes the other way round, going down, alone.
 It is rendered with
 [chirp](https://github.com/uilianks/chirp), an MIT-licensed synthesiser, and
 the resulting MP3s are committed in `public/audio/`, so the game builds
