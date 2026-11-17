@@ -217,7 +217,7 @@ function addCash(s: GameState, amount: number) {
   if (s.cash < 0) lose(s, "cash");
 }
 
-/** At a milestone, a guest in pixels walks on: which one is this run's luck. */
+/** At a milestone, a guest walks on: which one is this run's luck. */
 function walkOn(s: GameState, milestone: keyof typeof MILESTONES): L {
   const lines = MILESTONES[milestone];
   return lines[Math.floor(rand(s.seed, "walk-on", milestone, s.character) * lines.length)];

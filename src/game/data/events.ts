@@ -7,7 +7,7 @@ import { URGENT_CARDS } from "./urgent";
  * day, are in `urgent.ts` and join the deck at the end of this file.
  *
  * House rules for cameo cards (kind: "cameo"):
- *  - the figure appears as a pixel version of themselves, never as a quote;
+ *  - the figure appears by name, never as a quote;
  *  - the joke is about what they are famous for, never about a setback;
  *  - anyone named can ask for their card to be removed (see the README).
  *
@@ -25,8 +25,8 @@ export const EVENTS: EventDef[] = [
     who: "levels",
     title: { fr: "Just ship it", en: "Just ship it" },
     text: {
-      fr: "Un Pieter Levels en pixels apparaît dans ton fil. Il regarde ta liste de 47 tâches avant lancement et hausse un sourcil. Le message est clair.",
-      en: "A pixel Pieter Levels shows up in your feed. He looks at your 47-item pre-launch list and raises an eyebrow. The message is clear.",
+      fr: "Pieter Levels apparaît dans ton fil. Il regarde ta liste de 47 tâches avant lancement et hausse un sourcil. Le message est clair.",
+      en: "Pieter Levels shows up in your feed. He looks at your 47-item pre-launch list and raises an eyebrow. The message is clear.",
     },
     when: { hasProject: true, launched: false },
     choices: [
@@ -63,8 +63,8 @@ export const EVENTS: EventDef[] = [
     who: "marc",
     title: { fr: "Vidéo de lancement", en: "Launch video" },
     text: {
-      fr: "Un Marc Lou en pixels propose de jouer dans ta vidéo de lancement. Il a déjà le costume, la perruque et un fond vert.",
-      en: "A pixel Marc Lou offers to star in your launch video. He already has the costume, the wig and a green screen.",
+      fr: "Marc Lou propose de jouer dans ta vidéo de lancement. Il a déjà le costume, la perruque et un fond vert.",
+      en: "Marc Lou offers to star in your launch video. He already has the costume, the wig and a green screen.",
     },
     when: { hasProject: true },
     choices: [
@@ -139,8 +139,8 @@ export const EVENTS: EventDef[] = [
     who: "tibo",
     title: { fr: "Offre de rachat", en: "Acquisition offer" },
     text: {
-      fr: "Un Tibo en pixels t'écrit en privé : il rachèterait bien ton projet. Cash tout de suite, douze fois ton MRR.",
-      en: "A pixel Tibo slides into your DMs: he would happily buy your project. Cash now, twelve times your MRR.",
+      fr: "Tibo t'écrit en privé : il rachèterait bien ton projet. Cash tout de suite, douze fois ton MRR.",
+      en: "Tibo slides into your DMs: he would happily buy your project. Cash now, twelve times your MRR.",
     },
     when: { launched: true, minMrr: 60 },
     choices: [

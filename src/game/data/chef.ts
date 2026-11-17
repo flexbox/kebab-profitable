@@ -561,45 +561,45 @@ export const CHEF: Record<ChefCue, L[]> = {
 };
 
 /**
- * Lines for the milestones, written as stage directions about pixel versions
- * of famous figures. They are jokes, never quotes. Each milestone has several,
+ * Lines for the milestones, written as stage directions about famous
+ * figures. They are jokes, never quotes. Each milestone has several,
  * with a different guest in each: the run's luck picks who walks on.
  */
 export const MILESTONES: Record<"firstCustomer" | "mrr100" | "kebab", L[]> = {
   firstCustomer: [
     {
-      fr: "Quelque part, un Pieter Levels en pixels lève le pouce sans quitter son écran des yeux.",
-      en: "Somewhere, a pixel Pieter Levels gives a thumbs-up without taking his eyes off the screen.",
+      fr: "Quelque part, Pieter Levels lève le pouce sans quitter son écran des yeux.",
+      en: "Somewhere, Pieter Levels gives a thumbs-up without taking his eyes off the screen.",
     },
     {
-      fr: "Quelque part, un Tony Dinh en pixels ajoute ton premier client à un tableur, par solidarité.",
-      en: "Somewhere, a pixel Tony Dinh adds your first customer to a spreadsheet, out of solidarity.",
+      fr: "Quelque part, Tony Dinh ajoute ton premier client à un tableur, par solidarité.",
+      en: "Somewhere, Tony Dinh adds your first customer to a spreadsheet, out of solidarity.",
     },
     {
-      fr: "Un Arvid Kahl en pixels hoche la tête : de zéro à un, c'est le chapitre le plus long.",
-      en: "A pixel Arvid Kahl nods: from zero to one is the longest chapter.",
+      fr: "Arvid Kahl hoche la tête : de zéro à un, c'est le chapitre le plus long.",
+      en: "Arvid Kahl nods: from zero to one is the longest chapter.",
     },
     {
-      fr: "Un Benjamin Code en pixels regrette de ne pas avoir filmé ça.",
-      en: "A pixel Benjamin Code wishes he had been filming.",
+      fr: "Benjamin Code regrette de ne pas avoir filmé ça.",
+      en: "Benjamin Code wishes he had been filming.",
     },
   ],
   mrr100: [
     {
-      fr: "À Bali, un Marc Lou en pixels sent une légère vibration dans le MRR mondial.",
-      en: "In Bali, a pixel Marc Lou senses a faint tremor in the world's MRR.",
+      fr: "À Bali, Marc Lou sent une légère vibration dans le MRR mondial.",
+      en: "In Bali, Marc Lou senses a faint tremor in the world's MRR.",
     },
     {
-      fr: "Un Tibo en pixels jette un œil à ton MRR, fait un calcul rapide, et s'abonne à ton compte. Au cas où.",
-      en: "A pixel Tibo glances at your MRR, does a quick sum, and follows you. Just in case.",
+      fr: "Tibo jette un œil à ton MRR, fait un calcul rapide, et s'abonne à ton compte. Au cas où.",
+      en: "Tibo glances at your MRR, does a quick sum, and follows you. Just in case.",
     },
     {
-      fr: "Un Danny Postma en pixels propose de refaire ta photo de profil : à 100 € de MRR, on commence à te regarder.",
-      en: "A pixel Danny Postma offers to redo your profile photo: at €100 of MRR, people start looking.",
+      fr: "Danny Postma propose de refaire ta photo de profil : à 100 € de MRR, on commence à te regarder.",
+      en: "Danny Postma offers to redo your profile photo: at €100 of MRR, people start looking.",
     },
     {
-      fr: "Un Dagobert Renouf en pixels te garde un coin de revers sur son costume. Il te faudra un logo.",
-      en: "A pixel Dagobert Renouf saves you a corner of lapel on his suit. You will need a logo.",
+      fr: "Dagobert Renouf te garde un coin de revers sur son costume. Il te faudra un logo.",
+      en: "Dagobert Renouf saves you a corner of lapel on his suit. You will need a logo.",
     },
   ],
   kebab: [
@@ -608,8 +608,8 @@ export const MILESTONES: Record<"firstCustomer" | "mrr100" | "kebab", L[]> = {
       en: "Your name appears at the very bottom of a verified revenue leaderboard. The very bottom, but on it.",
     },
     {
-      fr: "Quelque part, dix indie hackers en pixels lèvent les yeux de leur tableau Stripe. Un de plus à table.",
-      en: "Somewhere, ten pixel indie hackers look up from their Stripe dashboards. One more at the table.",
+      fr: "Quelque part, dix indie hackers lèvent les yeux de leur tableau Stripe. Un de plus à table.",
+      en: "Somewhere, ten indie hackers look up from their Stripe dashboards. One more at the table.",
     },
   ],
 };
