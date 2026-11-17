@@ -39,6 +39,12 @@ with indiehackers.com.
   down, your coffee is heading for the keyboard. You get about ten seconds to
   choose between a safe answer and a gamble on your progress. Let the clock
   run out and you take the worst of it.
+- Chef, who owns the kebab shop downstairs, coaches you whether you asked or
+  not. About one lunch in two he looks at your numbers instead of your plate
+  and says what he sees, in the words of your own forum: still not launched,
+  no customers, followers but no sales. His shop makes money, and he would
+  like you to notice. He has some hundred lines, dealt like a shuffled deck,
+  so he does not repeat himself.
 - A run is short: a good player is kebab profitable in about 45 days, some
   200 clicks. `pnpm sim` prints the current figures.
 - Everyone plays the same seeded run each day, so the leaderboard compares
@@ -134,7 +140,7 @@ silent.
 | `src/game/data/ideas.ts` | The fifteen project ideas. |
 | `src/game/data/events.ts` | The event deck, answered at leisure in the morning. |
 | `src/game/data/urgent.ts` | The urgent cards, answered against the clock. |
-| `src/game/data/chef.ts` | What the kebab shop owner says. |
+| `src/game/data/chef.ts` | What the kebab shop owner says, and on which occasion. Add a line to a list and he will say it. |
 | `src/game/sim/` | Scripted players used to tune the balance. |
 | `src/ui/` | The screens, and `pixels.ts`, which puts the room together from the art. |
 | `src/ui/Intro.tsx` | The intro before a new run; `intro-pixels.ts` draws it. Its lines are `UI.intro` in `src/i18n/strings.ts`. |

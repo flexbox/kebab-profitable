@@ -91,6 +91,16 @@ export const B = {
   /** The first day is for learning the buttons: no clock yet. */
   urgentFirstDay: 2,
 
+  // --- Chef ----------------------------------------------------------------
+  /** How often, at lunch, he talks about your business instead of your plate. */
+  coachChance: 0.5,
+  /** From this day on, he asks why nothing is on sale yet. */
+  coachBuildingDay: 5,
+  /** Followers it takes for him to ask where the customers are. */
+  coachAudience: 150,
+  /** Below this, he can see you counting your coins. */
+  coachBroke: 500,
+
   // --- limits --------------------------------------------------------------
   /** A replayed run longer than this is rejected by the leaderboard. */
   maxMoves: 4000,

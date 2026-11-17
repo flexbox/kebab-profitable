@@ -163,10 +163,40 @@ function log(s: GameState, text: L, tone: Tone = "neutral", slot = s.slot) {
   if (s.log.length > B.logSize) s.log.splice(0, s.log.length - B.logSize);
 }
 
+/**
+ * Chef says one of his lines for the occasion. Each occasion's lines are a
+ * deck, shuffled once for the run and dealt in turn: he goes through all he
+ * has to say on a subject before saying any of it again.
+ */
 function chef(s: GameState, cue: ChefCue) {
   const lines = CHEF[cue];
-  const i = Math.floor(rand(s.seed, "chef", cue, s.day) * lines.length);
-  s.chef = lines[i];
+  const said = (s.chefSaid ??= {});
+  const turn = said[cue] ?? 0;
+  said[cue] = turn + 1;
+  const deck = shuffle(lines, stream(s.seed, "chef", cue));
+  s.chef = deck[turn % deck.length];
+}
+
+/**
+ * At lunch, about one day in two, Chef looks up from the spit and talks about
+ * your business instead of your plate. He speaks to what he sees, or gives
+ * the advice he gives everyone.
+ */
+function coaching(s: GameState): ChefCue | null {
+  if (rand(s.seed, "coach", s.day) >= B.coachChance) return null;
+  const p = s.project;
+  const mrr = mrrOf(s);
+  const sees: ChefCue[] = ["coach"];
+  if (p && !p.launched && s.day >= B.coachBuildingDay) sees.push("coachBuilding");
+  if (isLive(p) && p.customers === 0) sees.push("coachNoCustomers");
+  if (isLive(p) && p.customers > 0) {
+    if (mrr > s.month.startMrr) sees.push("coachGrowing");
+    else if (dateOf(s.day).dayOfMonth >= 12) sees.push("coachFlat");
+  }
+  if (s.audience >= B.coachAudience && mrr < B.kebabMrr / 4) sees.push("coachAudience");
+  if (s.cash < B.coachBroke) sees.push("coachBroke");
+  if (s.stats.pivots >= 2) sees.push("coachPivots");
+  return sees[Math.floor(rand(s.seed, "coach-sees", s.day) * sees.length)];
 }
 
 function lose(s: GameState, reason: "cash" | "cdi") {
@@ -605,7 +635,7 @@ function eat(s: GameState, id: MealId) {
   else if (id === "welsh") s.stats.welshs++;
   else s.stats.skipped++;
   log(s, M.mealEaten(def.name, def.price), "neutral", -1);
-  chef(s, isAperoDay(s.day) && id === "kebab" ? "apero" : id);
+  chef(s, isAperoDay(s.day) && id === "kebab" ? "apero" : (coaching(s) ?? id));
 
   // Christophe's flaw: the afternoon sometimes goes to a coffee.
   const coffee = character(s.character).mods.coffeeChance;
@@ -992,7 +1022,8 @@ export function createRun(seed: string, characterId: CharacterId): GameState {
     eventResult: null,
     report: null,
     milestones: [],
-    chef: CHEF.start[0],
+    chef: CHEF.start[Math.floor(rand(seed, "chef", "start") * CHEF.start.length)],
+    chefSaid: {},
     log: [],
     logCount: 0,
     history: [],

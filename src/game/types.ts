@@ -174,6 +174,11 @@ export interface GameState {
   milestones: string[];
   /** What the kebab shop owner last said. */
   chef: L | null;
+  /**
+   * How many times he has spoken on each occasion: he deals his lines in turn.
+   * Absent from a run saved before he kept count.
+   */
+  chefSaid?: Record<string, number>;
   log: LogEntry[];
   /** Entries ever written to the log, including the ones it has dropped. */
   logCount: number;

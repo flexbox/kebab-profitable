@@ -364,6 +364,54 @@ describe("rules", () => {
     expect([...lost].sort((a, b) => a - b)).toEqual([0, 236]);
   });
 
+  it("gives Chef a new thing to say each time, and has him coach at lunch", () => {
+    const cueOf = (text: string) =>
+      (Object.keys(CHEF) as (keyof typeof CHEF)[]).find((cue) => CHEF[cue].some((l) => l.fr === text));
+    // Every cue has several lines: he does not repeat himself.
+    for (const [cue, lines] of Object.entries(CHEF)) expect(lines.length, cue).toBeGreaterThanOrEqual(3);
+
+    const said = new Set<string>();
+    const cues = new Set<string>();
+    for (const who of CHARACTER_IDS) {
+      for (const bot of ["newcomer", "expert"] as const) {
+        const s = createRun(`chef-${who}`, who);
+        let before = s.chef!.fr;
+        let lunches = 0;
+        let fresh = 0;
+        while (!s.outcome && s.day <= 120) {
+          const eating = s.phase === "meal";
+          step(s, BOTS[bot](s));
+          if (eating) {
+            lunches++;
+            // He speaks at every lunch, and never says the same line twice running.
+            if (s.chef!.fr !== before) fresh++;
+          }
+          before = s.chef!.fr;
+          said.add(before);
+          cues.add(cueOf(before)!);
+        }
+        expect(fresh, `${who} ${bot}`).toBe(lunches);
+      }
+    }
+    // He goes through all he has to say on a subject before saying any of it again.
+    const run = createRun("chef-deck", "david");
+    const heard: string[] = [];
+    let previous = run.chef!.fr;
+    while (!run.outcome && run.day <= 120) {
+      step(run, BOTS.newcomer(run));
+      if (run.chef!.fr !== previous) {
+        previous = run.chef!.fr;
+        if (cueOf(previous) === "coach") heard.push(previous);
+      }
+    }
+    expect(heard.length).toBeGreaterThanOrEqual(CHEF.coach.length);
+    expect(new Set(heard.slice(0, CHEF.coach.length)).size).toBe(CHEF.coach.length);
+    expect(said.size).toBeGreaterThan(60);
+    for (const cue of ["coach", "coachBuilding", "coachNoCustomers", "coachGrowing", "coachAudience"]) {
+      expect(cues.has(cue), cue).toBe(true);
+    }
+  });
+
   it("rejects illegal moves and leaves the state untouched", () => {
     const s = createRun("illegal", "david");
     expect(() => apply(s, { t: "act", id: "coder" })).toThrow();
