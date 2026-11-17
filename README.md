@@ -110,10 +110,12 @@ stays on without flickering.
 ## The sound
 
 Every effect and every tune is written as code in `audio/kebab.cx.js`: the
-effects the game plays (a click, the chest opened by a new customer, the alarm on an urgent card), and
-three loops of music, one for the walk home in the intro, one for Chef's dare,
-one for choosing a founder. They are original, and in related keys, so one can
-follow another. It is rendered with
+effects the game plays (a click, the chest opened by a new customer, the
+alarm on an urgent card), and three loops of music, one for the walk home in
+the intro, one for Chef's dare, one for choosing a founder. They are original,
+and in related keys, so one can follow another. Winning has its own four bars:
+the dare's tune comes back in E major, and the band lands on one last chord.
+It is rendered with
 [chirp](https://github.com/uilianks/chirp), an MIT-licensed synthesiser, and
 the resulting MP3s are committed in `public/audio/`, so the game builds
 without it.

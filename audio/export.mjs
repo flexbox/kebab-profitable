@@ -73,7 +73,10 @@ const bank = JSON.parse(readFileSync(join(out, "sfx.json"), "utf8"));
 for (const [name, [start, length]] of Object.entries(bank.sprite)) manifest.sfx[name] = [start, length];
 
 // The music: each tune, then its first second again.
-for (const file of readdirSync(join(out, "music")).filter((name) => name.endsWith(".wav")).sort()) {
+// A name that starts with "_" is a part of something else: the win fanfare is
+// a song, but the game plays it once, from the effects file.
+const tunes = readdirSync(join(out, "music")).filter((name) => name.endsWith(".wav") && !name.startsWith("_"));
+for (const file of tunes.sort()) {
   const name = file.replace(/\.wav$/, "");
   const wav = readWav(join(out, "music", file));
   const frame = (wav.channels * wav.bits) / 8;

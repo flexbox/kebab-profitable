@@ -72,15 +72,7 @@ sfx("bad", { vol: 0.5 },
   tone({ wave: "saw", freq: "A3", dur: 0.12, env: [0.003, 0.05, 0.7, 0.03], filter: { type: "lp", cutoff: 1800 } }),
   at(0.13, tone({ wave: "saw", freq: "D#3", to: "D3", slide: 0.25, dur: 0.26, env: [0.003, 0.1, 0.6, 0.15], filter: { type: "lp", from: 1800, to: 500 } })))
 
-// Kebab profitable: four notes up a major chord, the last held under a sparkle.
-sfx("win", { vol: 0.4, fx: [reverb({ size: 0.3, mix: 0.12 })] },
-  [["G4", 0], ["C5", 0.1], ["E5", 0.2], ["G5", 0.3]].map(([note, t]) =>
-    at(t, tone({ wave: "square", duty: 0.25, freq: note, dur: 0.09, env: [0.002, 0.03, 0.7, 0.03] }))),
-  at(0.4,
-    tone({ wave: "square", duty: 0.25, freq: "C6", dur: 0.5, env: [0.002, 0.1, 0.7, 0.3], vibrato: { rate: 6, depth: 0.2, delay: 0.15 } }),
-    tone({ wave: "triangle", freq: "E5", dur: 0.5, env: [0.002, 0.1, 0.7, 0.3], vol: 0.6 }),
-    tone({ wave: "triangle", freq: "C3", dur: 0.5, env: [0.002, 0.1, 0.8, 0.3], vol: 0.8 })),
-  at(0.45, tone({ wave: "fm", fm: { ratio: 3.5, index: 3, decay: 0.3 }, freq: "C7", dur: 0.4, arp: { notes: [0, 4, 7, 12], rate: 0.06 }, env: [0.001, 0.2, 0.3, 0.3], vol: 0.2 })))
+// Kebab profitable has no effect here: it is a piece of music, at the end of this file.
 
 // Back to the day job: three steps down, and a long last note.
 sfx("lose", { vol: 0.45, fx: [reverb({ size: 0.35, mix: 0.15 })] },
@@ -268,3 +260,57 @@ song("select", { bpm: 126, vol: 0.8, fx: [chorus({ mix: 0.2 }), reverb({ size: 0
   track("clap", times(8, ". . . . x . . . . . . . x . . ."), { vol: 2.2 }),
   track("hat", times(8, "x . x x x . x x x . x x x . x x"), { vol: 0.85 }),
   track("openhat", bars(times(7, ". . . . . . . . . . . . . . x ."), ". . . . . . x . . . . . . . x ."), { vol: 0.6 }))
+
+// --- Kebab profitable: the dare, won ------------------------------------------
+//
+// Four bars at the dare's own tempo. Its tune comes back, but in E major: the
+// minor third it was built on has gone up a semitone. Then the band climbs
+// through A and B, C and D, and lands on E with everything it has.
+const MAJOR = {
+  E: { root: "E2", power: "E3+B3", run: ["E5", "G#5", "B5", "G#5"] },
+  A: { root: "A1", power: "A2+E3", run: ["E5", "A5", "C#6", "A5"] },
+  B: HARMONY.B,
+  C: HARMONY.C,
+  D: HARMONY.D,
+}
+/** The same figures as the dare's, for a number of beats instead of a whole bar. */
+const beats = (n, beat) => Array(n).fill(beat).join(" ")
+const gallopFor = (n, name) => beats(n, `${MAJOR[name].root} . ${MAJOR[name].root} ${MAJOR[name].root}`)
+const chugFor = (n, name) => beats(n, `${MAJOR[name].power}! . ${MAJOR[name].power} .`)
+const runFor = (n, name) => beats(n, MAJOR[name].run.join(" "))
+const silence = line([null, 16])
+song("_victory", { bpm: 160, loop: false, vol: 0.8, fx: [chorus({ mix: 0.2 }), reverb({ size: 0.4, mix: 0.12 }), limiter({ ceiling: 0.8 })] },
+  track("lead", bars(
+    // The dare's first bar, note for note, but for its G: now a G sharp.
+    line(["B4", 2], ["E5", 4], ["F#5", 2], ["G#5", 4], ["B5", 2], ["G#5", 2]),
+    line(["C#6", 4], ["A5", 2], ["C#6", 2], ["D#6", 4], ["B5", 2], ["D#6", 2]),
+    // Three, three and two: the whole band hits these with the tune.
+    line(["E6", 3], ["C6", 3], ["G5", 2], ["F#6", 3], ["D6", 3], ["A5", 2]),
+    line(["B5", 1], ["G#6", 1], ["E6", 11], [null, 3]))),
+  // A second voice joins a third above for the last chord.
+  track("bounce", bars(silence, silence, silence, line([null, 2], ["G#6", 11], [null, 3])), { vol: 0.6, pan: 0.2 }),
+  track("bass", bars(
+    gallopFor(4, "E"),
+    `${gallopFor(2, "A")} ${gallopFor(2, "B")}`,
+    line(["C2", 3], ["C2", 3], ["C2", 2], ["D2", 3], ["D2", 3], ["D2", 2]),
+    line(["E2", 13], [null, 3]))),
+  track("chug", bars(
+    chugFor(4, "E"),
+    `${chugFor(2, "A")} ${chugFor(2, "B")}`,
+    line(["C3+G3!", 3], ["C3+G3", 3], ["C3+G3", 2], ["D3+A3!", 3], ["D3+A3", 3], ["D3+A3", 2]),
+    line(["E3+B3+E4!", 13], [null, 3])), { pan: -0.25 }),
+  track("arp", bars(
+    runFor(4, "E"),
+    `${runFor(2, "A")} ${runFor(2, "B")}`,
+    `${runFor(2, "C")} ${runFor(2, "D")}`,
+    // The last chord is run up, twice, and left to ring.
+    `E5 G#5 B5 E6 G#6 B6 E7 B6 E5 G#5 B5 E6 G#6 B6 E7 .`), { pan: 0.35 }),
+  track("kick", bars(rock, rock, "x . . x . . x . x . . x . . x .", "x . . . . . . . . . . . . . . ."), { vol: 0.85 }),
+  track("snare", bars(backbeat, backbeat, ". . . . . . . . . . . . x x x x", "x . . . . . . . . . . . . . . .")),
+  track("hat", bars(times(2, "x . x . x . x . x . x . x . x ."), silence, silence), { vol: 1.1 }),
+  track("tom", bars(silence, ". . . . . . . . . . . . . . x x", ". . . . . . . . . . x x . . . .", silence)),
+  // A cymbal at the top, and one for the last chord.
+  track("openhat", bars("x . . . . . . . . . . . . . . .", silence, silence, "x . . . . . . . . . . . . . . ."), { vol: 1.2 }))
+
+// The game plays it once, like any other effect.
+sfx("win", { vol: 0.9 }, play("_victory"))
