@@ -34,7 +34,6 @@ export function End({
   const first = who.name.split(" ")[0];
   const [pseudo, setPseudo] = useState(() => store.pseudo());
   const [sent, setSent] = useState<Sent>({ status: "idle" });
-  const [copied, setCopied] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const canSubmit = won && sent.status !== "done";
@@ -81,16 +80,14 @@ export function End({
     else setSent({ status: "error", error: result.error });
   }
 
-  async function share() {
-    const text = t(won ? UI.shareWon(outcome.day, first) : UI.shareLost(outcome.day, first));
-    try {
-      await navigator.clipboard.writeText(`${text} ${window.location.origin}`);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Clipboard refused: nothing to do, the button simply does not confirm.
-    }
-  }
+  // X's web intent: a plain link that opens the composer prefilled, no widget script.
+  const shareUrl = (() => {
+    const params = new URLSearchParams({
+      text: t(won ? UI.shareWon(outcome.day, first) : UI.shareLost(outcome.day, first)),
+      url: typeof window === "undefined" ? "" : window.location.origin,
+    });
+    return `https://x.com/intent/post?${params}`;
+  })();
 
   return (
     <dialog
@@ -178,9 +175,10 @@ export function End({
           <button type="button" className={canSubmit ? "btn" : "btn btn-primary"} onClick={onRetry}>
             {t(UI.retry)}
           </button>
-          <button type="button" className="btn" onClick={share}>
-            {t(copied ? UI.copied : UI.share)}
-          </button>
+          <a className="btn" href={shareUrl} target="_blank" rel="noopener noreferrer">
+            {t(UI.share)}
+            <span className="sr-only"> {t(UI.newTab)}</span>
+          </a>
           <button type="button" className="btn" onClick={onHome}>
             {t(UI.home)}
           </button>

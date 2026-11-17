@@ -251,15 +251,15 @@ export const UI = {
     lostDays: { fr: "Jours perdus", en: "Lost days" },
   },
   retry: { fr: "Rejouer", en: "Play again" },
-  share: { fr: "Copier pour partager", en: "Copy to share" },
-  copied: { fr: "Copié !", en: "Copied!" },
+  share: { fr: "Partager sur X", en: "Share on X" },
+  newTab: { fr: "(nouvel onglet)", en: "(opens in a new tab)" },
   shareWon: (days: number, name: string): L => ({
-    fr: `Kebab profitable en ${days} jours avec ${name} 🥙 Et toi ?`,
-    en: `Kebab profitable in ${days} days as ${name} 🥙 How about you?`,
+    fr: `J'ai rendu ${name} kebab profitable en ${days} jours 🥙 À toi de battre ça :`,
+    en: `I got ${name} to kebab profitable in ${days} days 🥙 Your turn to beat it:`,
   }),
   shareLost: (days: number, name: string): L => ({
-    fr: `Retour au CDI après ${days} jours avec ${name} 🥙 Tu fais mieux ?`,
-    en: `Back to a day job after ${days} days as ${name} 🥙 Can you do better?`,
+    fr: `${name} a tenu ${days} jours avant de retourner au CDI 🥙 Tu feras mieux ?`,
+    en: `${name} lasted ${days} days before going back to a day job 🥙 Think you can do better?`,
   }),
 
   leaderboard: { fr: "Classement", en: "Leaderboard" },
