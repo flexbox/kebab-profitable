@@ -1114,6 +1114,244 @@ for (const [who, look] of Object.entries(PORTRAITS)) {
   )
 }
 
+// ---------------------------------------------------------------------------
+// Guests: the public figures on the cameo cards, 32 by 32
+// ---------------------------------------------------------------------------
+
+/**
+ * A guest is drawn after their avatar on X, so each one keeps its own skin,
+ * hair, beard, glasses and background colour. Unlike the members, they are
+ * likenesses: the face is larger, and nothing is emoji yellow.
+ *
+ * Half of the head, mirrored. `B` are the brows, `w` and `k` the eyes.
+ */
+const GHEAD = `
+  ................
+  ................
+  ................
+  ................
+  ................
+  ................
+  ................
+  ..........HHHHHH
+  ........HHHHHHHH
+  .......HHHHHHHHH
+  ......IHHHHHHHHH
+  ......IHHHHHHHHH
+  ......HHHHHHHHHH
+  ......HHHBBBBHHH
+  .....YHHHHHHHHHH
+  ....YYHHHwkkHHHH
+  ....YYHHHwkkHHHH
+  ....YHHHHHHHHHHH
+  .....YHHHHHHHHHH
+  .....YHHHHHHHHHH
+  ......YHHHHHHHHH
+  ......YHHHHHHHmm
+  .......YHHHHHHHH
+  ........YHHHHHHH
+  .........YYHHHHH
+  ...........YYYYY
+  ...........YHHHH
+  .......cCCCYHHHH
+  ....cCCCDCCcYHHH
+  ..cCCDDCCCCCcYYH
+  .cCDDCCCCCCCCcYY
+  cCCCCCCCCCCCCCcC`
+
+/** A run of one colour on one row, from x0 to x1. */
+const run = (y, x0, x1, key) => rect(x0, y, x1 - x0 + 1, 1, key)
+/** The same run, and its mirror image on the other side of the face. */
+const sym = (y, x0, x1, key) => [run(y, x0, x1, key), run(y, 31 - x1, 31 - x0, key)]
+/** Several rows at once: [y, x0, x1] each, all mirrored. */
+const syms = (key, rows) => rows.flatMap(([y, x0, x1]) => sym(y, x0, x1, key))
+const runs = (key, rows) => rows.map(([y, x0, x1]) => run(y, x0, x1, key))
+
+/** Light comes from the left: a shadow down the right of the nose. */
+const NOSE = [px(17, 16, "Y"), px(17, 17, "Y"), run(18, 16, 17, "Y"), px(15, 18, "Y")]
+
+const MOUTH = {
+  smile: [run(21, 13, 18, "H"), px(13, 20, "m"), px(18, 20, "m"), run(21, 14, 17, "m")],
+  grin: [run(20, 13, 18, "m"), run(21, 13, 18, "x"), px(13, 21, "m"), px(18, 21, "m"), run(22, 14, 17, "m")],
+  smirk: [run(21, 13, 18, "H"), run(21, 14, 17, "m"), px(18, 20, "m")],
+  flat: [],
+}
+
+/** Round, thin-rimmed glasses. */
+const ROUND = [
+  ...syms("g", [[14, 9, 11], [17, 9, 11]]),
+  ...syms("g", [[15, 8, 8], [16, 8, 8], [15, 12, 12], [16, 12, 12]]),
+  run(15, 13, 18, "g"),
+]
+/** Square glasses with a heavy top rim. */
+const SQUARE = [
+  ...syms("g", [[14, 8, 13], [17, 9, 12], [15, 8, 8], [16, 8, 8], [15, 13, 13], [16, 13, 13]]),
+  run(15, 14, 17, "g"),
+]
+
+/** A full beard and moustache around the mouth, in `F`, shaded in `f`. */
+const BEARD = [
+  ...syms("F", [[17, 6, 6], [18, 5, 6], [19, 5, 7], [20, 6, 9], [21, 6, 13], [22, 7, 15], [23, 8, 15], [24, 9, 15], [25, 10, 15], [26, 12, 15]]),
+  ...syms("F", [[19, 13, 15], [20, 12, 15]]),
+  run(21, 14, 17, "m"),
+  ...syms("f", [[24, 9, 10], [25, 10, 12], [26, 12, 15]]),
+]
+/** Short stubble on the jaw and the lip. */
+const STUBBLE = syms("F", [[19, 6, 6], [20, 6, 7], [21, 6, 12], [22, 7, 15], [23, 8, 15], [24, 9, 15], [20, 13, 15]])
+
+const GUESTS = {
+  // Pieter Levels: his avatar is him lying in the sun with his laptop.
+  levels: {
+    look: { H: "#d9a074", Y: "#ad7448", I: "#ecbf96", K: "#8a6440", L: "#b38c5c", Z: "#5e4228", F: "#a07a58", f: "#8a6444", C: "#d9a074", c: "#ad7448", D: "#ecbf96", T: "#3f6a35", t: "#335a2b", s: "#c9ccd0", S: "#9a9ea6" },
+    mouth: "smile",
+    draw: [
+      ...syms("K", [[5, 11, 15], [6, 8, 15], [7, 6, 15], [8, 5, 15], [9, 5, 9], [10, 5, 7], [11, 5, 6], [12, 5, 5], [13, 5, 5]]),
+      ...runs("L", [[6, 10, 13], [7, 8, 11], [8, 14, 18], [9, 20, 23]]),
+      ...runs("K", [[9, 10, 12], [9, 18, 21]]),
+      ...runs("Z", [[12, 26, 26], [13, 26, 26], [11, 25, 25]]),
+      ...STUBBLE,
+      // The laptop, held up in front of his chest.
+      rect(5, 25, 22, 7, "s"), run(25, 5, 26, "S"), rect(5, 26, 1, 6, "S"), px(16, 28, "x"),
+    ],
+  },
+  // Marc Lou: just his head, eyebrows up, a thin moustache.
+  marc: {
+    look: { H: "#ebb48c", Y: "#c98a62", I: "#f6cfac", K: "#5e3a20", L: "#86562e", Z: "#3e2614", F: "#5e3a20", f: "#3e2614", C: "#26283a", c: "#181a28", D: "#3a3e56", T: "#f4a14a", t: "#e08a34" },
+    mouth: "flat",
+    draw: [
+      ...syms("K", [[3, 12, 15], [4, 9, 15], [5, 7, 15], [6, 6, 15], [7, 5, 15], [8, 5, 13], [9, 5, 9], [10, 5, 7], [11, 5, 6], [12, 5, 5], [13, 5, 5]]),
+      ...runs("L", [[4, 11, 14], [5, 9, 12], [6, 17, 21], [7, 8, 10], [8, 18, 20]]),
+      ...runs("Z", [[8, 14, 17], [9, 10, 12], [9, 19, 21]]),
+      // Eyebrows raised high, eyes wide.
+      ...syms("H", [[13, 9, 12]]), ...syms("B", [[12, 9, 9], [11, 10, 12]]),
+      ...syms("x", [[14, 9, 11]]), px(9, 15, "x"), px(22, 15, "x"),
+      // The moustache.
+      run(20, 13, 18, "F"), px(12, 20, "F"), px(19, 20, "F"), run(21, 13, 18, "H"), run(22, 15, 16, "m"),
+    ],
+  },
+  // Tibo Louis-Lucas: swept-up hair, short beard, a wide smile.
+  tibo: {
+    look: { H: "#e6ac86", Y: "#c0825c", I: "#f4c8a4", K: "#6a4a30", L: "#94704c", Z: "#46301e", F: "#9a6c4c", f: "#7a5038", C: "#2a2a30", c: "#18181e", D: "#3e3e48", T: "#f2b58e", t: "#e49f78" },
+    mouth: "grin",
+    draw: [
+      ...syms("K", [[4, 12, 15], [5, 9, 15], [6, 7, 15], [7, 6, 15], [8, 5, 15], [9, 5, 8], [10, 5, 7], [11, 5, 6], [12, 5, 6], [13, 5, 5]]),
+      ...runs("L", [[4, 13, 19], [5, 11, 15], [6, 9, 12], [6, 17, 22], [7, 20, 24]]),
+      ...runs("K", [[9, 9, 12], [9, 21, 22]]),
+      ...STUBBLE, run(20, 13, 18, "F"),
+    ],
+  },
+  // Dagobert Renouf: short dark hair, beard, green leather jacket and a chain.
+  dago: {
+    look: { H: "#e0a482", Y: "#b87a58", I: "#f0c4a2", K: "#46301f", L: "#6a4a32", Z: "#2e1f14", F: "#5a3e2a", f: "#40291b", C: "#2f8f42", c: "#1e6a2e", D: "#58b65e", T: "#cbc4b2", t: "#b8b09c", a: "#e8c25a" },
+    mouth: "grin",
+    draw: [
+      ...syms("K", [[5, 11, 15], [6, 8, 15], [7, 6, 15], [8, 5, 15], [9, 5, 10], [10, 5, 7], [11, 5, 6], [12, 5, 5], [13, 5, 5]]),
+      ...runs("L", [[6, 10, 14], [7, 18, 22]]),
+      ...runs("K", [[9, 13, 18], [10, 15, 16]]),
+      ...BEARD, run(21, 13, 18, "x"), run(20, 13, 18, "m"), px(13, 21, "m"), px(18, 21, "m"), run(22, 14, 17, "m"),
+      // The chain, and a white tee under the open jacket.
+      rect(13, 27, 6, 5, "x"), run(27, 12, 19, "a"), px(12, 28, "a"), px(19, 28, "a"), run(29, 13, 18, "a"),
+      ...syms("c", [[27, 11, 11], [28, 11, 12], [29, 12, 12], [30, 12, 12], [31, 12, 12]]),
+    ],
+  },
+  // Nico Jeannen: brushed-back hair, full beard, a half smile.
+  nico: {
+    look: { H: "#e4aa8a", Y: "#bd7f60", I: "#f2c6a8", K: "#6e4a2e", L: "#96704a", Z: "#4a301c", F: "#8e5c38", f: "#6e4228", C: "#2c2a28", c: "#1c1a18", D: "#403c38", T: "#5b5642", t: "#4c4836" },
+    mouth: "smirk",
+    draw: [
+      ...syms("K", [[5, 11, 15], [6, 8, 15], [7, 6, 15], [8, 5, 15], [9, 5, 9], [10, 5, 7], [11, 5, 6], [12, 5, 5], [13, 5, 5]]),
+      ...runs("L", [[5, 12, 18], [6, 10, 14], [7, 17, 21]]),
+      ...runs("K", [[9, 12, 13]]),
+      ...BEARD, px(18, 20, "m"),
+    ],
+  },
+  // Thomas Sanlis: his avatar is a black and white photo on orange.
+  thomas: {
+    look: { H: "#c8c4c0", Y: "#9a9692", I: "#e4e0dc", K: "#2a2826", L: "#4a4744", Z: "#161514", B: "#2a2826", m: "#6a6662", C: "#1e1d1c", c: "#121110", D: "#34322f", T: "#f4a676", t: "#e8925e" },
+    mouth: "grin",
+    draw: [
+      ...syms("K", [[5, 11, 15], [6, 8, 15], [7, 6, 15], [8, 5, 15], [9, 5, 9], [10, 5, 7], [11, 5, 6], [12, 5, 5], [13, 5, 5]]),
+      // A side parting, swept to the right.
+      ...runs("K", [[9, 16, 26], [10, 19, 26], [11, 23, 26], [4, 14, 22]]),
+      ...runs("L", [[5, 15, 21], [6, 18, 23], [7, 21, 25]]),
+      ...runs("H", [[9, 10, 12]]),
+    ],
+  },
+  // Tony Dinh: black hair over the ears, a denim shirt, a yellow disc on pink.
+  tony: {
+    look: { H: "#e6b48c", Y: "#c08e66", I: "#f4cca8", K: "#1e1a1c", L: "#3a3236", Z: "#0e0c0d", C: "#4b6c8e", c: "#344e6a", D: "#6a8cae", T: "#ea2f86", t: "#f6c22c", b: "#c8d6e4" },
+    mouth: "smile",
+    draw: [
+      ...syms("K", [[5, 11, 15], [6, 8, 15], [7, 6, 15], [8, 5, 15], [9, 5, 15], [10, 5, 12], [11, 4, 9], [12, 4, 7], [13, 4, 6], [14, 4, 5], [15, 3, 4], [16, 3, 4], [17, 3, 4], [18, 4, 4]]),
+      // Parted in the middle.
+      ...runs("H", [[10, 15, 16], [11, 14, 17]]), ...runs("L", [[6, 11, 14], [6, 17, 20], [7, 9, 12], [8, 7, 8], [8, 23, 24]]),
+      // Strands of the fringe over the brows.
+      ...runs("K", [[11, 10, 10], [11, 21, 21], [12, 8, 8], [12, 23, 23]]), ...runs("Z", [[9, 13, 14], [9, 17, 18], [10, 14, 14], [10, 17, 17]]),
+      // Collar and buttons.
+      ...syms("b", [[27, 11, 12], [28, 12, 13]]), px(15, 29, "b"), px(15, 31, "b"),
+    ],
+  },
+  // Danny Postma: hair up in a bun, round glasses, a full beard, a red shirt.
+  danny: {
+    look: { H: "#ebb898", Y: "#c48c6c", I: "#f6d0b4", K: "#8a4a26", L: "#b26a3a", Z: "#5e2e16", F: "#8a4a26", f: "#6a3418", C: "#c8352a", c: "#962218", D: "#e45c48", T: "#6fa4a8", t: "#5c9094", g: "#5a5450" },
+    mouth: "smile",
+    draw: [
+      // The bun, then the hair pulled back.
+      rect(13, 1, 6, 4, "K"), run(1, 14, 16, "L"), run(0, 14, 17, "K"),
+      ...syms("K", [[5, 11, 15], [6, 8, 15], [7, 7, 15], [8, 6, 15], [9, 6, 8], [10, 6, 6], [11, 6, 6]]),
+      ...runs("L", [[6, 10, 14], [7, 9, 12], [8, 8, 10], [6, 18, 20]]),
+      ...runs("Z", [[5, 13, 18]]),
+      ...BEARD, ...ROUND,
+    ],
+  },
+  // Arvid Kahl: auburn hair and beard, round glasses, a red and gold hoodie.
+  arvid: {
+    look: { H: "#ebb698", Y: "#c48a6c", I: "#f6ceb2", K: "#8a5030", L: "#b0703e", Z: "#5e341c", F: "#9a5a32", f: "#74401f", C: "#9e2a22", c: "#701c16", D: "#c43c2e", T: "#3b3f3d", t: "#2f3331", g: "#a89a7a", a: "#e2b440" },
+    mouth: "grin",
+    draw: [
+      ...syms("K", [[4, 11, 15], [5, 8, 15], [6, 6, 15], [7, 5, 15], [8, 5, 15], [9, 5, 9], [10, 5, 7], [11, 5, 6], [12, 5, 5], [13, 5, 5]]),
+      ...runs("L", [[5, 10, 16], [6, 8, 11], [6, 18, 23], [7, 20, 25]]),
+      ...runs("K", [[9, 11, 12], [9, 19, 20]]),
+      ...BEARD, run(21, 13, 18, "x"), run(20, 13, 18, "m"), px(13, 21, "m"), px(18, 21, "m"), run(22, 14, 17, "m"),
+      ...ROUND,
+      // Gold stripes on the hood, a grey tee under it.
+      rect(13, 27, 6, 5, "s"), ...syms("a", [[27, 9, 10], [28, 8, 9], [29, 7, 8], [30, 6, 7], [31, 5, 6]]),
+    ],
+  },
+  // Benjamin Code: a dark cap, glasses, short beard, a white tee.
+  benjamin: {
+    look: { H: "#cfc9c4", Y: "#a39d98", I: "#e6e2de", K: "#3c3a38", L: "#5a5754", Z: "#242322", B: "#3c3a38", m: "#77716c", F: "#5e5a56", f: "#46433f", C: "#f0eeea", c: "#cfccc6", D: "#ffffff", T: "#dcdcdc", t: "#c8c8c8", g: "#2a2826", q: "#3a3a40", Q: "#26262a", r: "#d23a2a", a: "#e8c040" },
+    mouth: "smile",
+    draw: [
+      // The cap: the crown, then the peak, with a little badge.
+      ...syms("q", [[3, 11, 15], [4, 8, 15], [5, 7, 15], [6, 6, 15], [7, 6, 15], [8, 5, 15], [9, 5, 15], [10, 5, 7], [11, 5, 6], [12, 5, 5]]),
+      ...runs("Q", [[10, 8, 23], [11, 7, 24]]), run(9, 6, 25, "Q"),
+      rect(15, 5, 2, 2, "a"), px(15, 5, "r"),
+      ...SQUARE, ...STUBBLE, run(20, 13, 18, "F"),
+    ],
+  },
+}
+
+for (const [who, guest] of Object.entries(GUESTS)) {
+  pal({ ...BODY, B: guest.look.Z, x: "#f6f2ea", w: "#f6f2ea", s: "#9aa0a6", ...guest.look })
+  sprite(`_ghead_${who}`, { mx: true }, GHEAD)
+  sprite(
+    `_guest_${who}`,
+    { w: 32, h: 32, outline: "k" },
+    stamp(`_ghead_${who}`, 0, 0),
+    ...NOSE,
+    ...MOUTH[guest.mouth],
+    ...guest.draw,
+  )
+  sprite(
+    `guest_${who}`,
+    { w: 32, h: 32 },
+    rect(0, 0, 32, 32, "T"),
+    ...(who === "tony" ? [circ(16, 15, 13, "t")] : [rect(0, 31, 32, 1, "t")]),
+    stamp(`_guest_${who}`, -1, -1),
+  )
+}
+
 // Everything the game places, on one sheet.
 sheet(
   "sprites",

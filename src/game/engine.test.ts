@@ -6,6 +6,7 @@ import { ACTIONS } from "./data/actions";
 import { CHARACTERS, CHARACTER_IDS } from "./data/characters";
 import { CHEF, MILESTONES } from "./data/chef";
 import { EVENTS, FOLLOW_UPS, eventCard, outcomesOf } from "./data/events";
+import { GUESTS } from "./data/guests";
 import { IDEAS } from "./data/ideas";
 import { MEALS } from "./data/meals";
 import {
@@ -94,6 +95,11 @@ describe("content", () => {
     }
     expect(IDEAS).toHaveLength(15);
     expect(EVENTS.filter((e) => e.kind === "cameo").every((e) => !!e.who)).toBe(true);
+    // Every guest has a cameo, and a handle without the @.
+    for (const [id, g] of Object.entries(GUESTS)) {
+      expect(EVENTS.some((e) => e.who === id), id).toBe(true);
+      expect(g.handle, id).toMatch(/^\w{1,15}$/);
+    }
     // A card dealt by another one exists, and is answered the same way.
     for (const e of EVENTS) {
       for (const o of outcomesOf(e)) {

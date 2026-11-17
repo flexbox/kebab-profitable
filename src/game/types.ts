@@ -321,14 +321,32 @@ export interface EventChoice {
   outcomes: EventOutcome[];
 }
 
+export type GuestId =
+  | "levels"
+  | "marc"
+  | "tibo"
+  | "dago"
+  | "nico"
+  | "thomas"
+  | "tony"
+  | "danny"
+  | "arvid"
+  | "benjamin";
+
+export interface GuestDef {
+  name: string;
+  /** Their handle on X, without the @. */
+  handle: string;
+}
+
 export type EventKind = "cameo" | "admin" | "lille" | "scene" | "urgent";
 
 export interface EventDef {
   id: string;
   kind: EventKind;
   tone: Tone;
-  /** For cameos: the real public figure the card nods to. */
-  who?: string;
+  /** For cameos: the real public figure the card nods to, see `GUESTS`. */
+  who?: GuestId;
   title: L;
   text: L;
   when?: Condition;

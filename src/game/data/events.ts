@@ -22,7 +22,7 @@ export const EVENTS: EventDef[] = [
     id: "levels-ship",
     kind: "cameo",
     tone: "good",
-    who: "Pieter Levels",
+    who: "levels",
     title: { fr: "Just ship it", en: "Just ship it" },
     text: {
       fr: "Un Pieter Levels en pixels apparaît dans ton fil. Il regarde ta liste de 47 tâches avant lancement et hausse un sourcil. Le message est clair.",
@@ -60,7 +60,7 @@ export const EVENTS: EventDef[] = [
     id: "marclou-video",
     kind: "cameo",
     tone: "good",
-    who: "Marc Lou",
+    who: "marc",
     title: { fr: "Vidéo de lancement", en: "Launch video" },
     text: {
       fr: "Un Marc Lou en pixels propose de jouer dans ta vidéo de lancement. Il a déjà le costume, la perruque et un fond vert.",
@@ -98,7 +98,7 @@ export const EVENTS: EventDef[] = [
     id: "marclou-boilerplate",
     kind: "cameo",
     tone: "neutral",
-    who: "Marc Lou",
+    who: "marc",
     title: { fr: "Le boilerplate", en: "The boilerplate" },
     text: {
       fr: "Une pub te suit partout : un boilerplate qui promet de lancer ta startup en quelques jours plutôt qu'en quelques semaines. 199 €.",
@@ -136,7 +136,7 @@ export const EVENTS: EventDef[] = [
     id: "tibo-offer",
     kind: "cameo",
     tone: "neutral",
-    who: "Tibo Louis-Lucas",
+    who: "tibo",
     title: { fr: "Offre de rachat", en: "Acquisition offer" },
     text: {
       fr: "Un Tibo en pixels t'écrit en privé : il rachèterait bien ton projet. Cash tout de suite, douze fois ton MRR.",
@@ -174,7 +174,7 @@ export const EVENTS: EventDef[] = [
     id: "dagobert-suit",
     kind: "cameo",
     tone: "neutral",
-    who: "Dagobert Renouf",
+    who: "dago",
     title: { fr: "Le costume à logos", en: "The logo suit" },
     text: {
       fr: "Dagobert Renouf, voisin lillois, vend des emplacements pour logos sur son costume de mariage. Il reste une place sur la manche gauche.",
@@ -212,7 +212,7 @@ export const EVENTS: EventDef[] = [
     id: "nico-17apps",
     kind: "cameo",
     tone: "good",
-    who: "Nico Jeannen",
+    who: "nico",
     title: { fr: "17 apps", en: "17 apps" },
     text: {
       fr: "Tu tombes sur l'histoire de Nico Jeannen : dix-sept apps lancées en un an. Tu regardes ton unique projet d'un autre œil.",
@@ -237,7 +237,7 @@ export const EVENTS: EventDef[] = [
     id: "sanlis-uneed",
     kind: "cameo",
     tone: "good",
-    who: "Thomas Sanlis",
+    who: "thomas",
     title: { fr: "Lancement sur Uneed", en: "Launch on Uneed" },
     text: {
       fr: "Thomas Sanlis t'ouvre un créneau sur Uneed, l'alternative à Product Hunt. Un deuxième lancement, ça ne se refuse pas.",
@@ -275,7 +275,7 @@ export const EVENTS: EventDef[] = [
     id: "tony-numbers",
     kind: "cameo",
     tone: "neutral",
-    who: "Tony Dinh",
+    who: "tony",
     title: { fr: "Les chiffres du mois", en: "Monthly numbers" },
     text: {
       fr: "Tony Dinh publie ses chiffres du mois, comme chaque mois. Tu ouvres ton tableau de bord Stripe et tu hésites à faire pareil.",
@@ -322,7 +322,7 @@ export const EVENTS: EventDef[] = [
     id: "postma-headshot",
     kind: "cameo",
     tone: "good",
-    who: "Danny Postma",
+    who: "danny",
     title: { fr: "Photo de profil IA", en: "AI profile photo" },
     text: {
       fr: "Danny Postma a bâti un business sur les portraits générés par IA. Ta photo de profil, elle, date d'un mariage en 2019.",
@@ -360,7 +360,7 @@ export const EVENTS: EventDef[] = [
     id: "arvid-cloned",
     kind: "cameo",
     tone: "bad",
-    who: "Arvid Kahl",
+    who: "arvid",
     title: { fr: "Cloné !", en: "Cloned!" },
     text: {
       fr: "À force de tout raconter en public, quelqu'un a copié ton produit, jusqu'à la faute de frappe sur le bouton. Arvid Kahl avait prévenu que ça arrivait.",
@@ -407,7 +407,7 @@ export const EVENTS: EventDef[] = [
     id: "benjamin-films",
     kind: "cameo",
     tone: "good",
-    who: "Benjamin Code",
+    who: "benjamin",
     title: { fr: "Il filme ton build", en: "He films your build" },
     text: {
       fr: "Benjamin Code prépare une vidéo sur les SaaS faits maison et voudrait filmer une de tes sessions de code.",

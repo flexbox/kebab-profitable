@@ -6,5 +6,6 @@ export { B, efficiency } from "./balance";
 export { ACTIONS, action } from "./data/actions";
 export { CHARACTERS, CHARACTER_IDS, character } from "./data/characters";
 export { EVENTS, eventCard } from "./data/events";
+export { GUESTS, guest } from "./data/guests";
 export { IDEAS, idea } from "./data/ideas";
 export { MEALS, meal } from "./data/meals";

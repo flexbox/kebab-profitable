@@ -974,10 +974,27 @@ button {
   flex-wrap: wrap;
 }
 
-.event-who {
+.guest {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.guest-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.guest-name {
   color: var(--color-text-strong);
-  font-size: var(--text-sm);
   font-weight: 600;
+}
+
+.guest-handle {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
 }
 
 .event-text {

@@ -1,5 +1,5 @@
 // Copies what the game uses out of the pxl build: the room in each light, the
-// sprite sheet, the portraits, and a compact atlas saying where each sprite is.
+// sprite sheet, the portraits (members and guests), and a compact atlas saying where each sprite is.
 import { copyFileSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,7 +17,7 @@ for (const name of readdirSync(join(out, "scenes"))) {
   }
 }
 for (const name of readdirSync(join(out, "sprites"))) {
-  if (name.startsWith("portrait_") && name.endsWith(".png")) {
+  if ((name.startsWith("portrait_") || name.startsWith("guest_")) && name.endsWith(".png")) {
     copyFileSync(join(out, "sprites", name), join(target, name));
     files++;
   }

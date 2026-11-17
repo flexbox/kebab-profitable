@@ -28,7 +28,7 @@ import { Controls, type ChromeProps } from "./Chrome";
 import { End } from "./End";
 import type { Turn } from "./Game";
 import { useLang } from "./lang";
-import { Portrait } from "./Portrait";
+import { Guest, Portrait } from "./Portrait";
 import { Room } from "./Room";
 
 // ---------------------------------------------------------------------------
@@ -467,8 +467,8 @@ function EventPanel({
     <div className={`panel-body event event-${ev.kind}`}>
       <p className="event-kind">
         <span className={`badge badge-${ev.kind}`}>{t(UI.kinds[ev.kind])}</span>
-        {ev.who && <span className="event-who">{ev.who}</span>}
       </p>
+      {ev.who && <Guest id={ev.who} />}
       {ev.urgent &&
         (timed ? (
           <>
@@ -521,7 +521,6 @@ function ResultPanel({ state, onContinue }: { state: GameState; onContinue: () =
     <div className={`panel-body event event-${ev.kind}`}>
       <p className="event-kind">
         <span className={`badge badge-${ev.kind}`}>{t(UI.kinds[ev.kind])}</span>
-        {ev.who && <span className="event-who">{ev.who}</span>}
         {result.missed ? (
           <span className="badge tone-bad">{t(UI.tooLate)}</span>
         ) : (
@@ -530,6 +529,7 @@ function ResultPanel({ state, onContinue }: { state: GameState; onContinue: () =
           )
         )}
       </p>
+      {ev.who && <Guest id={ev.who} />}
       <h2 className="ask">{t(ev.title)}</h2>
       <p className="event-text">{t(result.text)}</p>
       <button type="button" className="btn btn-primary" onClick={onContinue} autoFocus>

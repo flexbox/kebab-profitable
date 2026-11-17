@@ -1,3 +1,5 @@
+import { guest } from "@/game/data/guests";
+import type { GuestId } from "@/game/types";
 import type { PersonId } from "./pixels";
 
 /**
@@ -16,5 +18,36 @@ export function Portrait({ who, className }: { who: PersonId; className?: string
       alt=""
       className={className ? `pixel ${className}` : "pixel"}
     />
+  );
+}
+
+/**
+ * A guest on a cameo card: their pixel avatar, their name, and their handle on
+ * X as a link. The picture is decoration, as the name is written beside it.
+ */
+export function Guest({ id }: { id: GuestId }) {
+  const { name, handle } = guest(id);
+  return (
+    <p className="guest">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`/art/guest_${id}.png`}
+        width={32}
+        height={32}
+        alt=""
+        className="pixel portrait portrait-md"
+      />
+      <span className="guest-text">
+        <span className="guest-name">{name}</span>
+        <a
+          className="guest-handle"
+          href={`https://x.com/${handle}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          @{handle}
+        </a>
+      </span>
+    </p>
   );
 }
