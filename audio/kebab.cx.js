@@ -46,10 +46,18 @@ sfx("bite", { vol: 0.6 },
     noise({ dur: 0.05, env: [0.001, 0.05, 0, 0.03], filter: { type: "bp", from: 2600 - i * 400, to: 900, q: 1.2 }, vol: 0.7 }),
     tone({ wave: "triangle", freq: 170 - i * 30, to: 90, dur: 0.06, env: [0.001, 0.06, 0, 0.03], vol: 0.6 }))))
 
-// The day is over: two soft bells, falling.
-sfx("night", { vol: 0.5, fx: [reverb({ size: 0.35, mix: 0.18 })] },
-  tone({ wave: "fm", fm: { ratio: 2, index: 1.5, decay: 0.3 }, freq: "G5", dur: 0.14, env: [0.003, 0.2, 0.3, 0.3] }),
-  at(0.16, tone({ wave: "fm", fm: { ratio: 2, index: 1.5, decay: 0.3 }, freq: "D5", dur: 0.3, env: [0.003, 0.3, 0.3, 0.5] })))
+// The day is over: a few notes of a lullaby, far away. It rocks down a chord of
+// G and comes to rest, on pure tones with a slow attack: nothing that rings,
+// nothing that hisses, and quieter than everything else, since it is heard
+// every evening.
+const LULLABY = [["E5", 0, 0.2], ["G5", 0.22, 0.2], ["D5", 0.44, 0.24], ["B4", 0.72, 0.5]]
+sfx("night", { vol: 0.65, fx: [reverb({ size: 0.5, mix: 0.2 })] },
+  LULLABY.map(([note, t, dur]) => at(t,
+    tone({ wave: "sine", freq: note, dur, env: [0.02, 0.12, 0.5, 0.45], vol: 0.3 }),
+    tone({ wave: "triangle", freq: note, dur, env: [0.03, 0.1, 0.3, 0.35], vol: 0.08, filter: { type: "lp", cutoff: 1800 } }))),
+  // The bed under it: a fifth, barely there.
+  tone({ wave: "sine", freq: "G3", dur: 1.1, env: [0.15, 0.3, 0.6, 0.6], vol: 0.12 }),
+  tone({ wave: "sine", freq: "D4", dur: 1.1, env: [0.2, 0.3, 0.5, 0.6], vol: 0.07 }))
 
 // A card lands on the table: the flick of the paper, then two rising notes.
 sfx("card", { vol: 0.5 },
