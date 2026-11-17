@@ -747,9 +747,13 @@ const BODY = {
   Y: "#d09a36", // skin, in shade
   I: "#fbe08a", // skin, in light
   m: "#a8522f", // mouth
+  M: "#5c2014", // mouth, wide open
+  n: "#8a5230", // grilled meat
+  b: "#dba56c", // bread
   Q: "#4a5568", // trousers
   U: "#343c4c", // trousers, in shade
   S: "#3a2a20", // shoes
+  o: "#7a5c40", // their soles
   x: "#f4eedd", // white
   X: "#d5ccb4", // white, in shade
   a: "#e8b04a", // gold
@@ -830,6 +834,52 @@ const ASLEEP = `
   ..YHHHm
   ...YHHH`
 
+/**
+ * Sitting on the floor to eat, eyes shut with pleasure, mouth closed on a
+ * mouthful. Half of it: sixteen wide once mirrored.
+ */
+const SIT = `
+  ....KKKK
+  ...KLLKK
+  ..KKLKKK
+  ..KKKKKK
+  ..KKKKHH
+  ..KKHHHH
+  ..KHIkHH
+  ..ZHkHkH
+  ..YHHHHH
+  ...YHHmm
+  ....YHHH
+  ....cCCC
+  ...cCCDC
+  ..cCCCCC
+  ..cCCCCC
+  ..cCCCCC
+  ..cCCCCC
+  ...cCCCC
+  ..UQQQQQ
+  .UQQQQQ.
+  .SSSSSS.
+  .ooooo..`
+/**
+ * The kebab, held in both hands: the filling, the bread, and the paper it is
+ * wrapped in. Whole, then with a bite out of it.
+ */
+const KEBAB = `
+  .kkkkkkkk.
+  kgngrngngk
+  kbbbbbbbbk
+  HHxxxxxxHH
+  HYXXXXXXYH
+  .kkkkkkkk.`
+const KEBAB_BITTEN = `
+  .kkk..kkk.
+  kgnk..kngk
+  kbbbkkbbbk
+  HHxxxxxxHH
+  HYXXXXXXYH
+  .kkkkkkkk.`
+
 /** What each member wears, on the sprite: its body starts one row down. */
 function props(who, back) {
   switch (who) {
@@ -876,7 +926,7 @@ for (const g of GRADES) {
       stamp(`_${who}_front_${g}`, 0, 1),
       ...props(who, false),
     )
-    // One arm raised, to hold a phone or a kebab.
+    // One arm raised, to hold a phone.
     sprite(
       `${who}_arm_${g}`,
       { w: 16, h: 27, outline: "k" },
@@ -886,6 +936,25 @@ for (const g of GRADES) {
       grid(12, 10, ".H\n.C\nCC\nC."),
       ...props(who, false),
     )
+    // Sitting down to eat, in two frames: a big bite, then chewing with the
+    // kebab lowered. What they wear sits one column in: this body is wider.
+    sprite(`_${who}_sit_${g}`, { mx: true }, SIT)
+    sprite(`_${who}_worn_${g}`, { w: 14, h: 12 }, ...props(who, false))
+    const seated = [
+      ...(cape ? [rect(1, 14, 14, 8, "r"), rect(1, 21, 14, 1, "R")] : []),
+      stamp(`_${who}_sit_${g}`, 0, 1),
+      stamp(`_${who}_worn_${g}`, 1, 0),
+      // The mask has eyes of its own: shut them too.
+      ...(cape ? [grid(4, 7, ".k....k.\nkrk..krk")] : []),
+    ]
+    sprite(
+      `${who}_eat_0_${g}`,
+      { w: 16, h: 23, outline: "k" },
+      ...seated,
+      grid(5, 9, "mMMMMm\n.mrrm."),
+      grid(3, 11, KEBAB),
+    )
+    sprite(`${who}_eat_1_${g}`, { w: 16, h: 23, outline: "k" }, ...seated, grid(3, 13, KEBAB_BITTEN))
     // Seated at the terminal, seen from behind. The cape covers the back.
     sprite(`_${who}_back_${g}`, { mx: true }, BACK)
     sprite(
@@ -908,7 +977,6 @@ for (const g of GRADES) {
   // What the raised hand holds.
   pal(base)
   sprite(`phone_${g}`, { outline: "k" }, "QQQ\nxxx\nxxx\nQQQ")
-  sprite(`kebab_${g}`, { outline: "k" }, ".ggg.\nXxrxx\nXxxxx\n.XXX.")
 }
 
 // Thought bubbles are the same at any hour.
@@ -1049,6 +1117,6 @@ for (const [who, look] of Object.entries(PORTRAITS)) {
 // Everything the game places, on one sheet.
 sheet(
   "sprites",
-  ["chart_*", "plant_*", "bowl_*", "wrapper_*", "screen_*", "*_front_*", "*_arm_*", "*_back_*", "*_asleep_*", "phone_*", "kebab_*", "bubble_*", "neon"],
+  ["chart_*", "plant_*", "bowl_*", "wrapper_*", "screen_*", "*_front_*", "*_arm_*", "*_back_*", "*_asleep_*", "*_eat_*", "phone_*", "bubble_*", "neon"],
   { pad: 1 },
 )

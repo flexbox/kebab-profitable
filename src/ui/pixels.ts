@@ -21,7 +21,17 @@ export type PersonId = CharacterId | "chef";
 export const ROOM_W = 192;
 export const ROOM_H = 128;
 
-export type Pose = "idle" | "desk" | "phone" | "bed" | "eat" | "think" | "alert" | "out";
+/** "eat" is lunch, sitting against the fridge; "feast" is the same on the rug, once you have won. */
+export type Pose =
+  | "idle"
+  | "desk"
+  | "phone"
+  | "bed"
+  | "eat"
+  | "feast"
+  | "think"
+  | "alert"
+  | "out";
 export type Screen = "code" | "ship" | "chat" | "invoice" | "off";
 
 export interface RoomScene {
@@ -147,6 +157,10 @@ const PLACE = {
   pillow: [15, 55],
   /** Whoever stands on the rug. */
   rug: [96, 68],
+  /** Whoever sits on the rug to eat. */
+  rugSeat: [95, 72],
+  /** Whoever sits against the fridge to eat. */
+  fridgeSeat: [43, 27],
 } as const;
 
 /** Where kebab wrappers land on the floor. */
@@ -212,6 +226,13 @@ export function drawRoom(c: Ctx, art: Art, s: RoomScene) {
     const [x, y] = PLACE.pillow;
     sprite(c, art, `${s.who}_asleep_${light}`, x, y);
     sprite(c, art, "bubble_zzz", x + 15, y - 12 - (s.frame % 2));
+  } else if (s.pose === "eat" || s.pose === "feast") {
+    // Sitting on the floor with a kebab, in two frames: a bite, then chewing.
+    const [x, y] = s.pose === "eat" ? PLACE.fridgeSeat : PLACE.rugSeat;
+    const grade = s.pose === "eat" ? light : onRug(s);
+    c.fillStyle = "rgba(0,0,0,0.26)";
+    c.fillRect(x + 1, y + 23, 16, 2);
+    sprite(c, art, `${s.who}_eat_${s.frame % 2}_${grade}`, x, y);
   } else if (s.pose !== "out") {
     const rug = onRug(s);
     const bob = s.pose === "idle" ? 0 : s.frame % 2;
@@ -220,13 +241,11 @@ export function drawRoom(c: Ctx, art: Art, s: RoomScene) {
     // The figures are 29 pixels tall: a shadow under the feet.
     c.fillStyle = "rgba(0,0,0,0.26)";
     c.fillRect(x + 3, PLACE.rug[1] + 27, 10, 2);
-    const holding = s.pose === "phone" || s.pose === "eat";
-    sprite(c, art, `${s.who}_${holding ? "arm" : "front"}_${rug}`, x, y);
+    sprite(c, art, `${s.who}_${s.pose === "phone" ? "arm" : "front"}_${rug}`, x, y);
     if (s.pose === "phone") {
       sprite(c, art, `phone_${rug}`, x + 12, y + 6);
       if (s.frame % 2 === 0) sprite(c, art, "bubble_heart", x + 15, y - 10);
     }
-    if (s.pose === "eat") sprite(c, art, `kebab_${rug}`, x + 11, y + 6);
     if (s.pose === "think") sprite(c, art, "bubble_idea", x + 13, y - 10);
     if (s.pose === "alert") sprite(c, art, "bubble_alert", x + 13, y - 11);
   }

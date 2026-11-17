@@ -110,7 +110,7 @@ export function Room({
   // Something urgent: on your feet, whatever you were doing.
   else if (state.pendingEvent && eventCard(state.pendingEvent).urgent) pose = "alert";
   else if (state.phase === "idea") pose = "think";
-  else if (state.phase === "won") pose = "eat";
+  else if (state.phase === "won") pose = "feast";
   else if (shown) ({ pose, screen } = POSES[shown]);
 
   // Lunch is always eaten in daylight, even on a day that a pivot swallowed.
