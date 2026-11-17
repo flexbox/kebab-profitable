@@ -91,6 +91,53 @@ function useCheer(key: number): number | null {
   return key ? elapsed : null;
 }
 
+/** Night falls: the evening dims, stays dark a moment, and the morning comes up. */
+const NIGHT = { out: 380, hold: 140, in: 460, depth: 0.86 };
+
+/**
+ * The passage from one day to the next. For a moment the room goes on showing
+ * the evening that has just ended, growing dark; then it shows the morning,
+ * growing light. Returns the state to draw and how dark to draw it, from 0 to 1.
+ */
+function useNightfall(state: GameState, skip: boolean): { shown: GameState; dark: number } {
+  const [seen, setSeen] = useState(state);
+  const [evening, setEvening] = useState<GameState | null>(null);
+  const [elapsed, setElapsed] = useState(0);
+  // A new state has come in: was it a night going by?
+  if (seen !== state) {
+    setSeen(state);
+    const nextDay =
+      state.seed === seen.seed && state.character === seen.character && state.day === seen.day + 1;
+    const still =
+      typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setEvening(nextDay && !skip && !still ? seen : null);
+    setElapsed(0);
+  }
+  useEffect(() => {
+    if (!evening) return;
+    const start = performance.now();
+    const id = window.setInterval(() => {
+      const t = performance.now() - start;
+      if (t >= NIGHT.out + NIGHT.hold + NIGHT.in) {
+        window.clearInterval(id);
+        setEvening(null);
+      } else setElapsed(t);
+    }, 40);
+    return () => window.clearInterval(id);
+  }, [evening]);
+
+  if (!evening) return { shown: state, dark: 0 };
+  if (elapsed < NIGHT.out) return { shown: evening, dark: (NIGHT.depth * elapsed) / NIGHT.out };
+  const rising = Math.max(0, elapsed - NIGHT.out - NIGHT.hold) / NIGHT.in;
+  return { shown: state, dark: NIGHT.depth * (1 - rising) };
+}
+
+/** The action that has just ended the day, if it was one. */
+function eveningAction(state: GameState): ActionId | null {
+  const last = state.history[state.history.length - 1];
+  return last?.t === "act" ? last.id : null;
+}
+
 function lastAction(state: GameState): ActionId | null {
   // What was done in the previous slot of the same day, if anything.
   if (state.slot === 0) return null;
@@ -104,7 +151,7 @@ function lastAction(state: GameState): ActionId | null {
 
 /** The studio flat. It shows what you are doing and how you are doing. */
 export function Room({
-  state,
+  state: current,
   preview,
   fasting = false,
   cheer = 0,
@@ -140,10 +187,15 @@ export function Room({
     return () => window.clearInterval(id);
   }, []);
 
-  const shown = preview ?? lastAction(state);
+  // Between two days the room shows the evening going dark, then the morning.
+  // A new customer or the end of a run is not kept waiting behind it.
+  const { shown: state, dark } = useNightfall(current, cheer !== 0 || !!current.outcome);
+  const leaving = state !== current;
+  // While the evening fades, what is shown is what ended it.
+  const shown = leaving ? eveningAction(current) : (preview ?? lastAction(state));
   let pose: Pose = "idle";
   let screen: Screen = "off";
-  if (state.phase === "meal") pose = fasting ? "hungry" : "eat";
+  if (state.phase === "meal") pose = fasting && !leaving ? "hungry" : "eat";
   // Something urgent: on your feet, whatever you were doing.
   else if (state.pendingEvent && eventCard(state.pendingEvent).urgent) pose = "alert";
   else if (state.phase === "idea") pose = "think";
@@ -181,12 +233,13 @@ export function Room({
         cheer: cheering ?? 0,
         frame,
         beat,
+        dark,
         neon,
         seed: seedNumber,
       };
       if (art) drawRoom(ctx, art, scene);
     },
-    [art, who, time, pose, screen, raining, moral, goal, kebabs, pates, cheering, frame, beat, neon, seedNumber],
+    [art, who, time, pose, screen, raining, moral, goal, kebabs, pates, cheering, frame, beat, dark, neon, seedNumber],
   );
 
   return <PixelCanvas width={ROOM_W} height={ROOM_H} draw={draw} className="room" label={label} />;

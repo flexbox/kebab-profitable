@@ -74,6 +74,8 @@ export interface RoomScene {
   frame: number;
   /** A finer clock for the founder's own movements: three beats to a frame. */
   beat: number;
+  /** How far night has fallen over the whole picture, from 0 to 1: see `Room`. */
+  dark: number;
   /** How bright the neon sign is, from 0 (off, by day) to 1. */
   neon: number;
   seed: number;
@@ -384,5 +386,12 @@ export function drawRoom(c: Ctx, art: Art, s: RoomScene) {
     const blink = s.beat % 24 === 23 && ATLAS[`${s.who}_blink_${rug}`];
     groundShadow(c, x + 8, y + 27, 14);
     sprite(c, art, `${s.who}_${blink ? "blink" : "front"}_${rug}`, x, y);
+  }
+
+  // Night falling, or lifting: a veil of deep blue over everything, in a few
+  // steps rather than smoothly, the way a console dims its palette.
+  if (s.dark > 0) {
+    c.fillStyle = `rgba(8,10,26,${Math.round(s.dark * 8) / 8})`;
+    c.fillRect(0, 0, ROOM_W, ROOM_H);
   }
 }

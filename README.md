@@ -52,6 +52,8 @@ with indiehackers.com.
   pacing the rug with the phone at the ear for cold outreach, a hand on the
   chin in front of the wall chart for a pivot, hands in the air and a jump
   when something urgent lands, z's drifting up from the pillow.
+- Between two days the room fades: the evening goes dark on whatever ended
+  it, stays dark a moment, and the morning comes up.
 - A new customer is a small victory, and is marked like one: a chest opens in
   the sound, and in the room the founder spins twice and throws a fist in the
   air, beaming, for two seconds.
