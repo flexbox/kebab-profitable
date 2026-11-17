@@ -832,6 +832,24 @@ sprite("neon", { w: SIGN.w + NEON_REACH * 2, h: SIGN.h + NEON_REACH * 2 }, (c) =
   }
 })
 
+/** The same, seen from the side: the profile is ten wide and faces right. */
+function sideProps(who) {
+  switch (who) {
+    case "david": // the band edge-on, one cup over the ear
+      return [rect(3, 0, 2, 1, "k"), rect(3, 1, 1, 5, "k"), rect(2, 6, 3, 4, "e"), px(2, 6, "R")]
+    case "karl": // the board, and the tassel at the back
+      return [rect(0, 1, 9, 1, "k"), rect(1, 0, 7, 1, "k"), rect(2, 2, 5, 1, "k"), rect(0, 2, 1, 4, "a")]
+    case "mickael": // one cup, and the microphone out in front
+      return [rect(3, 0, 2, 1, "s"), rect(3, 1, 1, 5, "s"), rect(2, 6, 3, 4, "k"), rect(5, 10, 3, 1, "k"), px(8, 10, "s")]
+    case "christophe": // the mask goes all the way round
+      return [rect(0, 7, 8, 2, "r"), px(6, 7, "x"), px(6, 8, "k")]
+    case "matthys": // the peak points where he looks
+      return [rect(1, 1, 7, 3, "y"), rect(1, 3, 7, 1, "w"), rect(6, 4, 4, 1, "w"), rect(5, 7, 4, 2, "k"), px(6, 7, "s")]
+    default:
+      return []
+  }
+}
+
 for (const g of GRADES) {
   const tint = grader(g)
 
@@ -1127,6 +1145,37 @@ const HUNCH = `
   .UQQ...
   .SOS...
   SSSS...`
+/** Seen from the side, facing right: one frame of a spin. Not mirrored. */
+const SIDE = `
+  ..KKKKK..
+  .KLLKKKK.
+  .KLLKKKK.
+  KKKKLKKK.
+  KKKKKYYY.
+  KKKKHHHH.
+  KZKHHIkH.
+  KZKHHHkHH
+  .ZYHHHHH.
+  ..YYHHHm.
+  ...YYYY..
+  ...cCCC..
+  ..cCCDC..
+  ..cCcCC..
+  ..cCcCC..
+  ..cCcCC..
+  ..cCHCC..
+  ..cCCCC..
+  ..UUUUU..
+  ..UQqQQ..
+  ..UQqQQ..
+  ..UQqQ...
+  ..UQQQ...
+  ..UQQQ...
+  ..SOSS...
+  ..SSSSSS.`
+/** Seen from behind and standing: the back of the seated figure, on the legs of the standing one. */
+const rows = (grid) => grid.trim().split("\n").map((row) => row.trim())
+const AWAY = [...rows(BACK), ...rows(FRONT).slice(18)].join("\n")
 const ASLEEP = `
   ...KKKK
   ..KLLKK
@@ -1286,6 +1335,60 @@ for (const g of GRADES) {
         }
       }
     })
+    // A new customer: a spin, then a fist in the air, as a hero does over a
+    // fallen boss. The spin borrows the front view and adds a profile and a
+    // back; the profile is flipped by the game for the fourth quarter.
+    sprite(`_${who}_side_${g}`, SIDE)
+    figure(
+      `${who}_side_${g}`,
+      { w: 10, h: 27 },
+      base.k,
+      ...(cape ? [rect(0, 13, 3, 11, "r"), rect(0, 13, 3, 1, "R"), rect(0, 22, 3, 2, "R")] : []),
+      stamp(`_${who}_side_${g}`, 0, 1),
+      ...sideProps(who),
+    )
+    sprite(`_${who}_away_${g}`, { mx: true }, AWAY)
+    figure(
+      `${who}_away_${g}`,
+      { w: 14, h: 27 },
+      base.k,
+      stamp(`_${who}_away_${g}`, 0, 1),
+      ...(cape ? [rect(1, 13, 12, 11, "r"), rect(3, 12, 8, 1, "R"), rect(1, 22, 12, 2, "R")] : []),
+      ...props(who, true),
+    )
+    // The pose: two rows taller and two columns wider than the standing
+    // figure, for the arm. Eyes shut in a smile, mouth wide open, one hand
+    // on the hip and the other fist as high as it goes.
+    figure(
+      `${who}_cheer_0_${g}`,
+      { w: 16, h: 29 },
+      base.k,
+      ...(cape ? [rect(1, 15, 12, 11, "r"), rect(1, 15, 12, 1, "R"), rect(1, 24, 12, 2, "R")] : []),
+      stamp(`_${who}_front_${g}`, 0, 3),
+      // The face. Shades hide the eyes, and the mask has its own.
+      ...(who === "matthys" || cape ? [] : [grid(3, 8, ".k.\nkHk\n.H."), grid(8, 8, ".k.\nkHk\n.H.")]),
+      grid(5, 11, "MxxM\n.MM."),
+      stamp(`_${who}_worn_${g}`, 0, 2),
+      ...(cape ? [grid(3, 9, ".k....k.\nkrk..krk")] : []),
+      // A hand on the hip: the elbow sticks out.
+      grid(0, 16, "_cC\ncCc\ncCc\n_cH"),
+      // The other arm, straight up, and the fist over the head.
+      grid(12, 16, "_\n_\n_\n_"),
+      grid(12, 15, "CC"),
+      rect(13, 3, 1, 12, "C"),
+      rect(14, 3, 1, 12, "c"),
+      grid(12, 0, "IHH\nHHH\nYHH"),
+    )
+    // The first instant of the pose is a flash: the same, washed out to white.
+    sprite(`${who}_cheer_1_${g}`, { w: 18, h: 31 }, stamp(`${who}_cheer_0_${g}`, 0, 0), (c) => {
+      for (let y = 0; y < c.h; y++) {
+        for (let x = 0; x < c.w; x++) {
+          const v = c.get(x, y)
+          if ((v & 255) === 0) continue
+          c.px(x, y, hex(mix(parts(v), [255, 250, 232], 0.86)))
+        }
+      }
+    })
     // Seated at the terminal, seen from behind. The cape covers the back.
     sprite(`_${who}_back_${g}`, { mx: true }, BACK)
     figure(
@@ -1355,6 +1458,18 @@ sprite("bubble_growl", { outline: "k" }, `
   .ppppppp.
   ..pp.....
   .p.......`)
+// What flies off a fist held high: a big sparkle and a small one.
+pal({ a: "#f6c453", x: "#fffaf0" })
+sprite("sparkle_0", `
+  ..x..
+  ..a..
+  xaxax
+  ..a..
+  ..x..`)
+sprite("sparkle_1", `
+  .a.
+  axa
+  .a.`)
 // A drop of sweat, for the pang.
 pal({ k: "#2a1c18", s: "#bfe6f8", S: "#7fb8d8" })
 sprite("sweat", { outline: "k" }, `
@@ -1712,6 +1827,6 @@ include("intro.px.js")
 
 sheet(
   "sprites",
-  ["chart_*", "plant_*", "bowl_*", "wrapper_*", "screen_*", "*_front_*", "*_arm_*", "*_back_*", "*_asleep_*", "*_eat_*", "*_hungry_*", "phone_*", "bubble_*", "sweat", "neon"],
+  ["chart_*", "plant_*", "bowl_*", "wrapper_*", "screen_*", "*_front_*", "*_arm_*", "*_back_*", "*_asleep_*", "*_eat_*", "*_hungry_*", "*_side_*", "*_away_*", "*_cheer_*", "phone_*", "bubble_*", "sweat", "sparkle_*", "neon"],
   { pad: 1 },
 )

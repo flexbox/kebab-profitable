@@ -21,6 +21,24 @@ export type PersonId = CharacterId | "chef";
 export const ROOM_W = 192;
 export const ROOM_H = 128;
 
+/**
+ * A new customer, as a hero marks a fallen boss: two turns on the spot, then a
+ * fist in the air. The turns last as long as the run of notes in the sound,
+ * and the fist goes up on its chord.
+ */
+export const CHEER = {
+  /** One quarter of a turn, in milliseconds. */
+  quarter: 60,
+  /** How long the turning lasts: two turns. */
+  spin: 480,
+  /** The pose starts washed out to white, for this long. */
+  flash: 90,
+  /** And with a small hop. */
+  hop: 160,
+  /** The whole of it: the sound has faded by then. */
+  length: 2000,
+};
+
 /** "eat" is lunch, sitting against the fridge; "feast" is the same on the rug, once you have won. */
 export type Pose =
   | "idle"
@@ -32,6 +50,7 @@ export type Pose =
   | "think"
   | "alert"
   | "hungry"
+  | "cheer"
   | "out";
 export type Screen = "code" | "ship" | "chat" | "invoice" | "off";
 
@@ -48,6 +67,8 @@ export interface RoomScene {
   goal: number;
   kebabs: number;
   pates: number;
+  /** With the "cheer" pose: how far into it, in milliseconds. */
+  cheer: number;
   /** Animation frame, toggles a few times a second. */
   frame: number;
   /** How bright the neon sign is, from 0 (off, by day) to 1. */
@@ -141,12 +162,28 @@ function groundShadow(c: Ctx, x: number, y: number, w: number) {
   c.fillRect(x - w / 2 + 2, y + 2, w - 4, 1);
 }
 
-function sprite(c: Ctx, art: Art, name: string, x: number, y: number) {
+function sprite(c: Ctx, art: Art, name: string, x: number, y: number, flipped = false) {
   const frame = ATLAS[name];
   if (!frame) return;
   const [fx, fy, w, h] = frame;
-  c.drawImage(art.sheet, fx, fy, w, h, Math.round(x), Math.round(y), w, h);
+  if (!flipped) {
+    c.drawImage(art.sheet, fx, fy, w, h, Math.round(x), Math.round(y), w, h);
+    return;
+  }
+  // The same piece, facing the other way.
+  c.save();
+  c.translate(Math.round(x) + w, Math.round(y));
+  c.scale(-1, 1);
+  c.drawImage(art.sheet, fx, fy, w, h, 0, 0, w, h);
+  c.restore();
 }
+
+/** Where the sparkles fly, from the top-left of the standing figure: around the raised fist. */
+const SPARKS = [
+  [18, -7],
+  [8, -10],
+  [20, 3],
+] as const;
 
 /** Top-left corners of the pieces that have a fixed place, as in the art file. */
 const PLACE = {
@@ -253,6 +290,29 @@ export function drawRoom(c: Ctx, art: Art, s: RoomScene) {
     if (pang) {
       sprite(c, art, "sweat", x - 2, y + 6);
       sprite(c, art, "sweat", x + 13, y + 9);
+    }
+  } else if (s.pose === "cheer") {
+    const rug = onRug(s);
+    const [x, y] = PLACE.rug;
+    groundShadow(c, x + 8, y + 27, 14);
+    if (s.cheer < CHEER.spin) {
+      // Front, right, back, left: the profile is one picture, flipped for the left.
+      const quarter = Math.floor(s.cheer / CHEER.quarter) % 4;
+      if (quarter === 0) sprite(c, art, `${s.who}_front_${rug}`, x, y);
+      else if (quarter === 2) sprite(c, art, `${s.who}_away_${rug}`, x, y);
+      else sprite(c, art, `${s.who}_side_${rug}`, x + 2, y, quarter === 3);
+    } else {
+      // The pose is two pixels taller than the standing figure: the feet stay put.
+      const since = s.cheer - CHEER.spin;
+      const hop = since < CHEER.hop / 2 ? 3 : since < CHEER.hop ? 1 : 0;
+      sprite(c, art, `${s.who}_cheer_${since < CHEER.flash ? 1 : 0}_${rug}`, x, y - 2 - hop);
+      // Each sparkle is big, then small, then gone, one after the other.
+      const beat = Math.floor(since / 140);
+      SPARKS.forEach(([dx, dy], i) => {
+        const size = (beat + i) % 3;
+        if (size === 0) sprite(c, art, "sparkle_0", x + dx - 1, y + dy - 1);
+        else if (size === 1) sprite(c, art, "sparkle_1", x + dx, y + dy);
+      });
     }
   } else if (s.pose !== "out") {
     const rug = onRug(s);

@@ -6,6 +6,7 @@ import type { ActionId, GameState } from "@/game/types";
 import { B, eventCard, mrrOf } from "@/game";
 import { PixelCanvas } from "./PixelCanvas";
 import {
+  CHEER,
   drawRoom,
   loadArt,
   ROOM_H,
@@ -63,6 +64,33 @@ function useNeon(lit: boolean): number {
   return lit ? level : 0;
 }
 
+/**
+ * How far into the celebration of a new customer the room is, in
+ * milliseconds, or null when there is none. `key` names the move being
+ * celebrated: another move ends it.
+ */
+function useCheer(key: number): number | null {
+  const [elapsed, setElapsed] = useState<number | null>(null);
+  useEffect(() => {
+    if (!key) return;
+    // With reduced motion there is no spin, flash or hop: the pose alone.
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const start = performance.now();
+    const id = window.setInterval(() => {
+      const t = performance.now() - start;
+      if (t >= CHEER.length) {
+        window.clearInterval(id);
+        setElapsed(null);
+      } else setElapsed(still ? CHEER.spin + CHEER.hop : t);
+    }, 30);
+    return () => {
+      window.clearInterval(id);
+      setElapsed(null);
+    };
+  }, [key]);
+  return key ? elapsed : null;
+}
+
 function lastAction(state: GameState): ActionId | null {
   // What was done in the previous slot of the same day, if anything.
   if (state.slot === 0) return null;
@@ -79,6 +107,7 @@ export function Room({
   state,
   preview,
   fasting = false,
+  cheer = 0,
   label,
 }: {
   state: GameState;
@@ -86,6 +115,8 @@ export function Room({
   preview: ActionId | null;
   /** At lunch, pointing at "skip lunch": in the middle of the room, doubled over with hunger. */
   fasting?: boolean;
+  /** The number of the move that won a customer, or 0: the founder celebrates it. */
+  cheer?: number;
   label: string;
 }) {
   const [frame, setFrame] = useState(0);
@@ -115,6 +146,9 @@ export function Room({
   else if (state.phase === "idea") pose = "think";
   else if (state.phase === "won") pose = "feast";
   else if (shown) ({ pose, screen } = POSES[shown]);
+  // A new customer comes before all of it, for two seconds.
+  const cheering = useCheer(cheer);
+  if (cheering !== null) pose = "cheer";
 
   // Lunch is always eaten in daylight, even on a day that a pivot swallowed.
   const time =
@@ -141,13 +175,14 @@ export function Room({
         goal,
         kebabs,
         pates,
+        cheer: cheering ?? 0,
         frame,
         neon,
         seed: seedNumber,
       };
       if (art) drawRoom(ctx, art, scene);
     },
-    [art, who, time, pose, screen, raining, moral, goal, kebabs, pates, frame, neon, seedNumber],
+    [art, who, time, pose, screen, raining, moral, goal, kebabs, pates, cheering, frame, neon, seedNumber],
   );
 
   return <PixelCanvas width={ROOM_W} height={ROOM_H} draw={draw} className="room" label={label} />;

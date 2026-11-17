@@ -28,6 +28,7 @@ import { UI } from "@/i18n/strings";
 import { postOnX } from "@/lib/share";
 import { sfx } from "@/lib/sound";
 import { Controls, type ChromeProps } from "./Chrome";
+import { cueOf } from "./cue";
 import { End } from "./End";
 import type { Turn } from "./Game";
 import { useLang } from "./lang";
@@ -833,6 +834,7 @@ export function Play({
               state={state}
               preview={preview}
               fasting={fasting && state.phase === "meal"}
+              cheer={cueOf(turn) === "customer" ? turn.n : 0}
               label={roomLabel}
             />
           </section>
