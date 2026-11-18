@@ -19,6 +19,7 @@ import {
   mrrOf,
   potentialOf,
   replay,
+  shownChoices,
   step,
 } from "./engine";
 import { BOTS } from "./sim/bots";
@@ -338,6 +339,22 @@ describe("rules", () => {
     const other = EVENTS.find((e) => e.kind !== "cameo")!;
     s.eventsSeen.push(marc[0].id, other.id, levels.id, marc[1].id, "a-card-that-is-gone");
     expect(guestsMet(s)).toEqual(["marc", "levels"]);
+  });
+
+  it("deals urgent choices in a seeded new order, and leaves the others alone", () => {
+    let moved = 0;
+    for (const ev of EVENTS) {
+      const s = toSlot(createRun(`order-${ev.id}`, "david"));
+      s.pendingEvent = ev.id;
+      s.phase = "event";
+      const order = shownChoices(s).map((c) => c.index);
+      // Every choice is still there, once, and the order holds on a reload.
+      expect([...order].sort(), ev.id).toEqual(ev.choices.map((_, i) => i));
+      expect(shownChoices(s).map((c) => c.index), ev.id).toEqual(order);
+      if (!ev.urgent) expect(order, ev.id).toEqual(ev.choices.map((_, i) => i));
+      else if (order.some((index, place) => index !== place)) moved++;
+    }
+    expect(moved).toBeGreaterThan(0);
   });
 
   it("takes a missed clock as a move, on urgent cards only", () => {

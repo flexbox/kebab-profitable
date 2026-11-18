@@ -11,7 +11,7 @@ import {
   daysToApero,
   efficiencyNow,
   eventCard,
-  eventChoices,
+  shownChoices,
   guest,
   guestsMet,
   idea,
@@ -526,7 +526,7 @@ function EventPanel({
       <h2 className="ask">{t(ev.title)}</h2>
       <p className="event-text">{t(ev.text)}</p>
       <div className="event-choices">
-        {eventChoices(state).map((choice) => (
+        {shownChoices(state).map((choice, place) => (
           <button
             key={choice.index}
             type="button"
@@ -534,7 +534,7 @@ function EventPanel({
             disabled={!choice.enabled}
             onClick={() => armed && play({ t: "choice", id: choice.index })}
           >
-            <span className="key">{choice.index + 1}</span>
+            <span className="key">{place + 1}</span>
             <span className="choice-title">{t(choice.label)}</span>
             {seesOdds && choice.odds.length > 1 && (
               <span className="odds">
@@ -759,7 +759,7 @@ export function Play({
         const id = state.offer[n - 1];
         if (id) play({ t: "idea", id });
       } else if (state.phase === "event") {
-        const choice = eventChoices(state)[n - 1];
+        const choice = shownChoices(state)[n - 1];
         if (armed && choice?.enabled) play({ t: "choice", id: choice.index });
       }
     };

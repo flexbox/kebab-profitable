@@ -1098,3 +1098,15 @@ export function eventChoices(s: GameState) {
     };
   });
 }
+
+/**
+ * The choices in the order they are shown. Urgent cards deal them in a new
+ * order every time, so the hand cannot answer before the eyes have read.
+ * Only the display moves: a choice keeps its index, so moves and replays are
+ * untouched. The order is seeded, so a reload shows the same one.
+ */
+export function shownChoices(s: GameState) {
+  const choices = eventChoices(s);
+  if (!s.pendingEvent || !eventCard(s.pendingEvent).urgent) return choices;
+  return shuffle(choices, stream(s.seed, "order", s.day, s.slot, s.pendingEvent));
+}
