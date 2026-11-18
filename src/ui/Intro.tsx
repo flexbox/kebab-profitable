@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { UI } from "@/i18n/strings";
 import { music, sfx } from "@/lib/sound";
-import { Controls, type ChromeProps } from "./Chrome";
+import { Brand, Controls, type ChromeProps } from "./Chrome";
 import {
   drawIntro,
   INTRO_H,
@@ -245,7 +245,7 @@ export function Intro({ onDone, ...chrome }: { onDone: () => void } & ChromeProp
   return (
     <div className="page intro-page">
       <header className="bar">
-        <span className="brand-small">Kebab Profitable</span>
+        <Brand />
         <div className="bar-right">
           <Controls {...chrome} />
           <button type="button" className="btn btn-small" onClick={onDone}>

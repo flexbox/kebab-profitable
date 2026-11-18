@@ -27,7 +27,7 @@ import { monthName } from "@/i18n/format";
 import { UI } from "@/i18n/strings";
 import { postOnX } from "@/lib/share";
 import { sfx } from "@/lib/sound";
-import { Controls, type ChromeProps } from "./Chrome";
+import { Brand, Controls, type ChromeProps } from "./Chrome";
 import { cueOf } from "./cue";
 import { End } from "./End";
 import type { Turn } from "./Game";
@@ -785,7 +785,7 @@ export function Play({
     <div className="page play">
       <header className="bar">
         <div className="bar-left">
-          <h1 className="brand">Kebab Profitable</h1>
+          <Brand as="h1" />
           <span className="when">
             <strong>{t(UI.day(state.day))}</strong> · {date(state.day)}
           </span>

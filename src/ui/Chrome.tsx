@@ -1,12 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import icon from "@/app/icon.svg";
 import { UI } from "@/i18n/strings";
 import { useLang } from "./lang";
 
 export interface ChromeProps {
   muted: boolean;
   toggleMute: () => void;
+}
+
+/**
+ * The name at the top left of a screen: the game's, behind its mark, unless
+ * another is given. The mark is the favicon itself (`src/app/icon.svg`), so
+ * the two cannot differ. It is decoration: the name is written next to it.
+ */
+export function Brand({
+  as: Tag = "span",
+  mark = true,
+  children = "Kebab Profitable",
+}: {
+  as?: "span" | "h1";
+  mark?: boolean;
+  children?: ReactNode;
+}) {
+  return (
+    <Tag className="brand">
+      {mark && (
+        // A plain image on purpose: pixel art must not be resampled or re-encoded.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={icon.src} width={32} height={32} alt="" className="brand-mark" />
+      )}
+      {children}
+    </Tag>
+  );
 }
 
 /** The speaker, with either sound waves or a cross beside it. */

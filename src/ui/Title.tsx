@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { UI } from "@/i18n/strings";
 import { music } from "@/lib/sound";
-import { Controls, Footer, type ChromeProps } from "./Chrome";
+import { Brand, Controls, Footer, type ChromeProps } from "./Chrome";
 import { Leaderboard } from "./Leaderboard";
 import { useLang } from "./lang";
 import { Portrait } from "./Portrait";
@@ -33,7 +33,7 @@ export function Title({
   return (
     <div className="page title-page">
       <header className="bar">
-        <span className="brand-small">Indie Hackers Lille</span>
+        <Brand mark={false}>Indie Hackers Lille</Brand>
         <Controls {...chrome} />
       </header>
 
