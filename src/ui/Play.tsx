@@ -88,6 +88,31 @@ function Gauge({
   );
 }
 
+/** Rolls the shown number from where it was to where it is now. */
+function useCountTo(target: number, ms = 700) {
+  const [shown, setShown] = useState(target);
+  const from = useRef(target);
+  useEffect(() => {
+    const start = from.current;
+    if (start === target) return;
+    const dur = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : ms;
+    const t0 = performance.now();
+    let raf = 0;
+    const step = (now: number) => {
+      const k = dur ? Math.min(1, (now - t0) / dur) : 1;
+      const eased = 1 - Math.pow(1 - k, 3);
+      const v = start + (target - start) * eased;
+      from.current = v;
+      setShown(v);
+      if (k < 1) raf = requestAnimationFrame(step);
+      else from.current = target;
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, ms]);
+  return Math.round(shown);
+}
+
 function Stat({
   label,
   value,
@@ -98,7 +123,7 @@ function Stat({
   kind,
 }: {
   label: string;
-  value: string;
+  value: number;
   delta: number;
   turn: number;
   format?: (n: number) => string;
@@ -108,6 +133,8 @@ function Stat({
 }) {
   const { t } = useLang();
   const classes = ["stat", warn && "stat-warn", kind && `stat-${kind}`].filter(Boolean);
+  const shown = useCountTo(value);
+  const moved = Math.round(delta) !== 0;
   return (
     <div className={classes.join(" ")}>
       <span className="stat-label">
@@ -115,7 +142,9 @@ function Stat({
         {warn && <span className="tag-low">{t(UI.low)}</span>}
       </span>
       <span className="stat-value">
-        {value}
+        <span key={moved ? turn : "still"} className={moved ? "stat-num stat-bounce" : "stat-num"}>
+          {format ? format(shown) : shown}
+        </span>
         <Delta key={turn} value={Math.round(delta)} format={format} />
       </span>
     </div>
@@ -149,7 +178,7 @@ function Gauges({ turn }: { turn: Turn }) {
       <div className="stat-row">
         <Stat
           label={t(UI.cash)}
-          value={euro(s.cash)}
+          value={Math.round(s.cash)}
           delta={s.cash - p.cash}
           turn={turn.n}
           format={(n) => euro(n)}
@@ -157,13 +186,13 @@ function Gauges({ turn }: { turn: Turn }) {
         />
         <Stat
           label={t(UI.audience)}
-          value={String(s.audience)}
+          value={s.audience}
           delta={s.audience - p.audience}
           turn={turn.n}
         />
         <Stat
           label={t(UI.mrr)}
-          value={euro(mrrOf(s))}
+          value={Math.round(mrrOf(s))}
           delta={mrrOf(s) - mrrOf(p)}
           turn={turn.n}
           format={(n) => euro(n)}

@@ -1406,6 +1406,37 @@ button {
   white-space: nowrap;
 }
 
+/* The number itself, so the bounce leaves the floating delta alone. */
+.stat-num {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  transform-origin: left bottom;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .stat-bounce {
+    animation: stat-bounce 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+
+@keyframes stat-bounce {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.28);
+  }
+  55% {
+    transform: scale(0.92);
+  }
+  75% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 /* Money coming in every month is the green number, as on a revenue page. */
 .stat-mrr .stat-value {
   color: var(--color-positive);
