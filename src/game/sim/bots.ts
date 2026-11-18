@@ -95,9 +95,12 @@ function newcomerBot(s: GameState): Move {
     case "event": {
       // A first-timer reads the card to the end, and sometimes past it.
       if (tooSlow(s, roll, 0.2)) return { t: "miss" };
-      const open = eventChoices(s).filter(
+      const safe = eventChoices(s).filter(
         (c) => c.enabled && !c.odds.some((o) => o.effect.end),
       );
+      // Nobody wipes their own product while there is another way out.
+      const kept = safe.filter((c) => !c.odds.some((o) => o.effect.reboot));
+      const open = kept.length > 0 ? kept : safe;
       return { t: "choice", id: open[Math.floor(roll("choice") * open.length)].index };
     }
     case "report":
@@ -166,6 +169,8 @@ function expertBot(s: GameState): Move {
           let score = c.odds.reduce((sum, o) => sum + o.p * effectScore(o.effect), 0);
           if (c.odds.some((o) => o.effect.end)) score = -100;
           if (c.odds.some((o) => o.effect.sell)) score = flop ? 5 : -5;
+          // Starting again is worse than a bill, unless the bill empties the account.
+          if (c.odds.some((o) => o.effect.reboot)) score = flop ? 0 : -3.5;
           if (c.odds.some((o) => (o.effect.cash ?? 0) < -s.cash + 650)) score -= 3;
           if (ev.id === "ltd") score = c.index === 1 ? 1 : -1;
           return { index: c.index, score };

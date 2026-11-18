@@ -359,6 +359,15 @@ function applyEffect(s: GameState, e: Effect) {
       addCustomers(s, p, burstSignups(s, p, B.eventBurstRate * e.burst, "event"));
     }
     if (e.customers && isLive(p)) addCustomers(s, p, e.customers);
+    if (e.reboot) {
+      p.built = 0;
+      p.launched = false;
+      p.launchDay = null;
+      p.quality = 0;
+      p.customers = 0;
+      p.pending = [];
+      log(s, M.rebooted(idea(p.ideaId).name), "bad", -1);
+    }
   }
   if (e.skipSlots) s.skipSlots += e.skipSlots;
   if (e.awayDays) s.awayDays += e.awayDays;
@@ -371,7 +380,7 @@ function applyEffect(s: GameState, e: Effect) {
 
 /** Whether an effect is, on the whole, good or bad news. */
 export function effectTone(e: Effect): Tone {
-  if (e.end) return "bad";
+  if (e.end || e.reboot) return "bad";
   const score =
     (e.cash ?? 0) +
     (e.cashPerMrr ? 100 : 0) +

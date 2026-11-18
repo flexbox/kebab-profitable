@@ -305,6 +305,11 @@ export interface Effect {
   flags?: Partial<Flags>;
   /** Sells the project: customers and product are gone, the audience stays. */
   sell?: boolean;
+  /**
+   * Starts the product again from nothing: the work done, the launch and the
+   * customers are gone. The idea, its price and the audience stay.
+   */
+  reboot?: boolean;
   end?: "cdi";
 }
 

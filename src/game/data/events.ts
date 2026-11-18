@@ -612,6 +612,48 @@ export const EVENTS: EventDef[] = [
       },
     ],
   },
+  // A catastrophe: either answer costs dearly. It goes after those who have
+  // something to take: a product that earns, and money in the bank. Measured
+  // with `pnpm sim`, it costs a first-timer five to eight points of win rate;
+  // dealt to anyone with a launched product, it cost ten to fifteen.
+  {
+    id: "logo-troll",
+    kind: "admin",
+    tone: "bad",
+    title: { fr: "Mise en demeure", en: "Cease and desist" },
+    text: {
+      fr: "Un cabinet d'avocats t'écrit : ton logo copierait celui de leur client. Leur client n'a pas de produit, pas de site, pas un seul utilisateur. Il a une marque déposée et onze avocats.",
+      en: "A law firm writes to you: your logo is said to copy their client's. Their client has no product, no website, not a single user. It has a registered trademark and eleven lawyers.",
+    },
+    when: { launched: true, minMrr: 60, minCash: 700 },
+    choices: [
+      {
+        label: { fr: "Repartir de zéro", en: "Start again from zero" },
+        outcomes: [
+          {
+            effect: { reboot: true, moral: -14 },
+            text: {
+              fr: "Tu retires tout : le nom, le logo, le domaine, l'appli. Le produit repart de zéro, et tes clients ne te retrouvent pas. Eux gardent un logo dont ils ne font rien.",
+              en: "You take it all down: the name, the logo, the domain, the app. The product starts again from zero, and your customers cannot find you. They keep a logo they do nothing with.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Racheter la marque (450 €)", en: "Buy the trademark (€450)" },
+        when: { minCash: 450 },
+        outcomes: [
+          {
+            effect: { cash: -450, moral: -5 },
+            text: {
+              fr: "Tu rachètes la marque. Te voilà propriétaire d'un logo que tu avais déjà, et de la facture de leurs onze avocats.",
+              en: "You buy the trademark. You now own a logo you already had, and the bill for their eleven lawyers.",
+            },
+          },
+        ],
+      },
+    ],
+  },
 
   // =========================================================================
   // Clichés of the scene

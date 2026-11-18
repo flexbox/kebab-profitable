@@ -431,6 +431,41 @@ describe("rules", () => {
     expect([...lost].sort((a, b) => a - b)).toEqual([0, 236]);
   });
 
+  it("starts the product again from zero over a copied logo, unless the trademark is bought", () => {
+    const sued = (cash: number) => {
+      const s = toSlot(createRun("logo", "david"));
+      Object.assign(s.project!, { launched: true, launchDay: 1, customers: 12, quality: 40, built: 30 });
+      s.cash = cash;
+      s.audience = 300;
+      s.pendingEvent = "logo-troll";
+      s.phase = "event";
+      return s;
+    };
+    // Starting again keeps the idea, the audience and the cash, and nothing else.
+    const before = sued(1000);
+    const rebooted = apply(before, { t: "choice", id: 0 });
+    expect(rebooted.project).toMatchObject({
+      ideaId: before.project!.ideaId,
+      launched: false,
+      launchDay: null,
+      built: 0,
+      customers: 0,
+      quality: 0,
+    });
+    expect(mrrOf(rebooted)).toBe(0);
+    expect(rebooted.audience).toBe(300);
+    expect(rebooted.cash).toBe(1000);
+    // Buying the trademark keeps the product, at a price.
+    const bought = apply(sued(1000), { t: "choice", id: 1 });
+    expect(bought.project!.customers).toBe(12);
+    expect(bought.cash).toBe(550);
+    // Without the cash, starting again is the only answer left.
+    const broke = sued(300);
+    expect(shownChoices(broke).map((c) => c.enabled)).toEqual([true, false]);
+    expect(() => apply(broke, { t: "choice", id: 1 })).toThrow();
+    expect(effectTone({ reboot: true })).toBe("bad");
+  });
+
   it("gives Chef a new thing to say each time, and has him coach at lunch", () => {
     const cueOf = (text: string) =>
       (Object.keys(CHEF) as (keyof typeof CHEF)[]).find((cue) => CHEF[cue].some((l) => l.fr === text));

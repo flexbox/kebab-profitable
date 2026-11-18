@@ -125,6 +125,10 @@ export const M = {
     fr: `Tu abandonnes ${name.fr}. Page blanche.`,
     en: `You drop ${name.en}. Blank page.`,
   }),
+  rebooted: (name: L): L => ({
+    fr: `${name.fr} repart de zéro : plus de produit, plus de clients.`,
+    en: `${name.en} starts again from zero: no product, no customers.`,
+  }),
   pivotedFree: (name: L): L => ({
     fr: `Tu abandonnes ${name.fr} sans y laisser ta journée.`,
     en: `You drop ${name.en} without losing your day.`,
