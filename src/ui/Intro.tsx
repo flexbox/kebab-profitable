@@ -138,7 +138,7 @@ export function Intro({ onDone, ...chrome }: { onDone: () => void } & ChromeProp
 
   // With reduced motion the pictures are stills and the captions come whole.
   const still = useReducedMotion();
-  const auto = chrome.timed && !still;
+  const auto = !still;
 
   const [index, setIndex] = useState(0);
   const [letters, setLetters] = useState(0);

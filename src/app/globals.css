@@ -1356,11 +1356,6 @@ button {
   color: var(--color-negative);
 }
 
-.clock-off {
-  margin: 0;
-  font-size: var(--text-sm);
-}
-
 /* --- gauges ------------------------------------------------------------- */
 
 .gauges {

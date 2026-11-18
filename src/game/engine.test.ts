@@ -121,8 +121,8 @@ describe("content", () => {
     for (const e of urgent) {
       expect(e.kind, e.id).toBe("urgent");
       expect(e.choices.length, e.id).toBeGreaterThanOrEqual(2);
-      expect(e.urgent!.seconds, e.id).toBeGreaterThanOrEqual(6);
-      expect(e.urgent!.seconds, e.id).toBeLessThanOrEqual(15);
+      expect(e.urgent!.seconds, e.id).toBeGreaterThanOrEqual(5);
+      expect(e.urgent!.seconds, e.id).toBeLessThanOrEqual(10);
       // Letting the clock run out always costs something.
       expect(e.urgent!.missed.some((o) => !o.when), e.id).toBe(true);
       for (const o of e.urgent!.missed) expect(effectTone(o.effect), e.id).toBe("bad");

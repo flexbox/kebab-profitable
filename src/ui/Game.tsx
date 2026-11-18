@@ -39,7 +39,6 @@ function GameInner() {
   const [view, setView] = useState<View>("title");
   const [turn, setTurn] = useState<Turn | null>(null);
   const [muted, setMuted] = useState(false);
-  const [timed, setTimed] = useState(true);
 
   // Browser-only state (the date in Lille, the saved run) is read after hydration.
   useEffect(() => {
@@ -48,7 +47,6 @@ function GameInner() {
     setSoundMuted(isMuted);
     /* eslint-disable react-hooks/set-state-in-effect */
     setMuted(isMuted);
-    setTimed(store.timed());
     setBoot({
       seed,
       saved: store.run(),
@@ -124,14 +122,7 @@ function GameInner() {
     });
   }, []);
 
-  const toggleTimed = useCallback(() => {
-    setTimed((value) => {
-      store.setTimed(!value);
-      return !value;
-    });
-  }, []);
-
-  const chrome = { muted, toggleMute, timed, toggleTimed };
+  const chrome = { muted, toggleMute };
 
   if (view === "play" && turn) {
     return (

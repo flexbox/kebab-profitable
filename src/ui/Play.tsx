@@ -498,13 +498,10 @@ function Countdown({ seconds, onExpire }: { seconds: number; onExpire: () => voi
 function EventPanel({
   state,
   play,
-  timed,
   armed,
 }: {
   state: GameState;
   play: (m: Move) => void;
-  /** Urgent cards run against the clock. */
-  timed: boolean;
   /** False for a moment after the card lands, so no stray click answers it. */
   armed: boolean;
 }) {
@@ -518,17 +515,14 @@ function EventPanel({
         <span className={`badge badge-${ev.kind}`}>{t(UI.kinds[ev.kind])}</span>
       </p>
       {ev.who && <Guest id={ev.who} />}
-      {ev.urgent &&
-        (timed ? (
-          <>
-            <Countdown seconds={ev.urgent.seconds} onExpire={onExpire} />
-            <p className="sr-only" role="alert">
-              {t(UI.urgentAlert(ev.urgent.seconds))}
-            </p>
-          </>
-        ) : (
-          <p className="muted clock-off">{t(UI.clockIsOff)}</p>
-        ))}
+      {ev.urgent && (
+        <>
+          <Countdown seconds={ev.urgent.seconds} onExpire={onExpire} />
+          <p className="sr-only" role="alert">
+            {t(UI.urgentAlert(ev.urgent.seconds))}
+          </p>
+        </>
+      )}
       <h2 className="ask">{t(ev.title)}</h2>
       <p className="event-text">{t(ev.text)}</p>
       <div className="event-choices">
@@ -836,7 +830,6 @@ export function Play({
               key={turn.n}
               state={state}
               play={play}
-              timed={chrome.timed}
               armed={armed}
             />
           ) : state.phase === "report" ? (

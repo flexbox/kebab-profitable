@@ -28,7 +28,7 @@ export const URGENT_CARDS: EventDef[] = [
     },
     when: { launched: true, minCustomers: 4 },
     urgent: {
-      seconds: 10,
+      seconds: 6,
       missed: [
         {
           effect: { customers: -1, quality: -4, moral: -8 },
@@ -87,7 +87,7 @@ export const URGENT_CARDS: EventDef[] = [
     },
     when: { launched: true, minAudience: 60 },
     urgent: {
-      seconds: 12,
+      seconds: 8,
       missed: [
         {
           effect: { quality: -3, moral: -6 },
@@ -147,7 +147,7 @@ export const URGENT_CARDS: EventDef[] = [
     },
     when: { hasProject: true },
     urgent: {
-      seconds: 10,
+      seconds: 6,
       missed: [
         {
           effect: { moral: -4 },
@@ -205,7 +205,7 @@ export const URGENT_CARDS: EventDef[] = [
     },
     when: { hasProject: true, minDay: 8 },
     urgent: {
-      seconds: 12,
+      seconds: 8,
       missed: [
         {
           effect: { audience: -25, moral: -6 },
@@ -251,11 +251,11 @@ export const URGENT_CARDS: EventDef[] = [
     repeatable: true,
     title: { fr: "Deux pour un chez Chef", en: "Two for one at Chef's" },
     text: {
-      fr: "Chef crie dans la rue : deux kebabs pour le prix d'un, pendant dix secondes.",
-      en: "Chef shouts in the street: two kebabs for the price of one, for ten seconds.",
+      fr: "Chef crie dans la rue : deux kebabs pour le prix d'un, pendant six secondes.",
+      en: "Chef shouts in the street: two kebabs for the price of one, for six seconds.",
     },
     urgent: {
-      seconds: 10,
+      seconds: 6,
       missed: [
         {
           effect: { moral: -3 },
@@ -315,7 +315,7 @@ export const URGENT_CARDS: EventDef[] = [
     },
     when: { hasProject: true, launched: false, minBuilt: 0.25 },
     urgent: {
-      seconds: 10,
+      seconds: 6,
       missed: [
         {
           effect: { built: -20, moral: -8 },
@@ -374,7 +374,7 @@ export const URGENT_CARDS: EventDef[] = [
     },
     when: { hasProject: true, minCash: 200 },
     urgent: {
-      seconds: 12,
+      seconds: 8,
       missed: [
         {
           effect: { cash: -140, moral: -6 },
@@ -432,7 +432,7 @@ export const URGENT_CARDS: EventDef[] = [
     },
     when: { hasProject: true },
     urgent: {
-      seconds: 12,
+      seconds: 8,
       missed: [
         {
           effect: { moral: -4 },
@@ -491,7 +491,7 @@ export const URGENT_CARDS: EventDef[] = [
     },
     when: { launched: true, minCustomers: 3 },
     urgent: {
-      seconds: 12,
+      seconds: 8,
       missed: [
         {
           effect: { customers: -1, moral: -5 },
@@ -549,7 +549,7 @@ export const URGENT_CARDS: EventDef[] = [
     },
     when: { launched: true },
     urgent: {
-      seconds: 10,
+      seconds: 6,
       missed: [
         {
           effect: { moral: -3 },
@@ -608,7 +608,7 @@ export const URGENT_CARDS: EventDef[] = [
     },
     when: { minCash: 150 },
     urgent: {
-      seconds: 10,
+      seconds: 6,
       missed: [
         {
           effect: { cash: -80, skipSlots: 1, moral: -3 },
@@ -667,7 +667,7 @@ export const URGENT_CARDS: EventDef[] = [
     },
     when: { hasProject: true, launched: false, minBuilt: 0.15 },
     urgent: {
-      seconds: 10,
+      seconds: 6,
       missed: [
         {
           effect: { built: -12, moral: -4 },
@@ -725,7 +725,7 @@ export const URGENT_CARDS: EventDef[] = [
     },
     when: { hasProject: true, launched: false, minBuilt: 0.3 },
     urgent: {
-      seconds: 12,
+      seconds: 8,
       missed: [
         {
           effect: { moral: -4 },
@@ -786,7 +786,7 @@ export const URGENT_CARDS: EventDef[] = [
     },
     when: { minDay: 10, minCash: 300 },
     urgent: {
-      seconds: 12,
+      seconds: 8,
       missed: [
         {
           effect: { moral: -2 },
@@ -837,7 +837,7 @@ export const URGENT_CARDS: EventDef[] = [
       en: "The same letter, in bold. With the 10% surcharge it comes to €132, right now.",
     },
     urgent: {
-      seconds: 10,
+      seconds: 6,
       missed: [
         {
           effect: { moral: -2 },
@@ -888,7 +888,7 @@ export const URGENT_CARDS: EventDef[] = [
       en: "A registered letter. A 40% surcharge: €168, right now. Your accountant is on holiday.",
     },
     urgent: {
-      seconds: 10,
+      seconds: 6,
       missed: [
         {
           effect: { moral: -2 },
@@ -939,7 +939,7 @@ export const URGENT_CARDS: EventDef[] = [
       en: "An 80% surcharge: €216. After this letter, they help themselves from your account.",
     },
     urgent: {
-      seconds: 10,
+      seconds: 6,
       missed: [
         {
           effect: { cash: -236, moral: -6 },

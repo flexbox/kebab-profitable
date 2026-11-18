@@ -4,7 +4,6 @@ import type { GameState, Lang } from "@/game/types";
 const KEY = {
   lang: "kp.lang",
   mute: "kp.mute",
-  clock: "kp.clock",
   pseudo: "kp.pseudo",
   run: "kp.run",
   attempts: (seed: string) => `kp.attempts.${seed}`,
@@ -37,10 +36,6 @@ export const store = {
 
   muted: () => read(KEY.mute) === "1",
   setMuted: (muted: boolean) => write(KEY.mute, muted ? "1" : null),
-
-  /** Whether urgent cards run against the clock. On unless switched off. */
-  timed: () => read(KEY.clock) !== "off",
-  setTimed: (timed: boolean) => write(KEY.clock, timed ? null : "off"),
 
   pseudo: () => read(KEY.pseudo) ?? "",
   setPseudo: (pseudo: string) => write(KEY.pseudo, pseudo),
