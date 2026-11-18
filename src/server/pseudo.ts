@@ -1,3 +1,7 @@
+import { plain, pseudoKey } from "@/lib/pseudo";
+
+export { pseudoKey };
+
 /** Leaderboard names: 2 to 16 characters, and a basic filter. */
 const BLOCKED = [
   "merde", "putain", "connard", "connasse", "salope", "encule", "pute", "batard",
@@ -5,14 +9,6 @@ const BLOCKED = [
   "fuck", "shit", "bitch", "cunt", "nigger", "nigga", "faggot", "whore", "slut",
   "asshole", "dick", "cock", "rape", "retard",
 ];
-
-function plain(value: string): string {
-  return value
-    .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "");
-}
 
 /** Returns the cleaned name, or null if it is not acceptable. */
 export function cleanPseudo(input: unknown): string | null {
@@ -26,8 +22,4 @@ export function cleanPseudo(input: unknown): string | null {
     return null;
   }
   return name;
-}
-
-export function pseudoKey(name: string): string {
-  return plain(name) || name.toLowerCase();
 }

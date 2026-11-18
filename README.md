@@ -38,7 +38,7 @@ with indiehackers.com.
   launch. When it flops, pivot.
 - Each month-end takes €600 of rent and 22% of URSSAF on what you earned.
 - Now and then an urgent card lands in the middle of a day: production is
-  down, your coffee is heading for the keyboard. You get about ten seconds to
+  down, your coffee is heading for the keyboard. You get 6 or 8 seconds to
   choose between a safe answer and a gamble on your progress. Let the clock
   run out and you take the worst of it.
 - Chef, who owns the kebab shop downstairs, coaches you whether you asked or
@@ -181,16 +181,47 @@ silent.
 ## Leaderboard
 
 Scores are checked on the server: the browser sends the list of moves, the
-server replays them with the same rules engine and records the day the replay
-finds. In development scores go to `.data/scores.json`. In production they go
-to Upstash Redis, added to the Vercel project from the Marketplace:
+server replays them with the same rules engine and records what the replay
+finds. Nothing the browser claims is ranked.
+
+- **Order:** fewer days to the kebab first, then more cash in the bank on the
+  winning day, then the earlier score.
+- **Boards:** "Aujourd'hui" holds the day's run, one score per name.
+  "Depuis toujours" holds each player's best run on any day.
+- **Who is on it:** winning runs only. A run finished after midnight goes to
+  the board of the day before, which stays open one more day.
+- **Names:** a free name of 2 to 16 characters, with no account. "Karl" and
+  "karl" are the same player.
+- **Limit:** 30 scores per 10 minutes from one address. It is wide because a
+  whole bar on one Wi-Fi shares one address.
+
+In development scores go to `.data/scores.json`. In production they go to
+Upstash Redis, added to the Vercel project from the Marketplace and connected
+to the production environment only:
 
 ```bash
 vercel integration add upstash/upstash-kv
 ```
 
-Until that is done the deployed game plays normally and the leaderboard says
-it is not open yet.
+Without the database the deployed game plays normally and the leaderboard
+says it is not open yet. Preview deployments stay that way on purpose, so
+that a test run never reaches the real board.
+
+### Remove a name
+
+There is no admin screen. To remove a score, open the database from the
+project's Storage tab on Vercel and run these in its command line. The name
+key is the name in lower case, without accents, spaces or punctuation:
+`Zoé 59` becomes `zoe59`.
+
+```
+HDEL kp:seed:2026-11-19 zoe59
+HDEL kp:all zoe59
+ZREM kp:best zoe59
+```
+
+The first line takes the score off that day's board, the other two off the
+all-time board.
 
 ## Add a card
 
@@ -216,13 +247,11 @@ whole chain, and the tests check that it does.
 
 The countdown on urgent cards runs in the browser only. To the rules engine
 and to the leaderboard, a missed card is a move like any other, and it is
-never the best one. The stopwatch button at the top of every screen turns the
-countdown off for players who need more time; the cards then wait like the
-others. The clock also stops while the tab is hidden.
+never the best one. There is no pause button: an urgent card leaves 6 or 8
+seconds. The clock stops while the tab is hidden.
 
-The intro follows the same switch. With the clock on it plays by itself, one
-caption after another; with the clock off, each caption waits for a press.
-With reduced motion it is a series of stills, with every caption shown whole.
+The intro plays by itself, one caption after another. With reduced motion it
+is a series of stills, with every caption shown whole.
 
 ## About the people in the game
 

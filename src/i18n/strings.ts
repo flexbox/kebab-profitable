@@ -352,6 +352,11 @@ export const UI = {
     fr: `J'ai rendu ${name} kebab profitable en ${days} jours 🥙 À toi de battre ça :`,
     en: `I got ${name} to kebab profitable in ${days} days 🥙 Your turn to beat it:`,
   }),
+  /** Once the score is saved on today's board: the post carries the rank. */
+  shareRanked: (rank: number, days: number, name: string): L => ({
+    fr: `Je suis ${rank === 1 ? "1er" : `${rank}e`} du jour : ${name} kebab profitable en ${days} jours 🥙 À toi de battre ça :`,
+    en: `I'm #${rank} today: got ${name} to kebab profitable in ${days} days 🥙 Your turn to beat it:`,
+  }),
   shareLost: (days: number, name: string): L => ({
     fr: `${name} a tenu ${days} jours avant de retourner au CDI 🥙 Tu feras mieux ?`,
     en: `${name} lasted ${days} days before going back to a day job 🥙 Think you can do better?`,
@@ -359,11 +364,11 @@ export const UI = {
 
   leaderboard: { fr: "Classement", en: "Leaderboard" },
   today: { fr: "Aujourd'hui", en: "Today" },
+  yesterday: { fr: "Hier", en: "Yesterday" },
   allTime: { fr: "Depuis toujours", en: "All-time" },
   rank: { fr: "#", en: "#" },
   player: { fr: "Joueur", en: "Player" },
   days: { fr: "Jours", en: "Days" },
-  tries: { fr: "Essais", en: "Tries" },
   noScores: {
     fr: "Personne n'est encore kebab profitable. À toi.",
     en: "Nobody is kebab profitable yet. Your move.",
@@ -372,10 +377,18 @@ export const UI = {
   pseudoHint: { fr: "De 2 à 16 caractères.", en: "2 to 16 characters." },
   submit: { fr: "Inscrire mon score", en: "Submit my score" },
   submitting: { fr: "Vérification…", en: "Checking…" },
-  submitted: (rank: number): L => ({
-    fr: `Score inscrit. Tu es ${rank === 1 ? "1er" : `${rank}e`} aujourd'hui.`,
-    en: `Score saved. You are #${rank} today.`,
-  }),
+  submitted: (rank: number, day: "today" | "yesterday"): L => {
+    const place = rank === 1 ? "1er" : `${rank}e`;
+    return day === "today"
+      ? {
+          fr: `Score inscrit. Tu es ${place} aujourd'hui.`,
+          en: `Score saved. You are #${rank} today.`,
+        }
+      : {
+          fr: `Score inscrit. Tu es ${place} au classement d'hier.`,
+          en: `Score saved. You are #${rank} on yesterday's board.`,
+        };
+  },
   errors: {
     pseudo: {
       fr: "Choisis un pseudo de 2 à 16 caractères, sans gros mots.",
@@ -392,6 +405,10 @@ export const UI = {
     offline: {
       fr: "Le classement n'est pas encore ouvert. Ton score reste dans ce navigateur.",
       en: "The leaderboard is not open yet. Your score stays in this browser.",
+    },
+    busy: {
+      fr: "Trop de scores envoyés depuis cette connexion. Réessaie dans quelques minutes.",
+      en: "Too many scores sent from this connection. Try again in a few minutes.",
     },
     network: {
       fr: "Classement injoignable. Réessaie dans un instant.",

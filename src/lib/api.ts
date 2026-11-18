@@ -1,9 +1,9 @@
 import { encodeMoves } from "@/game/codec";
 import type { GameState } from "@/game/types";
 import type { ScoreEntry } from "@/server/scores";
-import type { Board, SubmitError } from "@/server/submit";
+import type { Board, BoardDay, SubmitError, Submitted } from "@/server/submit";
 
-export type { Board, ScoreEntry };
+export type { Board, BoardDay, ScoreEntry };
 
 export async function fetchBoard(seed: string): Promise<Board> {
   const res = await fetch(`/api/scores?seed=${encodeURIComponent(seed)}`, {
@@ -14,8 +14,8 @@ export async function fetchBoard(seed: string): Promise<Board> {
 }
 
 export type SubmitResult =
-  | { ok: true; rank: number; days: number; board: Board }
-  | { ok: false; error: SubmitError | "network" | "offline" };
+  | Submitted
+  | { ok: false; error: SubmitError | "network" | "offline" | "busy" };
 
 export async function submitScore(
   state: GameState,

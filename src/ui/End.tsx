@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { character, mrrOf } from "@/game";
 import type { GameState, L } from "@/game/types";
 import { UI } from "@/i18n/strings";
-import { submitScore, type Board } from "@/lib/api";
+import { submitScore, type Board, type BoardDay } from "@/lib/api";
+import { seedFor } from "@/lib/seed";
 import { postOnX } from "@/lib/share";
 import { store } from "@/lib/storage";
 import { useLang } from "./lang";
@@ -14,7 +15,7 @@ import { Portrait } from "./Portrait";
 type Sent =
   | { status: "idle" }
   | { status: "sending" }
-  | { status: "done"; rank: number; board: Board; pseudo: string }
+  | { status: "done"; rank: number; day: BoardDay; board: Board; pseudo: string }
   | { status: "error"; error: keyof typeof UI.errors };
 
 export function End({
@@ -38,6 +39,8 @@ export function End({
   const dialog = useRef<HTMLDialogElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const canSubmit = won && sent.status !== "done";
+  // A lost run cannot enter the board, but the player can see who is on it today.
+  const [today] = useState(() => seedFor(new Date()));
 
   // A modal dialog: the page behind is inert, focus moves inside, and it
   // goes back to the page when the dialog closes.
@@ -77,11 +80,25 @@ export function End({
     setSent({ status: "sending" });
     store.setPseudo(name);
     const result = await submitScore(state, name, attempts);
-    if (result.ok) setSent({ status: "done", rank: result.rank, board: result.board, pseudo: name });
+    if (result.ok) {
+      setSent({
+        status: "done",
+        rank: result.rank,
+        day: result.day,
+        board: result.board,
+        pseudo: name,
+      });
+    }
     else setSent({ status: "error", error: result.error });
   }
 
-  const shareUrl = postOnX(t(won ? UI.shareWon(outcome.day, first) : UI.shareLost(outcome.day, first)));
+  // The post carries the rank once the score is on today's board.
+  const shareText = !won
+    ? UI.shareLost(outcome.day, first)
+    : sent.status === "done" && sent.day === "today"
+      ? UI.shareRanked(sent.rank, outcome.day, first)
+      : UI.shareWon(outcome.day, first);
+  const shareUrl = postOnX(t(shareText));
 
   return (
     <dialog
@@ -159,8 +176,13 @@ export function End({
 
         {sent.status === "done" && (
           <>
-            <p className="success">{t(UI.submitted(sent.rank))}</p>
-            <Leaderboard seed={state.seed} board={sent.board} highlight={sent.pseudo} />
+            <p className="success">{t(UI.submitted(sent.rank, sent.day))}</p>
+            <Leaderboard
+              seed={state.seed}
+              board={sent.board}
+              day={sent.day}
+              highlight={sent.pseudo}
+            />
           </>
         )}
 
@@ -177,6 +199,14 @@ export function End({
             {t(UI.home)}
           </button>
         </div>
+
+        {/* Under the buttons: a long board never pushes "Play again" out of reach. */}
+        {!won && (
+          <section className="end-board" aria-labelledby="end-board-title">
+            <h2 id="end-board-title">{t(UI.leaderboard)}</h2>
+            <Leaderboard seed={today} />
+          </section>
+        )}
       </>
     </dialog>
   );

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { character } from "@/game";
 import { UI } from "@/i18n/strings";
-import { fetchBoard, type Board, type ScoreEntry } from "@/lib/api";
+import { fetchBoard, type Board, type BoardDay, type ScoreEntry } from "@/lib/api";
+import { pseudoKey } from "@/lib/pseudo";
 import { useLang } from "./lang";
 import { Portrait } from "./Portrait";
 
@@ -12,15 +13,18 @@ type Tab = "today" | "allTime";
 export function Leaderboard({
   seed,
   board: given,
+  day = "today",
   highlight,
 }: {
   seed: string;
   /** A board already in hand (after submitting a score). */
   board?: Board;
+  /** Which day the seed is: a run finished after midnight shows yesterday's board. */
+  day?: BoardDay;
   /** The name to highlight. */
   highlight?: string;
 }) {
-  const { t } = useLang();
+  const { t, euro } = useLang();
   const [tab, setTab] = useState<Tab>("today");
   const [loaded, setLoaded] = useState<{ seed: string; board: Board | "error" } | null>(null);
 
@@ -41,6 +45,8 @@ export function Leaderboard({
   if (board.offline) return <p className="muted">{t(UI.errors.offline)}</p>;
 
   const rows: ScoreEntry[] = board[tab];
+  // "Karl" and "karl" are one player: the row may carry an older spelling.
+  const me = highlight ? pseudoKey(highlight) : null;
   return (
     <div className="board">
       <div className="seg" role="group" aria-label={t(UI.leaderboard)}>
@@ -52,7 +58,7 @@ export function Leaderboard({
             className={tab === id ? "seg-on" : ""}
             onClick={() => setTab(id)}
           >
-            {t(id === "today" ? UI.today : UI.allTime)}
+            {t(id === "allTime" ? UI.allTime : day === "today" ? UI.today : UI.yesterday)}
           </button>
         ))}
       </div>
@@ -66,14 +72,14 @@ export function Leaderboard({
                 <th className="num">{t(UI.rank)}</th>
                 <th>{t(UI.player)}</th>
                 <th className="num">{t(UI.days)}</th>
-                <th className="num">{t(UI.tries)}</th>
+                <th className="num">{t(UI.cash)}</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row, i) => (
                 <tr
                   key={`${row.seed}-${row.pseudo}`}
-                  className={highlight && row.pseudo === highlight ? "me" : ""}
+                  className={me !== null && pseudoKey(row.pseudo) === me ? "me" : ""}
                 >
                   <td className="num">{i + 1}</td>
                   {/* One cell for the player: the name they chose, then who they played
@@ -91,7 +97,7 @@ export function Leaderboard({
                     </span>
                   </td>
                   <td className="num">{row.days}</td>
-                  <td className="num">{row.attempts}</td>
+                  <td className="num">{euro(row.cash)}</td>
                 </tr>
               ))}
             </tbody>

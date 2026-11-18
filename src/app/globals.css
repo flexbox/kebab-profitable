@@ -1789,12 +1789,14 @@ button {
   flex-wrap: wrap;
 }
 
-/* The end of a run arrives in order: verdict, Chef, the numbers, what next. */
+/* The end of a run arrives in order: verdict, Chef, the numbers, what next,
+   and after a lost run, who made it today. */
 .end-head,
 .end > .chef,
 .end-stats,
 .end > .submit,
-.end-actions {
+.end-actions,
+.end-board {
   animation: fade-in 300ms ease-out both;
 }
 
@@ -1803,7 +1805,8 @@ button {
   .end > .chef,
   .end-stats,
   .end > .submit,
-  .end-actions {
+  .end-actions,
+  .end-board {
     animation-name: fade-in-up;
   }
 }
@@ -1822,6 +1825,10 @@ button {
 
 .end-actions {
   animation-delay: 400ms;
+}
+
+.end-board {
+  animation-delay: 500ms;
 }
 
 @keyframes fade-in {
