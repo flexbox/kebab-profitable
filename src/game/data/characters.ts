@@ -83,6 +83,7 @@ export const CHARACTERS: CharacterDef[] = [
     },
     signatureIdea: "scrybecast",
     site: "https://scrybecast.studio",
+    handle: "MickaelBourgois",
     mods: { marketingMult: 1.5, qualityMult: 0.6 },
   },
   {

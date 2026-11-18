@@ -150,8 +150,8 @@ function streaks(tone, rows) {
 /**
  * Not likenesses: the same emoji-yellow skin and the same brown hair, told
  * apart by what they wear, how their hair falls and the look on their face.
- * David and Karl are the exceptions: each has his own face, after his avatar
- * on X.
+ * David, Karl and Mickael are the exceptions: each has his own face, after
+ * his avatar on X.
  */
 const MEMBER = {
   k: BODY.k,
@@ -250,45 +250,6 @@ const SIDES = `
   ...KLKZ..................KKZ....
   ...KKZ....................Z.....
   ...KZ...........................`
-
-/** A cup over the near ear, and the band it hangs from, over the crown. */
-const CUP = `
-  ..kSk...
-  ..kSk...
-  ..kSk...
-  ..kSk...
-  ..kSk...
-  .kkkkk..
-  kpqqppk.
-  kpqpppk.
-  kpppppk.
-  kpppppk.
-  kpppppk.
-  kpppPPk.
-  kppPPPk.
-  kPPPPPk.
-  .kkkkk..`
-const BAND = `
-  ......kkkkkkkkkkkkkkkk......
-  ....kkSSSSSSSSSSSSSSSSkk....
-  ...kSSkkkkkkkkkkkkkkkkSSk...
-  ..kSkk................kkSk..
-  ..kSk..................kSk..`
-/** A headset: a thin band, one cup, and a microphone on a boom in front of the mouth. */
-const HEADSET = [
-  grid(1, 1, BAND),
-  clip([8, 0, 9, 6], WAVE),
-  grid(0, 6, CUP),
-  grid(5, 20, `
-    k.......
-    Sk......
-    .Sk.....
-    ..Sk....
-    ...Skkk.
-    ....kppk
-    ....kpPk
-    .....kk.`),
-]
 
 /** A mask across the eyes, tied behind the head: the holes show the eyes. */
 const MASK = `
@@ -667,13 +628,42 @@ face("portrait_karl", {
   shadow: "KLZyw",
 })
 
+// Mickael Bourgois (@MickaelBourgois), after his avatar on X: a pale cap with
+// a dark monogram, thin round glasses, a full dark beard going grey at the
+// chin, a half smile, a dark overshirt on an olive T-shirt, and a green glow.
 face("portrait_mickael", {
-  look: { ...MEMBER, ...shirtOf("#d98234"), e: "#b8742c", E: "#6a3c14", p: "#4a4650", P: "#2c2a32", q: "#6a6672" },
-  ground: [fade("#5e3418", "#e09a48")],
-  brows: "high",
-  mouth: "open",
-  under: [TEE],
-  over: [WAVE, ...HEADSET],
+  look: {
+    ...MEMBER,
+    ...skinOf("#e2b08e"),
+    ...hairOf("#3a3230", "#3e3634"),
+    f: "#96928e",
+    m: "#8a5244", r: "#c07866",
+    e: "#7f9388", E: "#3a4a44",
+    g: "#cdb67e",
+    ...shirtOf("#1f3d3b"),
+    b: "#35605c", t: "#77714a",
+    y: "#dccfb4", V: "#f2e8d2", w: "#b4a688", a: "#dccfb4",
+    u: "#2a2630",
+  },
+  ground: [
+    rect(0, 0, 32, 32, "#06241a"),
+    // The glow behind him, and the bright corners of the frame.
+    circ(16, 17, 15, "#0c5a3a"),
+    circ(16, 17, 11, "#14905a"),
+    poly([23, 0, 32, 0, 32, 11], "#22c070"),
+    poly([0, 17, 8, 27, 0, 32], "#0f6a44"),
+  ],
+  brows: "wry",
+  mouth: "smirk",
+  under: [TEE, ...COLLAR, grid(10, 30, "tttttttt\ntttttttt"), BEARD_LONG],
+  over: [
+    SIDES,
+    CAP,
+    // The monogram on the front of the cap.
+    grid(17, 3, "u.u\nuuu\n.u.\n.uu"),
+    ROUND,
+  ],
+  shadow: "KLZyw",
 })
 
 face("portrait_christophe", {
