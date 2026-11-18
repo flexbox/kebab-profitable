@@ -774,6 +774,9 @@ export function Play({
       const confirm = e.key === "Enter";
       // A digit held down answers one question, not the ones that follow it.
       const n = /^[1-9]$/.test(e.key) && !e.repeat ? Number(e.key) : 0;
+      // The digit is a shortcut, not text: when it ends the run, the end screen
+      // opens with the name field focused, and the digit must not land in it.
+      if (n) e.preventDefault();
       // A single button is always 1, like the first of several.
       if (showResult) {
         if (confirm || n === 1) ack();
