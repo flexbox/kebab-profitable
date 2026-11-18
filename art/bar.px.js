@@ -293,7 +293,7 @@ const BAR_GRIN = [...gladEyes(0, 1), grid(5, 9, "MxxM\n.MM.")]
       ...Object.fromEntries(Object.entries(look.wear).map(([key, h]) => [key, tint(h)])),
     })
     const cape = !!look.cape
-    const shades = who === "matthys"
+    const shades = !!look.shades
     const front = [
       ...(cape ? [rect(1, 13, 12, 6, "r"), rect(1, 13, 12, 1, "R")] : []),
       clip([0, 0, 14, 19], stamp(`_${who}_front_lamp`, 0, 1)),
@@ -315,8 +315,8 @@ const BAR_GRIN = [...gladEyes(0, 1), grid(5, 9, "MxxM\n.MM.")]
   }
 
   // The rest of the table: nobody in particular, and a bit of everybody who
-  // turns up. Black T-shirts, beards, one cap. Faces are the same yellow as
-  // the members': nobody here is a likeness.
+  // turns up. Black T-shirts, beards, one cap. Their faces are yellow: unlike
+  // the members, nobody here is a likeness.
   const HAIR = { dark: "#3a2a22", black: "#2b2530", brown: "#5a3a24", blond: "#d8b060", ginger: "#b8602c", grey: "#8f8d8a" }
   const TEE = { black: "#3a3a44", white: "#e8e2d0", olive: "#7c7c5e", navy: "#34477a", sky: "#a9c4e0", grey: "#858d98", wine: "#8a3a48", green: "#4c8a5c" }
   const CROWD = {

@@ -843,8 +843,8 @@ function sideProps(who) {
       return [rect(1, 1, 7, 3, "y"), rect(1, 3, 7, 1, "w"), rect(6, 4, 4, 1, "w"), px(5, 2, "k"), rect(2, 7, 3, 1, "a")]
     case "christophe": // an earbud
       return [px(2, 8, "x")]
-    case "matthys": // the peak points where he looks
-      return [rect(1, 1, 7, 3, "y"), rect(1, 3, 7, 1, "w"), rect(6, 4, 4, 1, "w"), rect(5, 7, 4, 2, "k"), px(6, 7, "s")]
+    case "matthys": // the cap, its peak where he looks
+      return [rect(1, 1, 7, 3, "y"), rect(1, 3, 7, 1, "w"), rect(6, 4, 4, 1, "w"), px(5, 2, "x")]
     default:
       return []
   }
@@ -1024,11 +1024,11 @@ for (const [kind, draw] of Object.entries(SCREENS)) {
 // ---------------------------------------------------------------------------
 
 /**
- * Everyone shares one body and an emoji-yellow face. The members are told
- * apart by a signature prop, by how their hair falls and by what they wear,
- * not by a likeness: real portraits come later, once each member has approved
- * theirs. David, Karl, Mickael and Christophe have: their skin, hair and
- * beard are their own. They are drawn the way a 16-bit role-playing game draws its party:
+ * Everyone shares one body. Each of the five members is drawn after their
+ * avatar on X, with their agreement: their skin, hair, beard and clothes are
+ * in `PEOPLE`. The yellow skin and brown hair below are what is left for
+ * anybody else: the crowd at the bar, and whoever joins before their own face
+ * is drawn. They are drawn the way a 16-bit role-playing game draws its party:
  * a large head, eyes two pixels tall, and a costume you can read at a glance.
  * The faces in faces.px.js are the same five people, close up.
  */
@@ -1101,8 +1101,17 @@ const PEOPLE = {
     beard: true,
     wear: { H: "#d8a680", I: "#efc8a8", Y: "#b98462", K: "#2c272e", L: "#4a4450", Z: "#1a171c", m: "#8e5446", B: "#3a3338", F: "#2c272c" },
   },
-  // Black joggers, and trainers as yellow as his cap.
-  matthys: { shirt: "#8a62cc", wear: { Q: "#3c3644", U: "#2a2630", q: "#544c5e", S: "#c9952e", O: "#f0c050" } },
+  // After his avatar on X: a black cap (`y`), hair tied back, a short beard,
+  // a black jacket and a red lanyard (`p`). Black joggers, white trainers.
+  matthys: {
+    shirt: "#30343c",
+    beard: true,
+    wear: {
+      H: "#e0aa88", I: "#f4ceb2", Y: "#c08666", K: "#5a3a28", L: "#7c5438", Z: "#3c2618", m: "#8a4a3a", B: "#8a5236", F: "#74422a",
+      y: "#2e2c36", w: "#1a191f", p: "#e8502e",
+      Q: "#3c3644", U: "#2a2630", q: "#544c5e", S: "#b8b0a0", O: "#f4eedd",
+    },
+  },
 }
 
 /** Half of the body: it is the same on both sides. Fourteen wide once mirrored. */
@@ -1340,8 +1349,8 @@ function chest(who, x = 0, y = 0) {
       return [grid(x + 5, y + 11, "cHHc\n.cc."), grid(x + 8, y + 13, "xrx")]
     case "mickael": // the T-shirt, where the overshirt is open
       return [grid(x + 5, y + 11, "tttt\n.tt.\n.tt.\n.tt.\n.tt.\n.tt.\n.tt.")]
-    case "matthys": // a chain
-      return [grid(x + 5, y + 12, "a..a\n.aa.")]
+    case "matthys": // a lanyard, and the badge at the end of it
+      return [grid(x + 5, y + 11, "p..p\np..p\n.pp.\n.xx.")]
     default:
       return []
   }
@@ -1390,10 +1399,12 @@ function props(who, back) {
       return back
         ? [rect(0, 7, 14, 2, "r")]
         : [rect(0, 7, 14, 2, "r"), px(4, 7, "x"), px(9, 7, "x"), px(4, 8, "k"), px(9, 8, "k")]
-    case "matthys": // cap and shades: he is the cool kid
+    case "matthys": // a black cap with a white chevron; from behind, the knot of his hair under it
       return back
-        ? [rect(2, 0, 10, 1, "y"), rect(1, 1, 12, 3, "y"), rect(1, 3, 12, 1, "w"), rect(5, 4, 4, 1, "w")]
-        : [rect(2, 0, 10, 1, "y"), rect(1, 1, 12, 3, "y"), rect(1, 3, 12, 1, "w"), rect(8, 4, 6, 1, "w"), rect(3, 7, 8, 2, "k"), px(4, 7, "s"), px(8, 7, "s")]
+        ? [rect(2, 0, 10, 1, "y"), rect(1, 1, 12, 3, "y"), rect(1, 3, 12, 1, "w"), rect(5, 4, 4, 1, "w"), grid(5, 5, ".LL.\nKLLK")]
+        : [rect(2, 0, 10, 1, "y"), rect(1, 1, 12, 3, "y"), rect(1, 3, 12, 1, "w"), rect(8, 4, 6, 1, "w"), grid(5, 1, ".x.\nx.x")]
+    case "shades": // dark glasses over the eyes: for whoever sets `shades`
+      return back ? [] : [rect(3, 7, 8, 2, "k"), px(4, 7, "s"), px(8, 7, "s")]
     default:
       return []
   }
@@ -1508,7 +1519,7 @@ for (const g of GRADES) {
       ...(cape ? [rect(1, 15, 12, 11, "r"), rect(1, 15, 12, 1, "R"), rect(1, 24, 12, 2, "R")] : []),
       stamp(`_${who}_front_${g}`, 0, 3),
       // The face. Shades hide the eyes, and the mask has its own.
-      ...(who === "matthys" || cape ? [] : gladEyes(0, 3)),
+      ...(look.shades || cape ? [] : gladEyes(0, 3)),
       grid(5, 11, "MxxM\n.MM."),
       stamp(`_${who}_worn_${g}`, 0, 2),
       ...(cape ? [grid(3, 9, ".k....k.\nkrk..krk")] : []),
@@ -1534,7 +1545,8 @@ for (const g of GRADES) {
     // --- One pose for each thing a founder does --------------------------
     // All of them are the standing figure with a few pixels changed: a face,
     // an arm. The cape hangs behind whatever the body does.
-    const shades = who === "matthys"
+    // Dark glasses hide the eyes, for a member who sets `shades`: nobody does any more.
+    const shades = !!look.shades
     const smiling = [
       ...(shades || cape ? [] : gladEyes(0, 1)),
       grid(5, 9, "MxxM\n.MM."),
@@ -1656,7 +1668,7 @@ for (const g of GRADES) {
       { w: 14, h: 12 },
       base.k,
       stamp(`_${who}_asleep_${g}`, 0, 1),
-      ...(who === "matthys" ? props(who, true) : cape ? [rect(0, 7, 14, 2, "r")] : props(who, false)),
+      ...(cape ? [rect(0, 7, 14, 2, "r")] : props(who, false)),
     )
   }
 

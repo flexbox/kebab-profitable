@@ -132,6 +132,7 @@ export const CHARACTERS: CharacterDef[] = [
     },
     signatureIdea: "ekklo",
     site: "https://www.matthys.dev",
+    handle: "MatthysDev",
     mods: { sleepMult: 1.3, viralMult: 2, shinyChance: 0.1 },
   },
 ];

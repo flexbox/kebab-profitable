@@ -125,6 +125,19 @@ function face(name, { look, ground, eyes = "open", brows = "level", mouth = "smi
   sprite(name, { w: 32, h: 32 }, ...ground, stamp(`_${name}_cut`, -1, -1, flip ? { flip: "x" } : {}))
 }
 
+/** A ground that goes from one tone on the left to another on the right, in dithered bands. */
+function fadeAcross(left, right, steps = 4) {
+  return (c) => {
+    for (let i = 0; i < steps; i++) {
+      const x0 = Math.round((i * 32) / steps)
+      const x1 = Math.round(((i + 1) * 32) / steps)
+      const tone = hex(mix(rgb(left), rgb(right), i / (steps - 1)))
+      c.rect(x0, 0, x1 - x0, 32, tone)
+      if (i > 0) for (let y = 0; y < 32; y++) if (dithered(x0 - 1, y, 0.5)) c.px(x0 - 1, y, tone)
+    }
+  }
+}
+
 /** A ground that goes from one tone at the top to another at the bottom, in dithered bands. */
 function fade(top, bottom, steps = 4) {
   return (c) => {
@@ -143,10 +156,10 @@ function fade(top, bottom, steps = 4) {
 // ---------------------------------------------------------------------------
 
 /**
- * Not likenesses: the same emoji-yellow skin and the same brown hair, told
- * apart by what they wear, how their hair falls and the look on their face.
- * Matthys is the last of them. David, Karl, Mickael and Christophe each have
- * their own face, after their avatar on X.
+ * Each of the five is drawn after their avatar on X, with their agreement:
+ * their skin, hair, beard and clothes are their own. What they share is here:
+ * the ink, the whites of the eyes, and a yellow skin for whoever joins before
+ * their own face is drawn.
  */
 const MEMBER = {
   k: BODY.k,
@@ -246,7 +259,7 @@ const SIDES = `
   ...KKZ....................Z.....
   ...KZ...........................`
 
-/** A cap with its peak out to the right, and dark glasses under it. */
+/** A cap with its peak out to the right. */
 const CAP = `
   .........kkkkkkkkkkkk...........
   ......kkkyyyyyyaayyyykkk........
@@ -261,27 +274,6 @@ const CAP = `
   ...kkkkkkkkkkkyyyyyyyyyyyyyyyyyk
   .............kkwwwwwwwwwwwwwwwwk
   ...............kkkkkkkkkkkkkkkk.`
-const SHADES = `
-  ................................
-  ................................
-  ................................
-  ................................
-  ................................
-  ................................
-  ................................
-  ................................
-  ................................
-  ................................
-  ................................
-  ................................
-  ................................
-  ...kkkkkkkkkkkkkkkkkkkkkk.......
-  ......kkkkkkkkkkkkkkkkkkk.......
-  ......kSSkkkkkkk.kSSkkkkk.......
-  ......kSkkkkkkkk.kSkkkkk........
-  .......kkkkkkkk...kkkkkk........
-  ........kkkkkk.....kkkk.........`
-
 /** Short hair, brushed off the forehead. */
 const SHORT = `
   ................................
@@ -636,14 +628,36 @@ face("portrait_christophe", {
   flip: true,
 })
 
+// Matthys Ducrocq (@MatthysDev), after his avatar on X: a black cap with a
+// small white chevron, hair tied back, a short beard, a wide smile to one
+// side, a black jacket and a red lanyard. The picture is lit like a stage,
+// orange from behind and green from in front: the shade on his skin is
+// orange, the light on it green, and the ground goes from one to the other.
 face("portrait_matthys", {
-  look: { ...MEMBER, ...shirtOf("#8a62cc"), y: "#f0c050", V: "#fbe08a", w: "#c9952e" },
-  ground: [fade("#33264f", "#9a72d8")],
-  brows: "none",
-  eyes: "none",
-  mouth: "smirk",
-  under: [TEE],
-  over: [SIDES, CAP, SHADES],
+  look: {
+    ...MEMBER,
+    H: "#d2a184", I: "#c4d6b4", Y: "#d06a3c", N: "#8c3a22",
+    m: "#7a3a2a", M: "#4a1c14", r: "#b85a48",
+    ...hairOf("#5a3a28", "#8a4c32"),
+    e: "#5a6a52", E: "#26302a",
+    ...shirtOf("#23262c"),
+    b: "#3c424a",
+    y: "#26242c", V: "#444050", w: "#141318", a: "#26242c",
+    o: "#e8502e",
+  },
+  ground: [fadeAcross("#e8602e", "#1c4a3c")],
+  eyes: "keen",
+  brows: "soft",
+  mouth: "grin",
+  under: [TEE, ...COLLAR, grid(7, 28, "o\n.o\n..o\n...o"), grid(18, 28, "...o\n..o\n.o\no"), BEARD],
+  over: [
+    SIDES,
+    // The knot of hair behind the ear.
+    grid(0, 11, ".KK\nKLKK\nKKKK\n.KZ"),
+    CAP,
+    // The chevron on the front of the cap.
+    grid(18, 4, ".x.\nx.x"),
+  ],
   shadow: "KLZyw",
 })
 
