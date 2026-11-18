@@ -1465,6 +1465,92 @@ button {
   height: 10px;
 }
 
+/*
+ * The MVP gauge, a fighting game's super bar: a steel frame drawn in pixels
+ * (art/meter.px.js, shown three times as large), quarter marks, and a charge that
+ * flows while it fills and flashes gold once the MVP can ship.
+ */
+.super {
+  border: 12px solid transparent;
+  border-image: url("/art/meter_frame.png") 4 stretch;
+  image-rendering: pixelated;
+}
+
+.super-track {
+  position: relative;
+  height: 18px;
+  background: #0b1020;
+  overflow: hidden;
+}
+
+/* The quarters, over the charge, like the levels of a super bar. */
+.super-track::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, transparent calc(25% - 1.5px), #05070f 0 calc(25% + 1.5px), transparent 0),
+    linear-gradient(to right, transparent calc(50% - 1.5px), #05070f 0 calc(50% + 1.5px), transparent 0),
+    linear-gradient(to right, transparent calc(75% - 1.5px), #05070f 0 calc(75% + 1.5px), transparent 0);
+  pointer-events: none;
+}
+
+.super-fill {
+  --flow: rgb(255 255 255 / 0.28);
+  --flow-core: rgb(255 255 255 / 0.55);
+  height: 100%;
+  background:
+    linear-gradient(to right, transparent 0 60px, var(--flow) 0 66px, var(--flow-core) 0 69px, transparent 0) 0 0 / 96px 100% repeat-x,
+    linear-gradient(#e8fbff 0 3px, #7fe3ff 0 6px, #35b8ff 0 9px, #1c86f2 0 12px, #155fc4 0 15px, #0d3d8c 0);
+  box-shadow: inset -3px 0 #f4fdff;
+  transition: width 0.4s steps(8, end);
+  animation: super-flow 1.2s steps(32) infinite;
+}
+
+.super-max .super-fill {
+  background:
+    linear-gradient(to right, transparent 0 60px, var(--flow) 0 66px, var(--flow-core) 0 69px, transparent 0) 0 0 / 96px 100% repeat-x,
+    linear-gradient(#fff8dc 0 3px, #ffe27a 0 6px, #ffc93c 0 9px, #f29a1f 0 12px, #d16a12 0 15px, #8a3d0b 0);
+  box-shadow: none;
+  animation:
+    super-flow 0.6s steps(32) infinite,
+    super-flash 0.5s steps(1) infinite;
+}
+
+.super-max {
+  animation: super-glow 0.5s steps(1) infinite;
+}
+
+@keyframes super-flow {
+  to {
+    background-position: 96px 0, 0 0;
+  }
+}
+
+@keyframes super-flash {
+  50% {
+    filter: brightness(1.35) saturate(1.2);
+  }
+}
+
+@keyframes super-glow {
+  0% {
+    filter: drop-shadow(0 0 6px rgb(255 201 60 / 0.75));
+  }
+  50% {
+    filter: drop-shadow(0 0 2px rgb(255 201 60 / 0.4));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .super,
+  .super-fill,
+  .super-max .super-fill {
+    animation: none;
+    transition: none;
+  }
+}
+
 .meter-goal .meter-fill {
   background: var(--color-brand);
 }

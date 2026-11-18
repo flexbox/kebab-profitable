@@ -257,11 +257,20 @@ function ProjectCard({ state }: { state: GameState }) {
                     : `${Math.min(99, Math.floor((p.built / p.mvpSize) * 100))} %`}
                 </strong>
               </div>
-              <div className="meter meter-mvp">
-                <div
-                  className="meter-fill"
-                  style={{ width: `${Math.min(100, (p.built / p.mvpSize) * 100)}%` }}
-                />
+              <div
+                className={`super${p.built >= p.mvpSize ? " super-max" : ""}`}
+                role="meter"
+                aria-label={t(UI.mvp)}
+                aria-valuemin={0}
+                aria-valuemax={p.mvpSize}
+                aria-valuenow={Math.min(p.built, p.mvpSize)}
+              >
+                <div className="super-track">
+                  <div
+                    className="super-fill"
+                    style={{ width: `${Math.min(100, (p.built / p.mvpSize) * 100)}%` }}
+                  />
+                </div>
               </div>
             </>
           ) : (

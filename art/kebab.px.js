@@ -1831,6 +1831,8 @@ scene("og", { w: 200, h: 105, bg: "n" },
 include("intro.px.js")
 // So has the apéro: the bar, and everyone at the table.
 include("bar.px.js")
+// And the MVP gauge, a super bar.
+include("meter.px.js")
 
 sheet(
   "sprites",
