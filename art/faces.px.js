@@ -703,13 +703,14 @@ const GUESTS = {
     over: [QUIFF],
     flip: true,
   },
-  // Dagobert Renouf: short dark hair, a beard, a green leather jacket and a chain.
+  // Dagobert Renouf: a dark cap, glasses, a short beard, a white tee, in black and white.
   dago: {
-    look: { ...skinOf("#e0a482"), ...hairOf("#46301f", "#5a3e2a"), e: "#5a6a4a", ...shirtOf("#2f8f42") },
-    ground: [fade("#a8a08c", "#d8d2c0")],
-    mouth: "grin",
+    look: { ...skinOf("#cfc9c4"), ...hairOf("#3c3a38", "#8a8580"), e: "#5a5856", r: "#8a8683", g: "#5e5a57", ...shirtOf("#f0eeea"), y: "#3a3a40", V: "#55555e", w: "#26262a", a: "#e8c040" },
+    ground: [fade("#b4b4b4", "#e4e4e4")],
+    mouth: "smile",
     under: [TEE, BEARD],
-    over: [SHORT, grid(10, 30, "a.....a\n.aaaaa.")],
+    over: [SIDES, CAP, SQUARE, rect(15, 4, 2, 2, "#d23a2a")],
+    shadow: "KLZyw",
   },
   // Nico Jeannen: brushed-back hair, a full beard, a half smile, looking away.
   nico: {
@@ -759,14 +760,46 @@ const GUESTS = {
     // Gold bands on the hood.
     over: [WAVE, ROUND, grid(1, 29, ".a\na..\n...a"), grid(4, 28, "a\n.a\n..a"), grid(22, 29, "a\n.a\n..a"), grid(26, 29, "a\n.a")],
   },
-  // Benjamin Code: a dark cap, glasses, a short beard, a white tee, in black and white.
+  // Benjamin Code: a short crop going grey, with a straight fringe, a dark
+  // beard, a wide smile, an earring, a green leather jacket over a patterned
+  // collar and a chain, in a pale street.
   benjamin: {
-    look: { ...skinOf("#cfc9c4"), ...hairOf("#3c3a38", "#8a8580"), e: "#5a5856", r: "#8a8683", g: "#5e5a57", ...shirtOf("#f0eeea"), y: "#3a3a40", V: "#55555e", w: "#26262a", a: "#e8c040" },
-    ground: [fade("#b4b4b4", "#e4e4e4")],
-    mouth: "smile",
-    under: [TEE, BEARD],
-    over: [SIDES, CAP, SQUARE, rect(15, 4, 2, 2, "#d23a2a")],
-    shadow: "KLZyw",
+    look: {
+      ...skinOf("#e2a988"), ...hairOf("#4a3e36", "#3e322c"), L: "#75675a", e: "#6a4a32", E: "#2e1e14",
+      ...shirtOf("#2f9a4a"), b: "#62c476", p: "#d8ccb0", u: "#26222a",
+    },
+    ground: [fade("#bdb8a8", "#e8e2d2"), rect(0, 0, 6, 32, "#aaa696"), rect(5, 0, 1, 32, "#8f8b7c"), rect(27, 0, 5, 32, "#f2ecde")],
+    eyes: "keen",
+    brows: "soft",
+    mouth: "grin",
+    under: [
+      TEE,
+      ...COLLAR,
+      // The collar of the shirt, the black T-shirt under it, and the chain.
+      grid(8, 29, "p\npu\n.pu"), grid(18, 29, "..p\n.up\nup."),
+      rect(12, 31, 6, 1, "u"),
+      grid(11, 29, "s.....s\n.s.s.s."),
+      BEARD,
+    ],
+    over: [
+      `
+        ..........KKKKKKKKKKK
+        .......KKKKLKKLKKLKKKKK
+        .....KKKLKKLKKLKKLKKKKKK
+        ....KKLKKLKKLKKLKKLKKKKKK
+        ...KKLKKLKKLKKLKKLKKKZKKKKK
+        ...KLKKLKKLKKLKKLKKKZKKKKKK
+        ...KKKLKKLKKLKKLKKKKKKKKKKK
+        ...KKLKKLKKLKKLKKLKKKKKKKKK
+        ...KKKZKZKKZKZKKZKZKKKKKKKK
+        ...KKZ.Z.ZZ.Z.ZZ.Z.Z.ZKKKKZ
+        ...KKZ.................KKZ
+        ...KKZ..................Z
+        ...KZ`,
+      // A small hoop in the ear.
+      grid(4, 20, "s\ns"),
+    ],
+    flip: true,
   },
   // Flavie Prévot: long brown hair parted in the middle, a wide smile, a denim
   // shirt, in front of a wall of wooden slats.
