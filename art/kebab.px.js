@@ -1026,9 +1026,8 @@ for (const [kind, draw] of Object.entries(SCREENS)) {
 /**
  * Everyone shares one body. Each of the five members is drawn after their
  * avatar on X, with their agreement: their skin, hair, beard and clothes are
- * in `PEOPLE`. The yellow skin and brown hair below are what is left for
- * anybody else: the crowd at the bar, and whoever joins before their own face
- * is drawn. They are drawn the way a 16-bit role-playing game draws its party:
+ * in `PEOPLE`. Nobody is yellow any more: the skin and hair below are only
+ * what a new member gets before their own face is drawn. They are drawn the way a 16-bit role-playing game draws its party:
  * a large head, eyes two pixels tall, and a costume you can read at a glance.
  * The faces in faces.px.js are the same five people, close up.
  */
@@ -1363,8 +1362,9 @@ const nape = (who) => (who === "david" ? [grid(5, 11, "uuuu")] : [])
  * jaw, round the mouth and under the chin. The face's top-left corner is at
  * x, y. `tight` is for a face screwed up or busy eating: the chin only.
  */
-function beard(who, view, x = 0, y = 0, tight = false) {
-  if (!PEOPLE[who].beard) return []
+const beard = (who, view, x = 0, y = 0, tight = false) => (PEOPLE[who].beard ? whiskers(view, x, y, tight) : [])
+/** The beard itself, in `B` and, under the chin, `F`. */
+function whiskers(view, x = 0, y = 0, tight = false) {
   if (view === "side") return [grid(x + 3, y + 8, "B....\nBBBB.\n.FFF.")]
   return tight
     ? [grid(x + 2, y + 9, "B........B\n.FFFFFFFF.")]

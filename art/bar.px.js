@@ -315,56 +315,108 @@ const BAR_GRIN = [...gladEyes(0, 1), grid(5, 9, "MxxM\n.MM.")]
   }
 
   // The rest of the table: nobody in particular, and a bit of everybody who
-  // turns up. Black T-shirts, beards, one cap. Their faces are yellow: unlike
-  // the members, nobody here is a likeness.
-  const HAIR = { dark: "#3a2a22", black: "#2b2530", brown: "#5a3a24", blond: "#d8b060", ginger: "#b8602c", grey: "#8f8d8a" }
-  const TEE = { black: "#3a3a44", white: "#e8e2d0", olive: "#7c7c5e", navy: "#34477a", sky: "#a9c4e0", grey: "#858d98", wine: "#8a3a48", green: "#4c8a5c" }
+  // turns up. They are drawn like the founders: skin of every shade, hair that
+  // falls its own way, a beard here and there, and something to tell each top
+  // from the next. Unlike the founders, nobody here is a likeness.
+  const SKIN = { fair: "#f0c6a8", light: "#e4b08c", tan: "#d09a74", olive: "#bd8862", brown: "#9a6646", dark: "#6f4832" }
+  const LOCKS = { dark: "#3a2a22", black: "#2b2530", brown: "#5a3a24", blond: "#d8b060", ginger: "#b8602c", grey: "#8f8d8a" }
+  const TOP = { black: "#3a3a44", white: "#e8e2d0", olive: "#7c7c5e", navy: "#34477a", sky: "#a9c4e0", grey: "#858d98", wine: "#8a3a48", green: "#4c8a5c" }
+  /** How the hair falls, over the top six rows of the head: two of the founders' cuts, and curls. */
+  const CUT = {
+    swept: HAIR.david,
+    mop: HAIR.christophe,
+    curls: {
+      front: `
+        .KLKKLKKLKKLK.
+        KLKKLKKLKKLKKK
+        KKLKKLKKLKKLKK
+        KLKKLKKLKKLKKK
+        KKKKKKKKKKKKKK
+        KKZHHZHHHZHHKK`,
+      back: `
+        .KLKKLKKLKKLK.
+        KLKKLKKLKKLKKK
+        KKLKKLKKLKKLKK
+        KLKKLKKLKKLKKK
+        KKLKKLKKLKKLKK
+        KLKKLKKLKKLKKK`,
+    },
+  }
+  // What each one wears on top of the shared body. Everything is placed on the
+  // figure, whose head starts one row down.
   const CROWD = {
     // Facing you, behind the table.
-    c1: { view: "f", hair: HAIR.dark, shirt: TEE.black, beard: true },
-    c2: { view: "f", hair: HAIR.brown, shirt: TEE.white, glasses: true },
-    c3: { view: "f", bald: true, shirt: TEE.black, beard: HAIR.brown },
-    c4: { view: "f", hair: HAIR.ginger, shirt: TEE.sky },
-    c5: { view: "f", hair: HAIR.black, shirt: TEE.olive, beard: true },
-    c6: { view: "f", hair: HAIR.blond, shirt: TEE.wine, long: true },
+    // A black T-shirt with a small white mark.
+    c1: { view: "f", skin: SKIN.tan, hair: LOCKS.black, cut: "mop", shirt: TOP.black, beard: true, worn: [grid(8, 14, "xx")] },
+    // Glasses, and a shirt with its collar open.
+    c2: {
+      view: "f", skin: SKIN.fair, hair: LOCKS.brown, cut: "swept", shirt: TOP.white,
+      worn: [grid(5, 12, "cHHc\n.cc."), rect(5, 7, 4, 1, "s"), px(2, 7, "s"), px(11, 7, "s")],
+    },
+    // Bald, bearded, in a hoodie with its cords hanging.
+    c3: { view: "f", skin: SKIN.brown, bald: true, shirt: TOP.black, beard: LOCKS.black, worn: [grid(5, 13, "x..x\nx..x")] },
+    // Ginger curls and a striped top.
+    c4: { view: "f", skin: SKIN.fair, hair: LOCKS.ginger, cut: "curls", shirt: TOP.sky, worn: [rect(3, 14, 8, 1, "x"), rect(3, 16, 8, 1, "x")] },
+    // A mustard beanie, and an overshirt open on a white T-shirt.
+    c5: {
+      view: "f", skin: SKIN.dark, hair: LOCKS.black, shirt: TOP.olive, beard: true, hat: "#d9a441",
+      worn: [grid(5, 12, "xxxx\n.xx.\n.xx.\n.xx.\n.xx.\n.xx.\n.xx."), rect(2, 0, 10, 1, "y"), rect(1, 1, 12, 4, "y"), rect(1, 4, 12, 1, "w")],
+    },
+    // Long fair hair down over the shoulders, and a thin gold chain.
+    c6: {
+      view: "f", skin: SKIN.light, hair: LOCKS.blond, shirt: TOP.wine,
+      worn: [grid(5, 13, "a..a\n.aa."), rect(0, 6, 2, 8, "K"), rect(12, 6, 2, 8, "K"), rect(0, 8, 1, 4, "L"), rect(0, 14, 2, 2, "Z"), rect(12, 14, 2, 2, "Z")],
+    },
     // Their backs to you, in front of it.
-    c7: { view: "b", hair: HAIR.dark, shirt: TEE.navy, cap: "#ece6d6" },
-    c8: { view: "b", hair: HAIR.grey, shirt: TEE.sky },
-    c9: { view: "b", hair: HAIR.black, shirt: TEE.black },
-    c10: { view: "b", hair: HAIR.dark, shirt: TEE.green, long: true },
-    c11: { view: "b", bald: true, shirt: TEE.grey },
-    c12: { view: "b", hair: HAIR.blond, shirt: TEE.white },
+    // A pale cap, worn the right way round.
+    c7: {
+      view: "b", skin: SKIN.light, hair: LOCKS.dark, shirt: TOP.navy, hat: "#ece6d6",
+      worn: [rect(2, 0, 10, 1, "y"), rect(1, 1, 12, 3, "y"), rect(1, 3, 12, 1, "w"), rect(5, 4, 4, 1, "w")],
+    },
+    // Grey hair, and the collar of a shirt.
+    c8: { view: "b", skin: SKIN.fair, hair: LOCKS.grey, shirt: TOP.sky, worn: [rect(4, 12, 6, 1, "D")] },
+    // Black hair tied up in a knot.
+    c9: { view: "b", skin: SKIN.olive, hair: LOCKS.black, shirt: TOP.black, worn: [grid(5, 0, ".KK.\nKLLK")] },
+    // Long dark hair down the back.
+    c10: {
+      view: "b", skin: SKIN.brown, hair: LOCKS.dark, shirt: TOP.green,
+      worn: [rect(1, 10, 12, 4, "K"), rect(2, 14, 10, 1, "Z"), rect(4, 10, 1, 4, "L"), rect(9, 11, 1, 3, "L")],
+    },
+    // Bald, with a crease at the back of the neck.
+    c11: { view: "b", skin: SKIN.tan, bald: true, shirt: TOP.grey, worn: [rect(4, 9, 6, 1, "Y")] },
+    // Fair hair swept over, and a hood down the back.
+    c12: { view: "b", skin: SKIN.fair, hair: LOCKS.blond, cut: "swept", shirt: TOP.white, worn: [grid(4, 12, "cCCCCc\n.cCCc.\n..cc..")] },
   }
   for (const [id, look] of Object.entries(CROWD)) {
-    const hair = look.bald ? [BODY.H, BODY.I, BODY.Y] : [look.hair, lighten(look.hair, 0.25), darken(look.hair, 0.3)]
-    const beard = look.beard === true ? look.hair : look.beard
+    const skin = [look.skin, lighten(look.skin, 0.3), darken(look.skin, 0.2)]
+    // A bald head is skin all the way up.
+    const hair = look.bald ? skin : [look.hair, lighten(look.hair, 0.25), darken(look.hair, 0.3)]
+    const whisker = look.beard === true ? look.hair : look.beard
     pal({
       ...base,
       ...beer,
+      H: tint(skin[0]),
+      I: tint(skin[1]),
+      Y: tint(skin[2]),
+      m: tint(darken(look.skin, 0.45)),
       K: tint(hair[0]),
       L: tint(hair[1]),
       Z: tint(hair[2]),
       C: tint(look.shirt),
       c: tint(darken(look.shirt, 0.24)),
       D: tint(lighten(look.shirt, 0.22)),
-      ...(beard ? { B: tint(beard), F: tint(darken(beard, 0.25)) } : {}),
-      ...(look.cap ? { y: tint(look.cap), w: tint(darken(look.cap, 0.2)) } : {}),
+      ...(whisker ? { B: tint(whisker), F: tint(darken(whisker, 0.25)) } : {}),
+      ...(look.hat ? { y: tint(look.hat), w: tint(darken(look.hat, 0.2)) } : {}),
     })
-    sprite(`_bar_${id}`, { mx: true }, look.view === "f" ? BAR_BUST : BACK)
-    const body = [stamp(`_bar_${id}`, 0, 1)]
-    let worn = []
-    if (look.view === "f") {
-      // The beard runs along the jaw and under the mouth.
-      if (beard) body.push(rect(1, 9, 2, 1, "B"), rect(11, 9, 2, 1, "B"), rect(2, 10, 4, 1, "B"), rect(8, 10, 4, 1, "B"), rect(3, 11, 8, 1, "F"))
-      // Long hair comes down over the shoulders.
-      if (look.long) worn.push(rect(0, 5, 2, 7, "K"), rect(12, 5, 2, 7, "K"), rect(0, 12, 2, 2, "Z"), rect(12, 12, 2, 2, "Z"))
-      if (look.glasses) worn.push(px(3, 7, "x"), px(5, 7, "x"), px(3, 8, "x"), px(5, 8, "x"), px(8, 7, "x"), px(10, 7, "x"), px(8, 8, "x"), px(10, 8, "x"), rect(6, 7, 2, 1, "s"), px(2, 7, "s"), px(11, 7, "s"))
-    } else {
-      if (look.long) worn.push(rect(1, 10, 12, 3, "K"), rect(2, 13, 10, 1, "Z"))
-      if (look.cap) worn.push(rect(2, 1, 10, 3, "y"), rect(2, 3, 10, 1, "w"), rect(5, 4, 4, 1, "w"))
-    }
-    figure(`bar_${id}_0`, { w: 14, h: 19 }, base.k, ...body, ...worn)
-    figure(`bar_${id}_1`, { w: 17, h: 19 }, base.k, ...body, ...(look.view === "f" ? BAR_GRIN : []), ...BAR_RAISED, ...worn)
+    const front = look.view === "f"
+    sprite(`_bar_${id}`, { mx: true }, front ? BAR_BUST : BACK)
+    const body = [
+      stamp(`_bar_${id}`, 0, 1),
+      ...(look.cut ? [grid(0, 1, CUT[look.cut][front ? "front" : "back"])] : []),
+      ...(front && whisker ? whiskers("front", 0, 1) : []),
+    ]
+    figure(`bar_${id}_0`, { w: 14, h: 19 }, base.k, ...body, ...look.worn)
+    figure(`bar_${id}_1`, { w: 17, h: 19 }, base.k, ...body, ...(front ? BAR_GRIN : []), ...BAR_RAISED, ...look.worn)
   }
 }
 

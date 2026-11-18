@@ -471,7 +471,7 @@ sprite("intro_neon", { w: 76 + NEON_REACH * 2, h: 12 + NEON_REACH * 2 }, (c) => 
   const look = {
     k: "#1c1a20",
     h: "#506078", j: "#6c7d98", d: "#3a475c", f: "#c2b28e",
-    H: BODY.H, Y: BODY.Y,
+    H: "#e0aa88", Y: "#b98462",
     B: "#c09058", b: "#8f6638", t: "#e6cb92",
     g: "#6fb257", G: "#447f3c", x: "#f4eedd",
     Q: "#48526a", U: "#30384a", S: "#2a2422",
@@ -537,12 +537,17 @@ sprite("intro_neon", { w: 76 + NEON_REACH * 2, h: 12 + NEON_REACH * 2 }, (c) => 
 // Chef, as you meet him: arms crossed, the long knife in his fist
 // ---------------------------------------------------------------------------
 
-pal({
-  ...BODY,
-  C: "#b8452f", c: "#8c3423", D: "#d4604a",
+// He is nobody's likeness, and is painted like the founders: a skin of his
+// own, black hair, and a glint in each eye.
+const CHEF = {
+  H: "#d9a47c", I: "#efc6a2", Y: "#b87e5a", // skin
+  K: "#2e2622", L: "#4c4038", Z: "#1c1614", // hair, brows and moustache
+  m: "#8a4a3a", M: "#4a1c14",
+  C: "#b8452f", c: "#8c3423", D: "#d4604a", // the shirt
   v: "#c9ced2", V: "#8f989e", W: "#eef3f5", // the blade
   q: "#4a3020", // the handle
-})
+}
+pal({ ...BODY, ...CHEF })
 
 // Everything that is the same on both sides: the hat, the head, the shoulders.
 sprite("_chef_half", { w: 80, h: 104, mx: true }, (c) => {
@@ -649,80 +654,70 @@ CHEF_FACES.forEach((face, i) => {
       c.poly([61, 69, 66, 69, 70, 24, 68, 18, 64, 30], "v")
       c.poly([61, 69, 63, 69, 66, 30, 64, 30], "V")
       c.line(68, 22, 66, 66, "W")
+      // A glint in each eye, on the side of the light.
+      c.px(32, 40, "x")
+      c.px(45, 40, "x")
       face(c)
     },
   )
 })
 
-// Chef's portrait, 32 by 32, as shown beside what he says. The picture above is
-// the one to follow: the same hat, brows, moustache, apron and knife, at the
-// size of the other portraits.
-sprite("_chef_small_half", { w: 32, h: 32, mx: true }, (c) => {
-  // The shoulders, the neck, the apron and its straps.
-  c.poly([3, 32, 5, 28, 10, 26, 16, 26, 16, 32], "C")
-  c.poly([3, 32, 5, 28, 6, 28, 5, 32], "c")
-  c.rect(14, 25, 2, 2, "Y")
-  c.rect(12, 28, 4, 4, "x")
-  c.rect(12, 28, 1, 4, "X")
-  c.rect(12, 26, 1, 2, "x")
-  // The head, with its heavy jaw.
-  c.ellipse(16, 18, 7, 5, "H")
-  c.rect(10, 18, 6, 4, "H")
-  c.ellipse(16, 22, 5, 3, "H")
-  c.rect(8, 17, 1, 2, "H")
-  c.px(8, 18, "Y")
-  c.rect(10, 13, 1, 2, "Z")
-  // The hat: the band, and the cloud on top of it.
-  c.ellipse(16, 6, 8, 4, "x")
-  c.ellipse(10, 8, 3, 3, "x")
-  c.rect(10, 10, 6, 3, "x")
-  c.rect(10, 10, 6, 1, "X")
-  c.rect(12, 11, 1, 2, "X")
-  c.px(8, 10, "X")
-  // Brows, eyes, nose.
-  c.rect(11, 15, 4, 1, "K")
-  c.rect(11, 17, 3, 2, "x")
-  c.rect(12, 17, 1, 2, "k")
-  c.px(14, 21, "Y")
-  // The moustache, turned up at the ends.
-  c.rect(12, 22, 4, 2, "K")
-  c.rect(10, 23, 2, 1, "K")
-  c.rect(9, 21, 1, 2, "K")
-  c.px(15, 25, "m")
-})
-figure(
-  "_chef_small",
-  { w: 32, h: 32 },
-  BODY.k,
-  stamp("_chef_small_half", 0, 0),
-  (c) => {
-    // The far side is in shade, as on the big picture.
-    c.rect(22, 16, 1, 4, "Y")
-    c.rect(21, 20, 1, 3, "Y")
-    c.rect(16, 19, 1, 3, "Y")
-    c.rect(21, 11, 1, 2, "X")
-    c.poly([21, 3, 24, 6, 24, 9, 22, 10, 21, 6], "X")
-    c.rect(19, 28, 1, 4, "X")
-    c.poly([26, 32, 27, 28, 29, 32], "c")
-    // The knife, held upright: only the blade is in the picture.
-    c.rect(26, 14, 2, 18, "v")
-    c.rect(27, 10, 1, 4, "v")
-    c.rect(26, 14, 1, 18, "V")
-    c.rect(27, 12, 1, 18, "W")
+// Chef's portrait, 32 by 32, as shown beside what he says. It is built like
+// the other faces (see faces.px.js): the same head, turned three-quarters and
+// cut by the frame. The picture above is still the one to follow: the same
+// hat, brows, moustache, apron and knife.
+/** The toque: a band, and the great pleated cloud on top of it. */
+const TOQUE = `
+  ..xxxxxxxxxxxxxxxxxxxxxxxxxxx
+  .xxxxxxxxxxxxxxxxxxxxxxxxxxXXX
+  xxxxxxxxxxxxxxxxxxxxxxxxxxxXXXX
+  xxxxxxxxxxxxxxxxxxxxxxxxxxXXXXX
+  .xxxxxxxxxxxxxxxxxxxxxxxxXXXXX
+  ..XxxxxXxxxxxXxxxxxXxxxXXXXX
+  ...xxxxXxxxxxXxxxxxXxxxXXXX
+  ...xxxxXxxxxxXxxxxxXxxxXXXX
+  ...xxxxxxxxxxxxxxxxxxxxXXXX
+  ...XXXXXXXXXXXXXXXXXXXXXXXX`
+/** The moustache: wide, and turned up at the ends. */
+const HANDLEBAR = [grid(9, 21, "K.............K\nKKKKKKKKKKKKKKK\n.KKKKKK.KKKKKK."), grid(11, 22, "LLLL")]
+
+face("portrait_chef", {
+  look: {
+    ...MEMBER,
+    ...CHEF,
+    N: "#8a5638", B: CHEF.Z,
+    e: "#6a4630", E: "#2a1a12",
+    d: "#6a2618", X: "#d5ccb4",
   },
-)
-// Behind him, the disc of the intro on its dark ground.
-sprite("portrait_chef", { w: 32, h: 32 }, (c) => {
-  c.rect(0, 0, 32, 32, "#081726")
-  for (let y = 0; y < 32; y++) {
-    for (let x = 0; x < 32; x++) {
-      const far = Math.hypot(x - 15.5, y - 14.5)
-      if (far < 13.5) c.px(x, y, "#e8a53a")
-      else if (far < 15) { if (dithered(x, y, 0.75)) c.px(x, y, "#e8a53a") }
-      else if (far < 16.5) { if (dithered(x, y, 0.5)) c.px(x, y, "#c9812e") }
-    }
-  }
-}, stamp("_chef_small", -1, -1))
+  ground: [
+    // Behind him, the disc of the intro on its dark ground, and the blade of
+    // the knife he holds upright.
+    (c) => {
+      c.rect(0, 0, 32, 32, "#081726")
+      for (let y = 0; y < 32; y++) {
+        for (let x = 0; x < 32; x++) {
+          const far = Math.hypot(x - 15.5, y - 14.5)
+          if (far < 13.5) c.px(x, y, "#e8a53a")
+          else if (far < 15) { if (dithered(x, y, 0.75)) c.px(x, y, "#e8a53a") }
+          else if (far < 16.5) { if (dithered(x, y, 0.5)) c.px(x, y, "#c9812e") }
+        }
+      }
+      c.rect(28, 8, 3, 24, "#c9ced2")
+      c.rect(28, 8, 1, 24, "#8f989e")
+      c.rect(30, 10, 1, 22, "#eef3f5")
+      c.px(28, 7, "#c9ced2")
+      c.px(29, 6, "#c9ced2")
+      c.px(29, 7, "#c9ced2")
+    },
+  ],
+  eyes: "open",
+  brows: "thick",
+  mouth: "flat",
+  // The straps of the apron, over the shoulders.
+  under: [TEE, grid(6, 28, "xX\n.xX\n.xX\n..xX"), grid(20, 29, ".xX\nxX\nxX"), ...HANDLEBAR],
+  over: [SIDES, TOQUE],
+  shadow: "KLZxX",
+})
 
 // The spit: meat on a rod, turning in front of the grill.
 const SPIT_FRAMES = 8
