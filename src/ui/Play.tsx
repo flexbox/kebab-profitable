@@ -142,10 +142,10 @@ function Stat({
         {warn && <span className="tag-low">{t(UI.low)}</span>}
       </span>
       <span className="stat-value">
-        <span key={moved ? turn : "still"} className={moved ? "stat-num stat-bounce" : "stat-num"}>
+        <span key={moved ? `num-${turn}` : "num"} className={moved ? "stat-num stat-bounce" : "stat-num"}>
           {format ? format(shown) : shown}
         </span>
-        <Delta key={turn} value={Math.round(delta)} format={format} />
+        <Delta key={`delta-${turn}`} value={Math.round(delta)} format={format} />
       </span>
     </div>
   );
