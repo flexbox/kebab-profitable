@@ -25,6 +25,8 @@ export interface Submitted {
   rank: number;
   days: number;
   day: BoardDay;
+  /** The player's name key: with the seed, it is the address of the score. */
+  key: string;
   board: Board;
 }
 
@@ -38,6 +40,17 @@ export async function board(store: ScoreStore, seed: string): Promise<Board> {
 /** Seeds that still accept scores: today and yesterday, Paris time. */
 export function openSeeds(now: Date): string[] {
   return [seedFor(now), seedFor(new Date(now.getTime() - 24 * 60 * 60 * 1000))];
+}
+
+/** A saved score and its place on its day's board, for the picture a win is shared with. */
+export async function placeOf(
+  store: ScoreStore,
+  seed: string,
+  key: string,
+): Promise<{ entry: ScoreEntry; rank: number } | null> {
+  const scores = (await store.forSeed(seed)).sort(byRank);
+  const at = scores.findIndex((e) => pseudoKey(e.pseudo) === key);
+  return at < 0 ? null : { entry: scores[at], rank: at + 1 };
 }
 
 /** How many scores one address may send, and in how many seconds. */
@@ -118,6 +131,7 @@ export async function submit(
     rank: rank || scores.length + 1,
     days: entry.days,
     day: seed === seedFor(now) ? "today" : "yesterday",
+    key,
     board: { today: scores.slice(0, TOP), allTime },
   };
 }

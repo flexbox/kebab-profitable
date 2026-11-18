@@ -6,7 +6,7 @@ import type { GameState, L } from "@/game/types";
 import { UI } from "@/i18n/strings";
 import { submitScore, type Board, type BoardDay } from "@/lib/api";
 import { seedFor } from "@/lib/seed";
-import { postOnX } from "@/lib/share";
+import { postOnX, winPath } from "@/lib/share";
 import { store } from "@/lib/storage";
 import { useLang } from "./lang";
 import { Leaderboard } from "./Leaderboard";
@@ -15,7 +15,7 @@ import { Portrait } from "./Portrait";
 type Sent =
   | { status: "idle" }
   | { status: "sending" }
-  | { status: "done"; rank: number; day: BoardDay; board: Board; pseudo: string }
+  | { status: "done"; rank: number; day: BoardDay; days: number; path: string; board: Board; pseudo: string }
   | { status: "error"; error: keyof typeof UI.errors };
 
 export function End({
@@ -29,7 +29,7 @@ export function End({
   onRetry: () => void;
   onHome: () => void;
 }) {
-  const { t, euro } = useLang();
+  const { t, euro, lang } = useLang();
   const outcome = state.outcome!;
   const won = outcome.result === "won";
   const who = character(state.character);
@@ -85,6 +85,8 @@ export function End({
         status: "done",
         rank: result.rank,
         day: result.day,
+        days: result.days,
+        path: winPath(lang, state.seed, result.key, result.days),
         board: result.board,
         pseudo: name,
       });
@@ -98,7 +100,8 @@ export function End({
     : sent.status === "done" && sent.day === "today"
       ? UI.shareRanked(sent.rank, outcome.day, first)
       : UI.shareWon(outcome.day, first);
-  const shareUrl = postOnX(t(shareText));
+  // A saved win is shared with its own address, and so its own picture.
+  const shareUrl = postOnX(t(shareText), sent.status === "done" ? sent.path : "");
 
   return (
     <dialog

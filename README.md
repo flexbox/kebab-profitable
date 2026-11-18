@@ -98,6 +98,15 @@ The picture a link to the game is shared with is painted the same way, as the
 scene `og`: 200 by 105, exported six times larger to
 `src/app/opengraph-image.png`.
 
+A saved win is shared with a picture of its own. The X post links to
+`/v/fr/2026-11-19/flexbox/44`: the game, under a picture with the founder who
+won, the days, the name and the place on that day's board. The backgrounds
+are the scene `og_win`, exported once per founder to `assets/og/`, and
+`src/server/card.tsx` writes the score on them when the picture is asked for.
+The score is read from the leaderboard, never from the link, so a link cannot
+show a score nobody made. The days are in the link so that a better run gets
+a new link: X keeps the picture of a link it has already seen.
+
 To change the art, clone the tool once, edit the file and rebuild:
 
 ```bash
@@ -176,7 +185,8 @@ silent.
 | `art/` | The pixel art, as code: `kebab.px.js`, `faces.px.js`, `intro.px.js` and `bar.px.js`. Rendered into `public/art/`. |
 | `audio/` | The sounds and the music, as code: `kebab.cx.js`. Rendered into `public/audio/`. |
 | `src/lib/sound.ts` | Plays them: effects cut from one file, music in a loop. |
-| `src/server/` | The leaderboard: it replays each submitted run before recording it. |
+| `src/server/` | The leaderboard: it replays each submitted run before recording it. `card.tsx` draws the picture a win is shared with. |
+| `assets/` | What that picture is made of: a background per founder, and the Silkscreen typeface. |
 
 ## Leaderboard
 
@@ -265,4 +275,5 @@ card will be removed.
 
 ## Licence
 
-MIT.
+MIT. The typeface on the share picture, Silkscreen, is under the SIL Open
+Font License: see `assets/fonts/OFL.txt`.

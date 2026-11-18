@@ -1812,10 +1812,12 @@ include("faces.px.js")
 // for): the title, the goal, Chef, and the five founders with a fist in the
 // air, on the rug.
 pal({ n: "#0e2439", N: "#0a1b2c", a: "#f2b43c", x: "#f4eedd", g: "#9fb3c8", r: "#a8322c", R: "#7e2420", o: "#d9a441", f: "#6e4a30", F: "#5a3a24", e: "#8a6040" })
-scene("og", { w: 200, h: 105, bg: "n" },
-  // The floor: boards, then the rug with its border.
+// The floor: boards, then the rug with its border.
+const shareFloor = () =>
   layer("floor", rect(0, 84, 200, 21, "f"), rect(0, 84, 200, 1, "e"), rect(0, 94, 200, 1, "F"),
-    rect(8, 88, 184, 17, "r"), rect(8, 88, 184, 1, "R"), rect(10, 90, 180, 1, "o")),
+    rect(8, 88, 184, 17, "r"), rect(8, 88, 184, 1, "R"), rect(10, 90, 180, 1, "o"))
+scene("og", { w: 200, h: 105, bg: "n" },
+  shareFloor(),
   layer("title",
     text(12, 9, "KEBAB", "a", { scale: 4 }),
     text(12, 33, "PROFITABLE", "x", { scale: 3 }),
@@ -1824,6 +1826,16 @@ scene("og", { w: 200, h: 105, bg: "n" },
   layer("people",
     stamp("portrait_chef", 156, 12),
     ...["david", "karl", "mickael", "christophe", "matthys"].map((who, i) => stamp(`${who}_cheer_0_day`, 24 + i * 34, 70))),
+)
+
+// The picture a win is shared with: the same floor under a smaller title, and
+// the rest left empty. `art/export.mjs` adds the founder who won and Chef,
+// larger than a scene can stamp them, and the server writes the score.
+scene("og_win", { w: 200, h: 105, bg: "n" },
+  shareFloor(),
+  layer("title",
+    text(12, 8, "KEBAB", "a", { scale: 2 }),
+    text(56, 8, "PROFITABLE", "x", { scale: 2 })),
 )
 
 // Everything the game places, on one sheet.

@@ -132,16 +132,53 @@ function writePng(path, { width, height, pixels }) {
   );
 }
 
-const small = readPng(join(out, "scenes", "og.png"));
-const large = { width: small.width * SHARE_SCALE, height: small.height * SHARE_SCALE };
-large.pixels = Buffer.alloc(large.width * large.height * 4);
-for (let y = 0; y < large.height; y++) {
-  for (let x = 0; x < large.width; x++) {
-    const from = (Math.floor(y / SHARE_SCALE) * small.width + Math.floor(x / SHARE_SCALE)) * 4;
-    small.pixels.copy(large.pixels, (y * large.width + x) * 4, from, from + 4);
+/** The same picture with each pixel `scale` times larger. */
+function enlarge(small, scale) {
+  const large = { width: small.width * scale, height: small.height * scale };
+  large.pixels = Buffer.alloc(large.width * large.height * 4);
+  for (let y = 0; y < large.height; y++) {
+    for (let x = 0; x < large.width; x++) {
+      const from = (Math.floor(y / scale) * small.width + Math.floor(x / scale)) * 4;
+      small.pixels.copy(large.pixels, (y * large.width + x) * 4, from, from + 4);
+    }
+  }
+  return large;
+}
+
+/** Puts `top` on `under` at x, y. A pixel is either there or not: there is no blending. */
+function place(under, top, x, y) {
+  for (let row = 0; row < top.height; row++) {
+    for (let col = 0; col < top.width; col++) {
+      const from = (row * top.width + col) * 4;
+      if (top.pixels[from + 3] < 128) continue;
+      top.pixels.copy(under.pixels, ((y + row) * under.width + x + col) * 4, from, from + 4);
+    }
   }
 }
-writePng(join(here, "..", "src", "app", "opengraph-image.png"), large);
+
+const sitePicture = enlarge(readPng(join(out, "scenes", "og.png")), SHARE_SCALE);
+writePng(join(here, "..", "src", "app", "opengraph-image.png"), sitePicture);
 files++;
+
+// The picture a win is shared with, one for each founder: the founder who won
+// with a fist in the air on the rug, and Chef in the corner. The server writes
+// the score on it (src/server/card.tsx), so it is kept out of public/.
+const WINNER_SCALE = 12;
+const CHEF_SCALE = 4;
+const cards = join(here, "..", "assets", "og");
+mkdirSync(cards, { recursive: true });
+// A link to a score that is no longer on the board shows the game's own picture.
+writePng(join(cards, "site.png"), sitePicture);
+files++;
+const chef = enlarge(readPng(join(out, "sprites", "portrait_chef.png")), CHEF_SCALE);
+for (const who of ["david", "karl", "mickael", "christophe", "matthys"]) {
+  const card = enlarge(readPng(join(out, "scenes", "og_win.png")), SHARE_SCALE);
+  const winner = enlarge(readPng(join(out, "sprites", `${who}_cheer_0_day.png`)), WINNER_SCALE);
+  // Feet on the rug, a little above the bottom edge.
+  place(card, winner, 84, card.height - 24 - winner.height);
+  place(card, chef, card.width - 72 - chef.width, card.height - 24 - chef.height);
+  writePng(join(cards, `win_${who}.png`), card);
+  files++;
+}
 
 console.log(`art: ${files} images and ${sprites} sprites exported`);

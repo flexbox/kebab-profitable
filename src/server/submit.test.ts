@@ -7,7 +7,7 @@ import { playRun } from "@/game/sim/run";
 import { cleanPseudo } from "./pseudo";
 import { bestScore } from "./redis";
 import { byRank, fileStore, type ScoreEntry } from "./scores";
-import { board, LIMIT, openSeeds, submit, underLimit } from "./submit";
+import { board, LIMIT, openSeeds, placeOf, submit, underLimit } from "./submit";
 
 const NOW = new Date("2026-12-10T19:30:00+01:00");
 const SEED = "2026-12-10";
@@ -208,6 +208,34 @@ describe("submitting a score", () => {
       error: "pseudo",
     });
     expect((await board(store, SEED)).today).toHaveLength(0);
+  });
+});
+
+describe("the score a share link points to", () => {
+  it("is the saved score and its place that day, whatever the link claims", async () => {
+    const store = tempStore();
+    await store.put("rich", score("Rich", { cash: 2500 }));
+    await store.put("zoe59", score("Zoé 59"));
+    await store.put("eve", score("Eve", { seed: EVE, days: 1 }));
+
+    expect(await placeOf(store, SEED, "zoe59")).toMatchObject({
+      rank: 2,
+      entry: { pseudo: "Zoé 59", days: 40 },
+    });
+    // Another day's score, and a name nobody saved: there is nothing to show.
+    expect(await placeOf(store, SEED, "eve")).toBeNull();
+    expect(await placeOf(store, SEED, "nobody")).toBeNull();
+  });
+
+  it("is given back with the score, so the share link can be built", async () => {
+    const store = tempStore();
+    const run = winningRun(SEED);
+    const result = await submit(
+      store,
+      { seed: SEED, character: run.character, pseudo: "Zoé 59", moves: encodeMoves(run.history) },
+      NOW,
+    );
+    expect(result).toMatchObject({ ok: true, key: "zoe59" });
   });
 });
 
