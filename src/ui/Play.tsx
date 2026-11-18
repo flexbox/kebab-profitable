@@ -265,12 +265,10 @@ function ProjectCard({ state }: { state: GameState }) {
                 aria-valuemax={p.mvpSize}
                 aria-valuenow={Math.min(p.built, p.mvpSize)}
               >
-                <div className="super-track">
-                  <div
-                    className="super-fill"
-                    style={{ width: `${Math.min(100, (p.built / p.mvpSize) * 100)}%` }}
-                  />
-                </div>
+                <div
+                  className="super-fill"
+                  style={{ width: `${Math.min(100, (p.built / p.mvpSize) * 100)}%` }}
+                />
               </div>
             </>
           ) : (
@@ -287,9 +285,7 @@ function ProjectCard({ state }: { state: GameState }) {
                 aria-valuemax={100}
                 aria-valuenow={p.quality}
               >
-                <div className="super-track">
-                  <div className="super-fill" style={{ width: `${Math.min(100, p.quality)}%` }} />
-                </div>
+                <div className="super-fill" style={{ width: `${Math.min(100, p.quality)}%` }} />
               </div>
             </>
           )}

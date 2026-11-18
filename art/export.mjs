@@ -13,8 +13,8 @@ mkdirSync(target, { recursive: true });
 
 let files = 0;
 for (const name of readdirSync(join(out, "scenes"))) {
-  // The room in each light, the bar, the three depths of the intro's street, and the MVP gauge's frame.
-  if ((name.startsWith("room_") || name.startsWith("intro_") || name.startsWith("meter_") || name === "bar.png") && name.endsWith(".png")) {
+  // The room in each light, the bar, and the three depths of the intro's street.
+  if ((name.startsWith("room_") || name.startsWith("intro_") || name === "bar.png") && name.endsWith(".png")) {
     copyFileSync(join(out, "scenes", name), join(target, name));
     files++;
   }
