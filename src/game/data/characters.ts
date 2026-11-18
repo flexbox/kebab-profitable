@@ -57,6 +57,7 @@ export const CHARACTERS: CharacterDef[] = [
     },
     signatureIdea: "vigie",
     site: "https://vigie.co",
+    handle: "leichtdev",
     mods: { seesHidden: true, priceMult: 1.3, inboundMult: 0.75, launchDelay: 4 },
   },
   {

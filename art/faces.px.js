@@ -150,7 +150,8 @@ function streaks(tone, rows) {
 /**
  * Not likenesses: the same emoji-yellow skin and the same brown hair, told
  * apart by what they wear, how their hair falls and the look on their face.
- * David is the exception: he asked for his own face, after his avatar on X.
+ * David and Karl are the exceptions: each has his own face, after his avatar
+ * on X.
  */
 const MEMBER = {
   k: BODY.k,
@@ -287,24 +288,6 @@ const HEADSET = [
     ....kppk
     ....kpPk
     .....kk.`),
-]
-
-/** A mortarboard, one corner towards you, with the tassel down from the near corner. */
-const BOARD = [
-  grid(0, 0, `
-    ......kkkQQQQQQQQQQQQQQQQkkk....
-    ...kkkQQQQQQQQQQQQQQQQQQQQQQkkk.
-    kkkQQQQQQQQQQQQQaaQQQQQQQQQQQQQk
-    kqqQQQQQQQQQQQQQaaQQQQQQQQQQQqqk
-    .kkqqqQQQQQQQQQQQQQQQQQQQQqqqkk.
-    ...kkkqqqQQQQQQQQQQQQQQqqqkkk...
-    ....kQkkkqqqQQQQQQQQqqqkkkQk....
-    ....kQQQQkkkqqqqqqqqkkkQQQQk....
-    ....kQqQQQQQkkkkkkkkQQQQQQQk....
-    ....kkkkkkkkkkkkkkkkkkkkkkkk....`),
-  // The cord runs from the button to the corner, and the tassel hangs from there.
-  line(15, 2, 3, 2, "a"),
-  grid(0, 3, ".a\n.a\n.a\n.a\n.a\n.a\n.a\n.a\nkak\naaa\naAa\naAa\nA.A"),
 ]
 
 /** A mask across the eyes, tied behind the head: the holes show the eyes. */
@@ -652,14 +635,36 @@ face("portrait_david", {
   over: [SWEPT, EARBUD],
 })
 
+// Karl Leicht (@leichtdev), after his avatar on X: a black cap with white
+// lettering, short hair, stubble, eyes narrowed by a wide smile, and a black
+// polo shirt with Vigie's mark on the chest, on a pale grey ground.
 face("portrait_karl", {
-  look: { ...MEMBER, ...shirtOf("#e4decb"), e: "#7a8a96", E: "#3e4a56", Q: "#2c2834", q: "#514a60", A: "#b07f24" },
-  ground: [fade("#3d4036", "#a39c7c")],
-  brows: "level",
-  mouth: "smile",
-  under: [TEE],
-  over: [SIDES, ...BOARD],
-  flip: true,
+  look: {
+    ...MEMBER,
+    ...skinOf("#e3ae8a"),
+    ...hairOf("#6a5038", "#bd8a6c"),
+    f: "#a87458",
+    m: "#9a5444", r: "#c8705e",
+    e: "#5a4636", E: "#2e221c",
+    ...shirtOf("#2b2b33"),
+    b: "#4a4a56",
+    y: "#2e2c36", V: "#4c4956", w: "#1a191f", a: "#2e2c36",
+    o: "#e23b2e",
+  },
+  ground: [fade("#aab6c0", "#e4e9ec")],
+  eyes: "keen",
+  brows: "soft",
+  mouth: "grin",
+  under: [TEE, ...COLLAR, BEARD],
+  over: [
+    SIDES,
+    CAP,
+    // The lettering across the front of the cap.
+    grid(15, 5, "x.x.xx.x.x.xx\nxxx.xx.xx.x.x"),
+    // Vigie's mark: white letters, and the red dot.
+    grid(22, 30, "xxoxx"),
+  ],
+  shadow: "KLZyw",
 })
 
 face("portrait_mickael", {

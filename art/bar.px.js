@@ -291,7 +291,6 @@ const BAR_GRIN = [...gladEyes(0, 1), grid(5, 9, "MxxM\n.MM.")]
       c: tint(darken(look.shirt, 0.24)),
       D: tint(lighten(look.shirt, 0.22)),
       ...Object.fromEntries(Object.entries(look.wear).map(([key, h]) => [key, tint(h)])),
-      ...(who === "karl" ? { W: tint("#2c2834"), w: tint("#514a60") } : {}),
     })
     const cape = who === "christophe"
     const shades = who === "matthys"
