@@ -232,6 +232,8 @@ export interface CharacterDef {
   flaw: { name: L; desc: L };
   signatureIdea: string;
   site: string;
+  /** Their handle on X, without the @, if they want it shown. */
+  handle?: string;
   mods: CharacterMods;
 }
 

@@ -1127,7 +1127,7 @@ button {
   font-weight: 600;
 }
 
-.guest-handle {
+.handle {
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
   overflow-wrap: anywhere;

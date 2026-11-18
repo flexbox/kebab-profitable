@@ -21,6 +21,20 @@ export function Portrait({ who, className }: { who: PersonId; className?: string
   );
 }
 
+/** Someone's handle on X, as a link to their profile. */
+export function Handle({ handle }: { handle: string }) {
+  return (
+    <a
+      className="handle"
+      href={`https://x.com/${handle}`}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      @{handle}
+    </a>
+  );
+}
+
 /**
  * A guest on a cameo card: their pixel avatar, their name, and their handle on
  * X as a link. The picture is decoration, as the name is written beside it.
@@ -39,14 +53,7 @@ export function Guest({ id }: { id: GuestId }) {
       />
       <span className="guest-text">
         <span className="guest-name">{name}</span>
-        <a
-          className="guest-handle"
-          href={`https://x.com/${handle}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          @{handle}
-        </a>
+        <Handle handle={handle} />
       </span>
     </p>
   );

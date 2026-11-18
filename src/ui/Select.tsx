@@ -7,7 +7,7 @@ import { UI } from "@/i18n/strings";
 import { music } from "@/lib/sound";
 import { Controls, Footer, type ChromeProps } from "./Chrome";
 import { useLang } from "./lang";
-import { Portrait } from "./Portrait";
+import { Handle, Portrait } from "./Portrait";
 
 export function Select({
   onPick,
@@ -40,6 +40,7 @@ export function Select({
                 <Portrait who={c.id} className="portrait portrait-lg" />
                 <div>
                   <h2>{c.name}</h2>
+                  {c.handle && <Handle handle={c.handle} />}
                   <p className="muted">{t(c.role)}</p>
                 </div>
               </div>

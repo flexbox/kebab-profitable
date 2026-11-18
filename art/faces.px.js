@@ -54,6 +54,8 @@ const EYES = {
   open: [grid(8, 14, "kkkkkk\nwwEEEw\nwwxkew\n.weee."), grid(20, 14, "kkkk\nwEEw\nwxkw\n.ee.")],
   // Looking the other way, at something off to the left.
   aside: [grid(8, 14, "kkkkkk\nwEEEww\nwxkeww\n.eeew."), grid(20, 14, "kkkk\nEEww\nxkww\nee..")],
+  // Rolled up and away, to the left: the whites show underneath.
+  up: [grid(8, 14, "kkkkkk\nwEEEww\nwxkeww\n.wwww."), grid(20, 14, "kkkk\nEEww\nxkww\n.ww.")],
   // Narrowed: the lid comes down over the top of the iris.
   keen: [grid(8, 14, "......\nkkkkkk\nwwxkew\n.weee."), grid(20, 14, "....\nkkkk\nwxkw\n.ee.")],
   // Shut in a smile.
@@ -77,6 +79,8 @@ const BROWS = {
 /** The mouth, under the nose, which points to the right. */
 const MOUTHS = {
   flat: [grid(14, 24, "mmmmm")],
+  // Pressed shut and pushed out: not convinced.
+  pout: [grid(14, 23, ".mmmm.\nmrrrrm\n.YYYY.")],
   smile: [grid(13, 23, "m.....m\n.mmmmm.")],
   smirk: [grid(14, 23, ".....m\nmmmmm.")],
   grin: [grid(12, 23, "mmmmmmmm\n.mxxxxm.\n..mmmm..")],
@@ -144,9 +148,9 @@ function streaks(tone, rows) {
 // ---------------------------------------------------------------------------
 
 /**
- * Still not likenesses: the same emoji-yellow skin and the same brown hair for
- * all five, told apart by what they wear, how their hair falls and the look
- * on their face.
+ * Not likenesses: the same emoji-yellow skin and the same brown hair, told
+ * apart by what they wear, how their hair falls and the look on their face.
+ * David is the exception: he asked for his own face, after his avatar on X.
  */
 const MEMBER = {
   k: BODY.k,
@@ -157,6 +161,8 @@ const MEMBER = {
 }
 
 const shirtOf = (shirt) => ({ C: shirt, c: darken(shirt, 0.24), D: lighten(shirt, 0.22), d: darken(shirt, 0.44) })
+const skinOf = (skin) => ({ H: skin, I: lighten(skin, 0.3), Y: darken(skin, 0.2), N: darken(skin, 0.42), m: darken(skin, 0.5), M: darken(skin, 0.7), r: "#d0705e" })
+const hairOf = (hair, beard = hair) => ({ K: hair, L: lighten(hair, 0.28), Z: darken(hair, 0.32), B: darken(hair, 0.32), F: beard, f: darken(beard, 0.28) })
 
 /** Shoulders in a T-shirt: the near one wide, the far one behind the chin. */
 const TEE = `
@@ -192,23 +198,6 @@ const TEE = `
   ..cCDDCCCCc.........cCCCCCc.....
   .cCDCCCCCCCc.......cCCCCCCCCc...
   cCCCCCCCCCCCc.....cCCCCCCCCCCCc.`
-
-/** Hair in spikes: a fringe of locks over the forehead, and tufts standing up. */
-const SPIKES = `
-  .....KK......KKK.....KK.........
-  ....KKLK....KLLKK...KLKK..KK....
-  ...KKLLKK.KKLLKKKK.KLLKKKKLK....
-  ..KKLLKKKKKLLKKZKKKLLKKKKLLKK...
-  ..KLLKKZKKLLKKKZKKLLKKKZKLKKK...
-  .KKLKKKZKLLKKKZKKLLKKKKZKKKKKK..
-  .KKKKKZKKLKKKKZKKLKKKKZKKKKKKK..
-  .KKKKKZKKKKKKZ.KKKKKKZ.KKKKKK...
-  ..KKKZ.KKKKKZ...KKKKZ...KKKKK...
-  ..KKKZ..KKKZ.....KKZ....ZKKKK...
-  ..KKKZ...KZ.......Z......KKKZ...
-  ...KKZ...................ZKZ....
-  ...KKZ....................Z.....
-  ...KZ...........................`
 
 /** Hair swept across from a parting on the far side, in one wave. */
 const WAVE = `
@@ -261,7 +250,7 @@ const SIDES = `
   ...KKZ....................Z.....
   ...KZ...........................`
 
-/** Headphones: the band over the crown, a big cup on the near ear, the edge of the other. */
+/** A cup over the near ear, and the band it hangs from, over the crown. */
 const CUP = `
   ..kSk...
   ..kSk...
@@ -284,16 +273,6 @@ const BAND = `
   ...kSSkkkkkkkkkkkkkkkkSSk...
   ..kSkk................kkSk..
   ..kSk..................kSk..`
-const CANS = [
-  grid(1, 1, BAND),
-  // The spikes stand up through the band.
-  clip([7, 0, 5, 6], SPIKES),
-  clip([14, 0, 4, 6], SPIKES),
-  clip([20, 0, 3, 6], SPIKES),
-  grid(0, 6, CUP),
-  grid(25, 6, ".kSk\n.kSk\n.kSk\n.kSk\n.kSk\n.kkk\n.kpk\n.kpk\n.kpk\n.kpk\n.kpk\n.kPk\n.kPk\n.kkk"),
-]
-
 /** A headset: a thin band, one cup, and a microphone on a boom in front of the mouth. */
 const HEADSET = [
   grid(1, 1, BAND),
@@ -438,67 +417,6 @@ const CAPE = `
   RRRRRR...................RRRRRRR
   RRRR......................RRRRRR
   RR..........................RRRR`
-
-face("portrait_david", {
-  look: { ...MEMBER, ...shirtOf("#3f9a90"), e: "#3f9a90", E: "#1f5a54", p: "#e0583f", P: "#8c2c22", q: "#f08a6a" },
-  ground: [fade("#1d4f55", "#49a394")],
-  brows: "set",
-  mouth: "grin",
-  under: [TEE],
-  over: [SPIKES, ...CANS],
-})
-
-face("portrait_karl", {
-  look: { ...MEMBER, ...shirtOf("#e4decb"), e: "#7a8a96", E: "#3e4a56", Q: "#2c2834", q: "#514a60", A: "#b07f24" },
-  ground: [fade("#3d4036", "#a39c7c")],
-  brows: "level",
-  mouth: "smile",
-  under: [TEE],
-  over: [SIDES, ...BOARD],
-  flip: true,
-})
-
-face("portrait_mickael", {
-  look: { ...MEMBER, ...shirtOf("#d98234"), e: "#b8742c", E: "#6a3c14", p: "#4a4650", P: "#2c2a32", q: "#6a6672" },
-  ground: [fade("#5e3418", "#e09a48")],
-  brows: "high",
-  mouth: "open",
-  under: [TEE],
-  over: [WAVE, ...HEADSET],
-})
-
-face("portrait_christophe", {
-  look: { ...MEMBER, ...shirtOf("#4a6fc0"), e: "#4a6fc0", E: "#243a70", r: "#c0432f" },
-  ground: [fade("#1e2c52", "#5d86d4"), streaks("#8fb0ea", [[30, 3, 9], [24, 12, 7], [31, 20, 6], [9, 2, 5], [5, 22, 4]])],
-  brows: "none",
-  eyes: "keen",
-  mouth: "smirk",
-  under: [CAPE, TEE, MASK],
-  over: [QUIFF, MASK_TIE],
-  flip: true,
-})
-
-face("portrait_matthys", {
-  look: { ...MEMBER, ...shirtOf("#8a62cc"), y: "#f0c050", V: "#fbe08a", w: "#c9952e" },
-  ground: [fade("#33264f", "#9a72d8")],
-  brows: "none",
-  eyes: "none",
-  mouth: "smirk",
-  under: [TEE],
-  over: [SIDES, CAP, SHADES],
-  shadow: "KLZyw",
-})
-
-// ---------------------------------------------------------------------------
-// The guests
-// ---------------------------------------------------------------------------
-
-/**
- * The public figures on the cameo cards, drawn after their avatar on X. Unlike
- * the members they are likenesses, so each keeps their own skin, hair, beard,
- * glasses, clothes and ground. They share the members' head and the way it is
- * painted.
- */
 
 /** Short hair, brushed off the forehead. */
 const SHORT = `
@@ -682,8 +600,110 @@ const NO_NECK = rect(0, 28, 32, 4, "_")
 /** A collar, on either side of the throat. */
 const COLLAR = [grid(5, 28, "bb\n.bb\n..bb\n...b"), grid(19, 28, "..bb\n.bb\nbb\nb")]
 
-const skinOf = (skin) => ({ H: skin, I: lighten(skin, 0.3), Y: darken(skin, 0.2), N: darken(skin, 0.42), m: darken(skin, 0.5), M: darken(skin, 0.7), r: "#d0705e" })
-const hairOf = (hair, beard = hair) => ({ K: hair, L: lighten(hair, 0.28), Z: darken(hair, 0.32), B: darken(hair, 0.32), F: beard, f: darken(beard, 0.28) })
+// David Leuliette (@flexbox_), after his avatar on X: fair hair swept up and
+// back, a short beard, one eyebrow up and his eyes to the ceiling, an earbud,
+// a black roll-neck under a brown jacket, in a station behind glass.
+/** Hair swept up off a high forehead and over to the far side. */
+const SWEPT = `
+  .........KKKKKKKKKKKKK..........
+  ......KKKLLLLKKKLLLLKKKK........
+  ....KKKLLLLKKKLLLLKKKLLKKK......
+  ...KKKLLLKKKLLLLKKKLLLKKKKK.....
+  ...KKLLKKKLLLKKKKLLLKKKKZKKK....
+  ..KKLLKKLLLKKKKLLLKKKKZZKKKK....
+  ..KKLKKLLKKKKKLLKKKKZZKKKKKK....
+  ...KKKLKKKKKZZKKKKZZ...KKKKK....
+  ...KKKKKZZZZ..ZZZZ......KKKZ....
+  ...KKZZZ.................KKZ....
+  ....KZ....................Z.....
+  ....KZ..........................
+  ....Z...........................`
+/** A roll-neck: the collar comes up under the jaw, in ribs. */
+const ROLL_NECK = grid(8, 27, `
+  .uuUuuUuuUuu.
+  uUuuUuuUuuUuu
+  uUuuUuuUuuUuu
+  uUuuUuuUuuUuu
+  uUuuUuuUuuUuu`)
+/** An earbud in the near ear, its stem down along the jaw. */
+const EARBUD = grid(4, 17, "xx\nxX\n.x\n.x\n.X")
+
+face("portrait_david", {
+  look: {
+    ...MEMBER,
+    ...skinOf("#eebb9c"),
+    ...hairOf("#c69a5c", "#c48a50"),
+    L: "#ecd094",
+    m: "#9a5a48", r: "#d48a78",
+    e: "#7d9db8", E: "#3e5a78",
+    ...shirtOf("#6a463c"),
+    u: "#232026", U: "#3e3a44",
+  },
+  ground: [
+    fade("#2f4c62", "#a7c8d2"),
+    // The lights of the concourse, out of focus.
+    ...[[0, 5, 5], [1, 9, 4], [25, 4, 7], [27, 8, 5], [28, 12, 4], [29, 16, 3]].map(([x, y, w]) => rect(x, y, w, 1, "#eaf6f4")),
+    rect(0, 13, 3, 6, "#e9c46a"),
+  ],
+  eyes: "up",
+  brows: "wry",
+  mouth: "pout",
+  under: [TEE, ROLL_NECK, BEARD],
+  over: [SWEPT, EARBUD],
+})
+
+face("portrait_karl", {
+  look: { ...MEMBER, ...shirtOf("#e4decb"), e: "#7a8a96", E: "#3e4a56", Q: "#2c2834", q: "#514a60", A: "#b07f24" },
+  ground: [fade("#3d4036", "#a39c7c")],
+  brows: "level",
+  mouth: "smile",
+  under: [TEE],
+  over: [SIDES, ...BOARD],
+  flip: true,
+})
+
+face("portrait_mickael", {
+  look: { ...MEMBER, ...shirtOf("#d98234"), e: "#b8742c", E: "#6a3c14", p: "#4a4650", P: "#2c2a32", q: "#6a6672" },
+  ground: [fade("#5e3418", "#e09a48")],
+  brows: "high",
+  mouth: "open",
+  under: [TEE],
+  over: [WAVE, ...HEADSET],
+})
+
+face("portrait_christophe", {
+  look: { ...MEMBER, ...shirtOf("#4a6fc0"), e: "#4a6fc0", E: "#243a70", r: "#c0432f" },
+  ground: [fade("#1e2c52", "#5d86d4"), streaks("#8fb0ea", [[30, 3, 9], [24, 12, 7], [31, 20, 6], [9, 2, 5], [5, 22, 4]])],
+  brows: "none",
+  eyes: "keen",
+  mouth: "smirk",
+  under: [CAPE, TEE, MASK],
+  over: [QUIFF, MASK_TIE],
+  flip: true,
+})
+
+face("portrait_matthys", {
+  look: { ...MEMBER, ...shirtOf("#8a62cc"), y: "#f0c050", V: "#fbe08a", w: "#c9952e" },
+  ground: [fade("#33264f", "#9a72d8")],
+  brows: "none",
+  eyes: "none",
+  mouth: "smirk",
+  under: [TEE],
+  over: [SIDES, CAP, SHADES],
+  shadow: "KLZyw",
+})
+
+// ---------------------------------------------------------------------------
+// The guests
+// ---------------------------------------------------------------------------
+
+/**
+ * The public figures on the cameo cards, drawn after their avatar on X. Unlike
+ * the members they are likenesses, so each keeps their own skin, hair, beard,
+ * glasses, clothes and ground. They share the members' head and the way it is
+ * painted.
+ */
+
 const GUEST = { k: BODY.k, w: "#f6f2ea", x: "#ffffff", E: "#2e2a2a", e: "#6a5a4a", s: "#c9ccd0", S: "#9a9ea6", a: "#e8c25a" }
 
 const GUESTS = {

@@ -835,8 +835,8 @@ sprite("neon", { w: SIGN.w + NEON_REACH * 2, h: SIGN.h + NEON_REACH * 2 }, (c) =
 /** The same, seen from the side: the profile is ten wide and faces right. */
 function sideProps(who) {
   switch (who) {
-    case "david": // the band edge-on, one cup over the ear
-      return [rect(3, 0, 2, 1, "k"), rect(3, 1, 1, 5, "k"), rect(2, 6, 3, 4, "e"), px(2, 6, "R")]
+    case "david": // an earbud
+      return [px(2, 8, "x")]
     case "karl": // the board, and the tassel at the back
       return [rect(0, 1, 9, 1, "W"), rect(1, 0, 7, 1, "W"), rect(2, 0, 5, 1, "w"), rect(2, 2, 5, 1, "k"), rect(0, 2, 1, 4, "a")]
     case "mickael": // one cup, and the microphone out in front
@@ -1027,7 +1027,7 @@ for (const [kind, draw] of Object.entries(SCREENS)) {
  * Everyone shares one body and an emoji-yellow face. The members are told
  * apart by a signature prop, by how their hair falls and by what they wear,
  * not by a likeness: real portraits come later, once each member has approved
- * theirs. They are drawn the way a 16-bit role-playing game draws its party:
+ * theirs. David has: his skin, hair and beard are his own. They are drawn the way a 16-bit role-playing game draws its party:
  * a large head, eyes two pixels tall, and a costume you can read at a glance.
  * The faces in faces.px.js are the same five people, close up.
  */
@@ -1063,8 +1063,12 @@ const BODY = {
 
 /** The shirt, then trousers and shoes: `wear` replaces colours of the shared body. */
 const PEOPLE = {
-  // A hoodie, dark jeans, and trainers as red as his headphones.
-  david: { shirt: "#3f9a90", wear: { S: "#8c2c22", O: "#e0583f" } },
+  // After his avatar on X: fair skin, fair hair, a short beard, a brown jacket
+  // open on a black roll-neck (`u`), and dark jeans.
+  david: {
+    shirt: "#6a463c",
+    wear: { H: "#eebb9c", I: "#f9d8c0", Y: "#cf9274", K: "#c69a5c", L: "#ecd094", Z: "#96703c", m: "#9a5a48", B: "#c48a50", F: "#a8713e", u: "#232026" },
+  },
   // A shirt and tie, chinos, brown shoes.
   karl: { shirt: "#e4decb", wear: { Q: "#8f7d5c", U: "#6c5c42", q: "#a8966e", S: "#4a3020", O: "#6e4a30" } },
   // Grey trousers, white trainers.
@@ -1250,27 +1254,27 @@ const KEBAB_BITTEN = `
  * hats, and keep the plain head.
  */
 const HAIR = {
-  // Spikes, with three locks of fringe down to the eyes.
+  // Swept up off a high forehead and over to one side.
   david: {
     front: `
-      ..K.KKKK.KK...
-      .KKKKLLKKKKK.K
-      KKLLKLKKLLKKKK
-      KKLKKKKKLKKKKK
-      KKKKKKKKKKKKKK
-      KKKZHKZHHKZKKK`,
+      ..KKKKKKKKK...
+      .KLLLLKKLLLKK.
+      KKLLKKLLLKKKKK
+      KLLKKLLKKKKKKK
+      KKZZHHHZZKKKKK
+      KZHHHHHHHHHZKK`,
     side: `
-      .K.KKK.K.
-      KKKLLKKKK
-      KLLKLKKKK
-      KKLKKKLKK
-      KKKKKKKZK
-      KKKKHZHZ.`,
+      ..KKKKKKK
+      .KLLLLKKK
+      KLLKKLLKK
+      KKKKLKKKK
+      KKKKZHHH.
+      KKKZHHHH.`,
     back: `
-      ..K.KKKK.KK...
-      .KKKKLLKKKKK.K
-      KKLLKLKKLLKKKK
-      KKLKKKKKLKKKKK
+      ..KKKKKKKKK...
+      .KLLLLKKLLLKK.
+      KKLLKKLLLKKKKK
+      KLLKKLLKKKKKKK
       KKKKKKKKKKKKKK
       KKKKKKKKKKKKKK`,
   },
@@ -1328,8 +1332,8 @@ const hair = (who, view, x = 0, y = 0) => (HAIR[who] ? [grid(x, y, HAIR[who][vie
 /** What is on the chest, from the front: the body's top-left corner is at x, y. */
 function chest(who, x = 0, y = 0) {
   switch (who) {
-    case "david": // the cords of the hood, and the pocket
-      return [grid(x + 5, y + 12, "x..x\nx..x"), grid(x + 4, y + 15, "cccccc")]
+    case "david": // the roll-neck, where the jacket is open
+      return [grid(x + 4, y + 11, "uuuuuu\n.uuuu.\n..uu..\n..uu..\n..uu..\n..uu..\n..uu..")]
     case "karl": // a collar and a tie
       return [grid(x + 5, y + 11, "xrrx\n.rr.\n.RR.\n.RR."), ]
     case "mickael": // a sound wave across the front
@@ -1342,8 +1346,21 @@ function chest(who, x = 0, y = 0) {
       return []
   }
 }
-/** And on the back: David's hood, down. */
-const nape = (who) => (who === "david" ? [grid(4, 11, "cCCCCc\n.cCCc.\n..cc..")] : [])
+/** And on the back: the collar of David's roll-neck. */
+const nape = (who) => (who === "david" ? [grid(5, 11, "uuuu")] : [])
+
+/**
+ * David's beard, on a face seen from the front or from the side: along the
+ * jaw, round the mouth and under the chin. The face's top-left corner is at
+ * x, y. `tight` is for a face screwed up or busy eating: the chin only.
+ */
+function beard(who, view, x = 0, y = 0, tight = false) {
+  if (who !== "david") return []
+  if (view === "side") return [grid(x + 3, y + 8, "B....\nBBBB.\n.FFF.")]
+  return tight
+    ? [grid(x + 2, y + 9, "B........B\n.FFFFFFFF.")]
+    : [grid(x + 1, y + 8, "BB........BB\n.BBBB..BBBB.\n..FFFFFFFF..")]
+}
 
 /** One view of the body, with the hair and clothes of whoever it is: the bare body is the same for all. */
 function body(name, opts, size, bare, ...over) {
@@ -1357,9 +1374,8 @@ const gladEyes = (x, y) => [grid(x + 3, y + 5, ".k.\nkHk\nHH."), grid(x + 8, y +
 /** What each member wears, on the sprite: its body starts one row down. */
 function props(who, back) {
   switch (who) {
-    case "david": // headphones: he is the DJ
-      // The spikes stand up through the band.
-      return [rect(3, 0, 8, 1, "k"), rect(1, 1, 2, 1, "k"), rect(11, 1, 2, 1, "k"), rect(0, 2, 1, 4, "k"), rect(13, 2, 1, 4, "k"), px(4, 0, "K"), px(7, 0, "L"), px(8, 0, "K"), rect(0, 6, 2, 4, "e"), rect(12, 6, 2, 4, "e"), px(0, 6, "R"), px(13, 6, "R")]
+    case "david": // an earbud in each ear
+      return [px(0, 8, "x"), px(13, 8, "x")]
     case "karl": // mortarboard: he is the doctor
       return [rect(0, 1, 14, 1, "W"), rect(1, 0, 12, 1, "W"), rect(2, 0, 10, 1, "w"), rect(3, 2, 8, 1, "k"), rect(6, 0, 2, 1, "a"), rect(13, 2, 1, 4, "a"), px(13, 6, "a"), px(12, 6, "a")]
     case "mickael": // podcast headset
@@ -1396,7 +1412,7 @@ for (const g of GRADES) {
     const behind = cape ? [rect(1, 13, 12, 11, "r"), rect(1, 13, 12, 1, "R"), rect(1, 22, 12, 2, "R")] : []
 
     // Standing, facing the room. The cape hangs behind the body.
-    body(`_${who}_front_${g}`, { mx: true }, { w: 14, h: 26 }, FRONT, ...hair(who, "front"), ...chest(who))
+    body(`_${who}_front_${g}`, { mx: true }, { w: 14, h: 26 }, FRONT, ...hair(who, "front"), ...beard(who, "front"), ...chest(who))
     figure(
       `${who}_front_${g}`,
       { w: 14, h: 27 },
@@ -1418,7 +1434,7 @@ for (const g of GRADES) {
     )
     // Sitting down to eat, in two frames: a big bite, then chewing with the
     // kebab lowered. What they wear sits one column in: this body is wider.
-    body(`_${who}_sit_${g}`, { mx: true }, { w: 16, h: 22 }, SIT, ...hair(who, "front", 1), ...chest(who, 1))
+    body(`_${who}_sit_${g}`, { mx: true }, { w: 16, h: 22 }, SIT, ...hair(who, "front", 1), ...beard(who, "front", 1, 0, true), ...chest(who, 1))
     sprite(`_${who}_worn_${g}`, { w: 14, h: 12 }, ...props(who, false))
     const seated = [
       ...(cape ? [rect(1, 14, 14, 8, "r"), rect(1, 21, 14, 1, "R")] : []),
@@ -1438,7 +1454,7 @@ for (const g of GRADES) {
     figure(`${who}_eat_1_${g}`, { w: 16, h: 23 }, base.k, ...seated, grid(3, 13, KEBAB_BITTEN))
     // Hungry: doubled over, in two frames. The second is the pang itself,
     // flushed red, as a hero flashes when hit.
-    body(`_${who}_hunch_${g}`, { mx: true }, { w: 14, h: 26 }, HUNCH, ...hair(who, "front", 0, 2), clip([0, 0, 14, 16], ...chest(who, 0, 2)))
+    body(`_${who}_hunch_${g}`, { mx: true }, { w: 14, h: 26 }, HUNCH, ...hair(who, "front", 0, 2), ...beard(who, "front", 0, 2, true), clip([0, 0, 14, 16], ...chest(who, 0, 2)))
     figure(
       `${who}_hungry_0_${g}`,
       { w: 14, h: 27 },
@@ -1461,7 +1477,7 @@ for (const g of GRADES) {
     // A new customer: a spin, then a fist in the air, as a hero does over a
     // fallen boss. The spin borrows the front view and adds a profile and a
     // back; the profile is flipped by the game for the fourth quarter.
-    body(`_${who}_side_${g}`, {}, { w: 9, h: 26 }, SIDE, ...hair(who, "side"))
+    body(`_${who}_side_${g}`, {}, { w: 9, h: 26 }, SIDE, ...hair(who, "side"), ...beard(who, "side"))
     figure(
       `${who}_side_${g}`,
       { w: 10, h: 27 },
@@ -1631,7 +1647,7 @@ for (const g of GRADES) {
       ...props(who, true),
     )
     // Asleep: a head on the pillow.
-    body(`_${who}_asleep_${g}`, { mx: true }, { w: 14, h: 11 }, ASLEEP, ...hair(who, "front"))
+    body(`_${who}_asleep_${g}`, { mx: true }, { w: 14, h: 11 }, ASLEEP, ...hair(who, "front"), ...beard(who, "front"))
     figure(
       `${who}_asleep_${g}`,
       { w: 14, h: 12 },

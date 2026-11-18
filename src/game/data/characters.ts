@@ -31,6 +31,7 @@ export const CHARACTERS: CharacterDef[] = [
     },
     signatureIdea: "app-mobile",
     site: "https://weshipit.today",
+    handle: "flexbox_",
     mods: { coderMult: 0.8, bonusSlotEvery: 3, socialMoralMult: 2 },
   },
   {

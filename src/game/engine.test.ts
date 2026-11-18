@@ -94,6 +94,8 @@ describe("content", () => {
     for (const c of CHARACTERS) {
       const signature = IDEAS.find((i) => i.id === c.signatureIdea);
       expect(signature?.owner).toBe(c.id);
+      // A handle on X is written without the @.
+      if (c.handle) expect(c.handle, c.id).toMatch(/^\w{1,15}$/);
     }
     expect(IDEAS).toHaveLength(15);
     expect(EVENTS.filter((e) => e.kind === "cameo").every((e) => !!e.who)).toBe(true);
