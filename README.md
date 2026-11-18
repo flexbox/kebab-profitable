@@ -83,10 +83,13 @@ pnpm audio      # re-render the sounds and the music (see below)
 
 All of the art is written as code in `art/kebab.px.js`: the room in each light
 (morning, afternoon, rain, evening, night), the five characters in each pose,
-the portraits and the props. The intro has its own file, `art/intro.px.js`,
-included by the first: a street much wider than the screen, the skyline behind
-it, and Chef. So has the apéro, `art/bar.px.js`: the back room of the bar, the
-long table, and everyone at it. It is rendered with
+and the props. The faces have their own file, `art/faces.px.js`, included by
+the first: the members' portraits and the guests' avatars, all built on one
+head turned three-quarters, the way a 16-bit role-playing game draws the faces
+in its menus. The intro has its own file too, `art/intro.px.js`: a street much
+wider than the screen, the skyline behind it, and Chef. So has the apéro,
+`art/bar.px.js`: the back room of the bar, the long table, and everyone at it.
+It is rendered with
 [pxl](https://github.com/crsolver/claude-pxl), an MIT-licensed pixel-art tool,
 and the resulting PNGs are committed in `public/art/`, so the game builds
 without it.
@@ -170,7 +173,7 @@ silent.
 | `src/game/sim/` | Scripted players used to tune the balance. |
 | `src/ui/` | The screens, and `pixels.ts`, which puts the room together from the art. |
 | `src/ui/Intro.tsx` | The intro before a new run; `intro-pixels.ts` draws it. Its lines are `UI.intro` in `src/i18n/strings.ts`. |
-| `art/` | The pixel art, as code: `kebab.px.js`, `intro.px.js` and `bar.px.js`. Rendered into `public/art/`. |
+| `art/` | The pixel art, as code: `kebab.px.js`, `faces.px.js`, `intro.px.js` and `bar.px.js`. Rendered into `public/art/`. |
 | `audio/` | The sounds and the music, as code: `kebab.cx.js`. Rendered into `public/audio/`. |
 | `src/lib/sound.ts` | Plays them: effects cut from one file, music in a loop. |
 | `src/server/` | The leaderboard: it replays each submitted run before recording it. |

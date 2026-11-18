@@ -838,7 +838,7 @@ function sideProps(who) {
     case "david": // the band edge-on, one cup over the ear
       return [rect(3, 0, 2, 1, "k"), rect(3, 1, 1, 5, "k"), rect(2, 6, 3, 4, "e"), px(2, 6, "R")]
     case "karl": // the board, and the tassel at the back
-      return [rect(0, 1, 9, 1, "k"), rect(1, 0, 7, 1, "k"), rect(2, 2, 5, 1, "k"), rect(0, 2, 1, 4, "a")]
+      return [rect(0, 1, 9, 1, "W"), rect(1, 0, 7, 1, "W"), rect(2, 0, 5, 1, "w"), rect(2, 2, 5, 1, "k"), rect(0, 2, 1, 4, "a")]
     case "mickael": // one cup, and the microphone out in front
       return [rect(3, 0, 2, 1, "s"), rect(3, 1, 1, 5, "s"), rect(2, 6, 3, 4, "k"), rect(5, 10, 3, 1, "k"), px(8, 10, "s")]
     case "christophe": // the mask goes all the way round
@@ -1025,8 +1025,11 @@ for (const [kind, draw] of Object.entries(SCREENS)) {
 
 /**
  * Everyone shares one body and an emoji-yellow face. The members are told
- * apart by a signature prop, not by a likeness: real portraits come later,
- * once each member has approved theirs.
+ * apart by a signature prop, by how their hair falls and by what they wear,
+ * not by a likeness: real portraits come later, once each member has approved
+ * theirs. They are drawn the way a 16-bit role-playing game draws its party:
+ * a large head, eyes two pixels tall, and a costume you can read at a glance.
+ * The faces in faces.px.js are the same five people, close up.
  */
 const BODY = {
   k: "#2a1c18", // outline
@@ -1058,24 +1061,30 @@ const BODY = {
   g: "#5fa04a", // salad
 }
 
+/** The shirt, then trousers and shoes: `wear` replaces colours of the shared body. */
 const PEOPLE = {
-  david: { shirt: "#3f9a90" },
-  karl: { shirt: "#e4decb" },
-  mickael: { shirt: "#d98234" },
-  christophe: { shirt: "#4a6fc0" },
-  matthys: { shirt: "#8a62cc" },
+  // A hoodie, dark jeans, and trainers as red as his headphones.
+  david: { shirt: "#3f9a90", wear: { S: "#8c2c22", O: "#e0583f" } },
+  // A shirt and tie, chinos, brown shoes.
+  karl: { shirt: "#e4decb", wear: { Q: "#8f7d5c", U: "#6c5c42", q: "#a8966e", S: "#4a3020", O: "#6e4a30" } },
+  // Grey trousers, white trainers.
+  mickael: { shirt: "#d98234", wear: { Q: "#5a5a66", U: "#40404c", q: "#74747f", S: "#b8b0a0", O: "#f4eedd" } },
+  // Tights and red boots, as the trade requires.
+  christophe: { shirt: "#4a6fc0", wear: { Q: "#34477a", U: "#26345c", q: "#4a5f98", S: "#8c2c22", O: "#c0432f" } },
+  // Black joggers, and trainers as yellow as his cap.
+  matthys: { shirt: "#8a62cc", wear: { Q: "#3c3644", U: "#2a2630", q: "#544c5e", S: "#c9952e", O: "#f0c050" } },
 }
 
 /** Half of the body: it is the same on both sides. Fourteen wide once mirrored. */
 const FRONT = `
-  ...KKKK
-  ..KLLKK
-  .KKLLKK
-  .KKKKLK
-  .KKKKYY
-  .KKHHHH
-  .KHIkHH
-  .ZHHkHH
+  ..KKKKK
+  .KLLKKK
+  KKLLKKK
+  KLLKKLK
+  KKKKKYY
+  KKZHHHH
+  KHHxkHH
+  ZHHxkHH
   .YHHHHH
   ..YHHHm
   ...YYYY
@@ -1092,17 +1101,17 @@ const FRONT = `
   ..UQqQ.
   ..UQQQ.
   ..UQQQ.
-  ..SOSS.
+  ..SOOS.
   .SSSSS.`
 const BACK = `
-  ...KKKK
-  ..KLLKK
-  .KKLLKK
-  .KKKKLK
-  .KKKKKK
-  .KKKKKK
-  .ZKKKKK
-  .ZKKKKK
+  ..KKKKK
+  .KLLKKK
+  KKLLKKK
+  KLLKKLK
+  KKKKKKK
+  KKKKKKK
+  ZKKKKKK
+  ZKKKKKK
   .ZZKKKK
   ..YZZKK
   ...YYYY
@@ -1121,14 +1130,14 @@ const BACK = `
 const HUNCH = `
   .......
   .......
-  ...KKKK
-  ..KLLKK
-  .KKLLKK
-  .KKKKLK
-  .KKKKYY
-  .KKHHHK
-  .KHHKKH
-  .ZHkHHH
+  ..KKKKK
+  .KLLKKK
+  KKLLKKK
+  KLLKKLK
+  KKKKKYY
+  KKZHHHK
+  KHHHKKH
+  ZHHkHHH
   .YHHkHH
   ..YkHmM
   ...YYYY
@@ -1153,8 +1162,8 @@ const SIDE = `
   KKKKLKKK.
   KKKKKYYY.
   KKKKHHHH.
-  KZKHHIkH.
-  KZKHHHkHH
+  KZKHHxkH.
+  KZKHHxkHH
   .ZYHHHHH.
   ..YYHHHm.
   ...YYYY..
@@ -1177,14 +1186,14 @@ const SIDE = `
 const rows = (grid) => grid.trim().split("\n").map((row) => row.trim())
 const AWAY = [...rows(BACK), ...rows(FRONT).slice(18)].join("\n")
 const ASLEEP = `
-  ...KKKK
-  ..KLLKK
-  .KKLLKK
-  .KKKKLK
-  .KKKKYY
-  .KKHHHH
-  .KHHHHH
-  .ZHYYHH
+  ..KKKKK
+  .KLLKKK
+  KKLLKKK
+  KLLKKLK
+  KKKKKYY
+  KKZHHHH
+  KHHHHHH
+  ZHHYYHH
   .YHHHHH
   ..YHHHm
   ...YHHH`
@@ -1194,14 +1203,14 @@ const ASLEEP = `
  * mouthful. Half of it: sixteen wide once mirrored.
  */
 const SIT = `
-  ....KKKK
-  ...KLLKK
-  ..KKLLKK
-  ..KKKKLK
-  ..KKKKYY
-  ..KKHHHH
-  ..KHIkHH
-  ..ZHkHkH
+  ...KKKKK
+  ..KLLKKK
+  .KKLLKKK
+  .KLLKKLK
+  .KKKKKYY
+  .KKZHHHH
+  .KHHHkHH
+  .ZHHkHkH
   ..YHHHHH
   ...YHHmm
   ....YYYY
@@ -1235,25 +1244,136 @@ const KEBAB_BITTEN = `
   HYXXXXXXYH
   .kkkkkkkk.`
 
+/**
+ * How each one's hair falls, over the top six rows of the head: from the
+ * front, from the side (facing right) and from behind. Karl and Matthys wear
+ * hats, and keep the plain head.
+ */
+const HAIR = {
+  // Spikes, with three locks of fringe down to the eyes.
+  david: {
+    front: `
+      ..K.KKKK.KK...
+      .KKKKLLKKKKK.K
+      KKLLKLKKLLKKKK
+      KKLKKKKKLKKKKK
+      KKKKKKKKKKKKKK
+      KKKZHKZHHKZKKK`,
+    side: `
+      .K.KKK.K.
+      KKKLLKKKK
+      KLLKLKKKK
+      KKLKKKLKK
+      KKKKKKKZK
+      KKKKHZHZ.`,
+    back: `
+      ..K.KKKK.KK...
+      .KKKKLLKKKKK.K
+      KKLLKLKKLLKKKK
+      KKLKKKKKLKKKKK
+      KKKKKKKKKKKKKK
+      KKKKKKKKKKKKKK`,
+  },
+  // Swept across in one wave.
+  mickael: {
+    front: `
+      ...KKKKKKKK...
+      .KKLLLKKKKKKK.
+      KKLLKKLLLKKKKK
+      KLLKKLLKKKKKKK
+      KKKKLKKKKKKZKK
+      KKKKKKKZZHHKKK`,
+    side: `
+      ..KKKKKK.
+      .KLLLKKKK
+      KLLKKLLKK
+      KLKKLKKKK
+      KKKKKKKZ.
+      KKKKHZZH.`,
+    back: `
+      ...KKKKKKKK...
+      .KKLLLKKKKKKK.
+      KKLLKKLLLKKKKK
+      KLLKKLLKKKKKKK
+      KKKKLKKKKKKKKK
+      KKKKKKKKKKKKKK`,
+  },
+  // Brushed up and back: a quiff.
+  christophe: {
+    front: `
+      ..KKKKKKKKKK..
+      .KLLKLLKLLKKK.
+      KKLKKLKKLKKKKK
+      KKKKKKKKKKKKKK
+      KKKZKKZKKZKKKK
+      KKZHHHHHHHHZKK`,
+    side: `
+      ..KKKKKKK
+      .KLLKLLKK
+      .KLKKLKKK
+      KKKKKKKKK
+      KKKKKZKK.
+      KKKZHHHH.`,
+    back: `
+      ..KKKKKKKKKK..
+      .KLLKLLKLLKKK.
+      KKLKKLKKLKKKKK
+      KKKKKKKKKKKKKK
+      KKKKKKKKKKKKKK
+      KKKKKKKKKKKKKK`,
+  },
+}
+const hair = (who, view, x = 0, y = 0) => (HAIR[who] ? [grid(x, y, HAIR[who][view])] : [])
+
+/** What is on the chest, from the front: the body's top-left corner is at x, y. */
+function chest(who, x = 0, y = 0) {
+  switch (who) {
+    case "david": // the cords of the hood, and the pocket
+      return [grid(x + 5, y + 12, "x..x\nx..x"), grid(x + 4, y + 15, "cccccc")]
+    case "karl": // a collar and a tie
+      return [grid(x + 5, y + 11, "xrrx\n.rr.\n.RR.\n.RR."), ]
+    case "mickael": // a sound wave across the front
+      return [grid(x + 4, y + 13, ".x..x.\nx.xx.x")]
+    case "christophe": // his emblem, and a gold belt
+      return [grid(x + 6, y + 13, "aa\naa"), grid(x + 3, y + 18, "aaaaaaaa")]
+    case "matthys": // a chain
+      return [grid(x + 5, y + 12, "a..a\n.aa.")]
+    default:
+      return []
+  }
+}
+/** And on the back: David's hood, down. */
+const nape = (who) => (who === "david" ? [grid(4, 11, "cCCCCc\n.cCCc.\n..cc..")] : [])
+
+/** One view of the body, with the hair and clothes of whoever it is: the bare body is the same for all. */
+function body(name, opts, size, bare, ...over) {
+  sprite(`${name}_bare`, opts, bare)
+  sprite(name, size, stamp(`${name}_bare`, 0, 0), ...over)
+}
+
+/** Eyes shut in a smile: an arch where each eye was. They take the body's top-left corner. */
+const gladEyes = (x, y) => [grid(x + 3, y + 5, ".k.\nkHk\nHH."), grid(x + 8, y + 5, ".k.\nkHk\n.HH")]
+
 /** What each member wears, on the sprite: its body starts one row down. */
 function props(who, back) {
   switch (who) {
     case "david": // headphones: he is the DJ
-      return [rect(3, 0, 8, 1, "k"), rect(1, 1, 2, 1, "k"), rect(11, 1, 2, 1, "k"), rect(0, 2, 1, 4, "k"), rect(13, 2, 1, 4, "k"), rect(0, 6, 2, 4, "e"), rect(12, 6, 2, 4, "e"), px(0, 6, "R"), px(13, 6, "R")]
+      // The spikes stand up through the band.
+      return [rect(3, 0, 8, 1, "k"), rect(1, 1, 2, 1, "k"), rect(11, 1, 2, 1, "k"), rect(0, 2, 1, 4, "k"), rect(13, 2, 1, 4, "k"), px(4, 0, "K"), px(7, 0, "L"), px(8, 0, "K"), rect(0, 6, 2, 4, "e"), rect(12, 6, 2, 4, "e"), px(0, 6, "R"), px(13, 6, "R")]
     case "karl": // mortarboard: he is the doctor
-      return [rect(0, 1, 14, 1, "k"), rect(1, 0, 12, 1, "k"), rect(3, 2, 8, 1, "k"), rect(13, 2, 1, 4, "a"), px(13, 6, "a"), px(12, 6, "a")]
+      return [rect(0, 1, 14, 1, "W"), rect(1, 0, 12, 1, "W"), rect(2, 0, 10, 1, "w"), rect(3, 2, 8, 1, "k"), rect(6, 0, 2, 1, "a"), rect(13, 2, 1, 4, "a"), px(13, 6, "a"), px(12, 6, "a")]
     case "mickael": // podcast headset
       return back
         ? [rect(3, 0, 8, 1, "s"), rect(1, 1, 2, 1, "s"), rect(0, 2, 1, 4, "s"), rect(0, 6, 2, 4, "k")]
         : [rect(3, 0, 8, 1, "s"), rect(1, 1, 2, 1, "s"), rect(0, 2, 1, 4, "s"), rect(0, 6, 2, 4, "k"), rect(1, 10, 3, 1, "k"), px(4, 10, "s")]
     case "christophe": // mask: he is the superhero
       return back
-        ? [rect(1, 7, 12, 2, "r")]
-        : [rect(1, 7, 12, 2, "r"), px(4, 7, "x"), px(9, 7, "x"), px(4, 8, "k"), px(9, 8, "k")]
+        ? [rect(0, 7, 14, 2, "r")]
+        : [rect(0, 7, 14, 2, "r"), px(4, 7, "x"), px(9, 7, "x"), px(4, 8, "k"), px(9, 8, "k")]
     case "matthys": // cap and shades: he is the cool kid
       return back
-        ? [rect(2, 1, 10, 3, "y"), rect(2, 3, 10, 1, "w"), rect(5, 4, 4, 1, "w")]
-        : [rect(2, 1, 10, 3, "y"), rect(2, 3, 10, 1, "w"), rect(8, 4, 6, 1, "w"), rect(3, 7, 8, 2, "k"), px(4, 7, "s"), px(8, 7, "s")]
+        ? [rect(2, 0, 10, 1, "y"), rect(1, 1, 12, 3, "y"), rect(1, 3, 12, 1, "w"), rect(5, 4, 4, 1, "w")]
+        : [rect(2, 0, 10, 1, "y"), rect(1, 1, 12, 3, "y"), rect(1, 3, 12, 1, "w"), rect(8, 4, 6, 1, "w"), rect(3, 7, 8, 2, "k"), px(4, 7, "s"), px(8, 7, "s")]
     default:
       return []
   }
@@ -1268,12 +1388,15 @@ for (const g of GRADES) {
       C: tint(look.shirt),
       c: tint(darken(look.shirt, 0.24)),
       D: tint(lighten(look.shirt, 0.22)),
+      ...Object.fromEntries(Object.entries(look.wear).map(([key, h]) => [key, tint(h)])),
+      // Karl's board is his alone; Matthys's cap keeps `y` and `w`.
+      ...(who === "karl" ? { W: tint("#2c2834"), w: tint("#514a60") } : {}),
     })
     const cape = who === "christophe"
     const behind = cape ? [rect(1, 13, 12, 11, "r"), rect(1, 13, 12, 1, "R"), rect(1, 22, 12, 2, "R")] : []
 
     // Standing, facing the room. The cape hangs behind the body.
-    sprite(`_${who}_front_${g}`, { mx: true }, FRONT)
+    body(`_${who}_front_${g}`, { mx: true }, { w: 14, h: 26 }, FRONT, ...hair(who, "front"), ...chest(who))
     figure(
       `${who}_front_${g}`,
       { w: 14, h: 27 },
@@ -1295,7 +1418,7 @@ for (const g of GRADES) {
     )
     // Sitting down to eat, in two frames: a big bite, then chewing with the
     // kebab lowered. What they wear sits one column in: this body is wider.
-    sprite(`_${who}_sit_${g}`, { mx: true }, SIT)
+    body(`_${who}_sit_${g}`, { mx: true }, { w: 16, h: 22 }, SIT, ...hair(who, "front", 1), ...chest(who, 1))
     sprite(`_${who}_worn_${g}`, { w: 14, h: 12 }, ...props(who, false))
     const seated = [
       ...(cape ? [rect(1, 14, 14, 8, "r"), rect(1, 21, 14, 1, "R")] : []),
@@ -1315,7 +1438,7 @@ for (const g of GRADES) {
     figure(`${who}_eat_1_${g}`, { w: 16, h: 23 }, base.k, ...seated, grid(3, 13, KEBAB_BITTEN))
     // Hungry: doubled over, in two frames. The second is the pang itself,
     // flushed red, as a hero flashes when hit.
-    sprite(`_${who}_hunch_${g}`, { mx: true }, HUNCH)
+    body(`_${who}_hunch_${g}`, { mx: true }, { w: 14, h: 26 }, HUNCH, ...hair(who, "front", 0, 2), clip([0, 0, 14, 16], ...chest(who, 0, 2)))
     figure(
       `${who}_hungry_0_${g}`,
       { w: 14, h: 27 },
@@ -1338,7 +1461,7 @@ for (const g of GRADES) {
     // A new customer: a spin, then a fist in the air, as a hero does over a
     // fallen boss. The spin borrows the front view and adds a profile and a
     // back; the profile is flipped by the game for the fourth quarter.
-    sprite(`_${who}_side_${g}`, SIDE)
+    body(`_${who}_side_${g}`, {}, { w: 9, h: 26 }, SIDE, ...hair(who, "side"))
     figure(
       `${who}_side_${g}`,
       { w: 10, h: 27 },
@@ -1347,7 +1470,7 @@ for (const g of GRADES) {
       stamp(`_${who}_side_${g}`, 0, 1),
       ...sideProps(who),
     )
-    sprite(`_${who}_away_${g}`, { mx: true }, AWAY)
+    body(`_${who}_away_${g}`, { mx: true }, { w: 14, h: 26 }, AWAY, ...hair(who, "back"), ...nape(who))
     figure(
       `${who}_away_${g}`,
       { w: 14, h: 27 },
@@ -1366,7 +1489,7 @@ for (const g of GRADES) {
       ...(cape ? [rect(1, 15, 12, 11, "r"), rect(1, 15, 12, 1, "R"), rect(1, 24, 12, 2, "R")] : []),
       stamp(`_${who}_front_${g}`, 0, 3),
       // The face. Shades hide the eyes, and the mask has its own.
-      ...(who === "matthys" || cape ? [] : [grid(3, 8, ".k.\nkHk\n.H."), grid(8, 8, ".k.\nkHk\n.H.")]),
+      ...(who === "matthys" || cape ? [] : gladEyes(0, 3)),
       grid(5, 11, "MxxM\n.MM."),
       stamp(`_${who}_worn_${g}`, 0, 2),
       ...(cape ? [grid(3, 9, ".k....k.\nkrk..krk")] : []),
@@ -1394,7 +1517,7 @@ for (const g of GRADES) {
     // an arm. The cape hangs behind whatever the body does.
     const shades = who === "matthys"
     const smiling = [
-      ...(shades || cape ? [] : [grid(3, 6, ".k.\nkHk\n.H."), grid(8, 6, ".k.\nkHk\n.H.")]),
+      ...(shades || cape ? [] : gladEyes(0, 1)),
       grid(5, 9, "MxxM\n.MM."),
     ]
     const maskSmiling = cape ? [grid(3, 7, ".k....k.\nkrk..krk")] : []
@@ -1406,7 +1529,7 @@ for (const g of GRADES) {
       base.k,
       ...behind,
       stamp(`_${who}_front_${g}`, 0, 1),
-      ...(shades || cape ? [] : [grid(4, 7, "H\nk"), grid(9, 7, "H\nk")]),
+      ...(shades || cape ? [] : [grid(3, 7, "HH\nkk"), grid(9, 7, "HH\nkk")]),
       ...props(who, false),
       ...(cape ? [px(4, 7, "r"), px(9, 7, "r")] : []),
     )
@@ -1485,7 +1608,7 @@ for (const g of GRADES) {
       stamp(`_${who}_handsup_${g}`, 0, 7),
     )
     // Seated at the terminal, seen from behind. The cape covers the back.
-    sprite(`_${who}_back_${g}`, { mx: true }, BACK)
+    body(`_${who}_back_${g}`, { mx: true }, { w: 14, h: 18 }, BACK, ...hair(who, "back"), ...nape(who))
     figure(
       `${who}_back_${g}`,
       { w: 14, h: 19 },
@@ -1508,13 +1631,13 @@ for (const g of GRADES) {
       ...props(who, true),
     )
     // Asleep: a head on the pillow.
-    sprite(`_${who}_asleep_${g}`, { mx: true }, ASLEEP)
+    body(`_${who}_asleep_${g}`, { mx: true }, { w: 14, h: 11 }, ASLEEP, ...hair(who, "front"))
     figure(
       `${who}_asleep_${g}`,
       { w: 14, h: 12 },
       base.k,
       stamp(`_${who}_asleep_${g}`, 0, 1),
-      ...(who === "matthys" ? props(who, true) : who === "christophe" ? [rect(1, 7, 12, 2, "r")] : props(who, false)),
+      ...(who === "matthys" ? props(who, true) : who === "christophe" ? [rect(0, 7, 14, 2, "r")] : props(who, false)),
     )
   }
 
@@ -1647,358 +1770,8 @@ sprite("bubble_alert", { outline: "k" }, `
   ..pp.....
   .p.......`)
 
-// ---------------------------------------------------------------------------
-// Portraits: a head and shoulders, 32 by 32
-// ---------------------------------------------------------------------------
-
-const BUST = `
-  ..........KKKKKK
-  ........KKKLLKKK
-  .......KKKLLKKKK
-  ......KKKKLKKLKK
-  ......KKKKYYYYYY
-  ......KKHHHHHHHH
-  ......KHHHHHIIHH
-  ......ZHHHkkIHHH
-  ......ZHHHkkHHHH
-  ......YHHHHHHHHH
-  ......YHHHHHHHHY
-  ......YYHHHHHmmm
-  .......YHHHHHHHH
-  ........YYHHHHHH
-  ..........YYYYYY
-  ..........YYYHHH
-  ....cCCCCCCcYYHH
-  ..cCCDDCCCCCcccC
-  .cCCDCCCCCCCCCCC
-  cCCCCCCCCCCCCCCC
-  cCCCCCCCCCCCCCCC
-  cCCCCCCCCCCCCCCC`
-
-/** The same props as on the small figures, at the portrait's size. */
-function bustProps(who) {
-  switch (who) {
-    case "david":
-      return [rect(8, 4, 16, 2, "k"), rect(5, 6, 3, 4, "k"), rect(24, 6, 3, 4, "k"), rect(3, 10, 4, 7, "e"), rect(25, 10, 4, 7, "e"), rect(3, 10, 1, 7, "R"), rect(28, 10, 1, 7, "R")]
-    case "karl":
-      return [rect(3, 4, 26, 2, "k"), rect(9, 6, 14, 2, "k"), rect(27, 6, 1, 8, "a"), rect(26, 13, 3, 3, "a")]
-    case "mickael":
-      return [rect(8, 4, 16, 2, "s"), rect(5, 6, 3, 4, "s"), rect(3, 10, 4, 7, "k"), rect(5, 17, 2, 3, "k"), rect(6, 19, 6, 2, "k"), rect(11, 18, 3, 3, "s")]
-    case "christophe":
-      return [rect(6, 11, 20, 3, "r"), rect(6, 13, 20, 1, "R"), rect(10, 11, 3, 2, "x"), rect(19, 11, 3, 2, "x")]
-    case "matthys":
-      return [rect(7, 3, 18, 5, "y"), rect(7, 6, 18, 2, "w"), rect(22, 8, 8, 2, "w"), rect(8, 11, 16, 3, "k"), rect(9, 11, 3, 1, "s"), rect(17, 11, 3, 1, "s")]
-    default:
-      return []
-  }
-}
-
-const PORTRAITS = {
-  david: { shirt: "#3f9a90", tile: "#2f5e59" },
-  karl: { shirt: "#e4decb", tile: "#56594c" },
-  mickael: { shirt: "#d98234", tile: "#7a4a22" },
-  christophe: { shirt: "#4a6fc0", tile: "#2f4470" },
-  matthys: { shirt: "#8a62cc", tile: "#4f3a78" },
-}
-// Chef is not one of these busts: his portrait is in intro.px.js, next to the
-// picture of him it is taken from.
-
-for (const [who, look] of Object.entries(PORTRAITS)) {
-  pal({
-    ...BODY,
-    C: look.shirt,
-    c: darken(look.shirt, 0.24),
-    D: lighten(look.shirt, 0.22),
-    T: look.tile,
-    t: darken(look.tile, 0.14),
-  })
-  sprite(`_bust_${who}`, { mx: true }, BUST)
-  figure(
-    `_figure_${who}`,
-    { w: 32, h: 26 },
-    BODY.k,
-    ...(who === "christophe" ? [rect(0, 21, 32, 5, "r"), rect(0, 21, 32, 1, "R")] : []),
-    stamp(`_bust_${who}`, 0, 4),
-    ...bustProps(who),
-  )
-  // A height chart behind the sitter, as on an identity photo, under a light
-  // that falls off towards the top of the wall.
-  sprite(
-    `portrait_${who}`,
-    { w: 32, h: 32 },
-    (c) => {
-      const wall = [darken(look.tile, 0.24), darken(look.tile, 0.1), look.tile, lighten(look.tile, 0.1)]
-      const edges = [0, 7, 15, 24, 32]
-      wall.forEach((tone, i) => {
-        c.rect(0, edges[i], 32, edges[i + 1] - edges[i], tone)
-        if (i > 0) for (let x = 0; x < 32; x++) if (dithered(x, edges[i] - 1, 0.5)) c.px(x, edges[i] - 1, tone)
-      })
-      for (const [y, tone] of [[6, wall[0]], [14, wall[1]], [22, wall[2]], [30, wall[3]]]) c.rect(0, y, 32, 1, darken(tone, 0.16))
-    },
-    stamp(`_figure_${who}`, -1, 5),
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Guests: the public figures on the cameo cards, 32 by 32
-// ---------------------------------------------------------------------------
-
-/**
- * A guest is drawn after their avatar on X, so each one keeps its own skin,
- * hair, beard, glasses and background colour. Unlike the members, they are
- * likenesses: the face is larger, and nothing is emoji yellow.
- *
- * Half of the head, mirrored. `B` are the brows, `w` and `k` the eyes.
- */
-const GHEAD = `
-  ................
-  ................
-  ................
-  ................
-  ................
-  ................
-  ................
-  ..........HHHHHH
-  ........HHHHHHHH
-  .......HHHHHHHHH
-  ......IHHHHHHHHH
-  ......IHHHHHHHHH
-  ......HHHHHHHHHH
-  ......HHHBBBBHHH
-  .....YHHHHHHHHHH
-  ....YYHHHwkkHHHH
-  ....YYHHHwkkHHHH
-  ....YHHHHHHHHHHH
-  .....YHHHHHHHHHH
-  .....YHHHHHHHHHH
-  ......YHHHHHHHHH
-  ......YHHHHHHHmm
-  .......YHHHHHHHH
-  ........YHHHHHHH
-  .........YYHHHHH
-  ...........YYYYY
-  ...........YHHHH
-  .......cCCCYHHHH
-  ....cCCCDCCcYHHH
-  ..cCCDDCCCCCcYYH
-  .cCDDCCCCCCCCcYY
-  cCCCCCCCCCCCCCcC`
-
-/** A run of one colour on one row, from x0 to x1. */
-const run = (y, x0, x1, key) => rect(x0, y, x1 - x0 + 1, 1, key)
-/** The same run, and its mirror image on the other side of the face. */
-const sym = (y, x0, x1, key) => [run(y, x0, x1, key), run(y, 31 - x1, 31 - x0, key)]
-/** Several rows at once: [y, x0, x1] each, all mirrored. */
-const syms = (key, rows) => rows.flatMap(([y, x0, x1]) => sym(y, x0, x1, key))
-const runs = (key, rows) => rows.map(([y, x0, x1]) => run(y, x0, x1, key))
-
-/** Light comes from the left: a shadow down the right of the nose. */
-const NOSE = [px(17, 16, "Y"), px(17, 17, "Y"), run(18, 16, 17, "Y"), px(15, 18, "Y")]
-
-const MOUTH = {
-  smile: [run(21, 13, 18, "H"), px(13, 20, "m"), px(18, 20, "m"), run(21, 14, 17, "m")],
-  grin: [run(20, 13, 18, "m"), run(21, 13, 18, "x"), px(13, 21, "m"), px(18, 21, "m"), run(22, 14, 17, "m")],
-  smirk: [run(21, 13, 18, "H"), run(21, 14, 17, "m"), px(18, 20, "m")],
-  flat: [],
-}
-
-/** Round, thin-rimmed glasses. */
-const ROUND = [
-  ...syms("g", [[14, 9, 11], [17, 9, 11]]),
-  ...syms("g", [[15, 8, 8], [16, 8, 8], [15, 12, 12], [16, 12, 12]]),
-  run(15, 13, 18, "g"),
-]
-/** Square glasses with a heavy top rim. */
-const SQUARE = [
-  ...syms("g", [[14, 8, 13], [17, 9, 12], [15, 8, 8], [16, 8, 8], [15, 13, 13], [16, 13, 13]]),
-  run(15, 14, 17, "g"),
-]
-
-/** A full beard and moustache around the mouth, in `F`, shaded in `f`. */
-const BEARD = [
-  ...syms("F", [[17, 6, 6], [18, 5, 6], [19, 5, 7], [20, 6, 9], [21, 6, 13], [22, 7, 15], [23, 8, 15], [24, 9, 15], [25, 10, 15], [26, 12, 15]]),
-  ...syms("F", [[19, 13, 15], [20, 12, 15]]),
-  run(21, 14, 17, "m"),
-  ...syms("f", [[24, 9, 10], [25, 10, 12], [26, 12, 15]]),
-]
-/** Short stubble on the jaw and the lip. */
-const STUBBLE = syms("F", [[19, 6, 6], [20, 6, 7], [21, 6, 12], [22, 7, 15], [23, 8, 15], [24, 9, 15], [20, 13, 15]])
-
-const GUESTS = {
-  // Pieter Levels: his avatar is him lying in the sun with his laptop.
-  levels: {
-    look: { H: "#d9a074", Y: "#ad7448", I: "#ecbf96", K: "#8a6440", L: "#b38c5c", Z: "#5e4228", F: "#a07a58", f: "#8a6444", C: "#d9a074", c: "#ad7448", D: "#ecbf96", T: "#3f6a35", t: "#335a2b", s: "#c9ccd0", S: "#9a9ea6" },
-    mouth: "smile",
-    draw: [
-      ...syms("K", [[5, 11, 15], [6, 8, 15], [7, 6, 15], [8, 5, 15], [9, 5, 9], [10, 5, 7], [11, 5, 6], [12, 5, 5], [13, 5, 5]]),
-      ...runs("L", [[6, 10, 13], [7, 8, 11], [8, 14, 18], [9, 20, 23]]),
-      ...runs("K", [[9, 10, 12], [9, 18, 21]]),
-      ...runs("Z", [[12, 26, 26], [13, 26, 26], [11, 25, 25]]),
-      ...STUBBLE,
-      // The laptop, held up in front of his chest.
-      rect(5, 25, 22, 7, "s"), run(25, 5, 26, "S"), rect(5, 26, 1, 6, "S"), px(16, 28, "x"),
-    ],
-  },
-  // Marc Lou: just his head, eyebrows up, a thin moustache.
-  marc: {
-    look: { H: "#ebb48c", Y: "#c98a62", I: "#f6cfac", K: "#5e3a20", L: "#86562e", Z: "#3e2614", F: "#5e3a20", f: "#3e2614", C: "#26283a", c: "#181a28", D: "#3a3e56", T: "#f4a14a", t: "#e08a34" },
-    mouth: "flat",
-    draw: [
-      ...syms("K", [[3, 12, 15], [4, 9, 15], [5, 7, 15], [6, 6, 15], [7, 5, 15], [8, 5, 13], [9, 5, 9], [10, 5, 7], [11, 5, 6], [12, 5, 5], [13, 5, 5]]),
-      ...runs("L", [[4, 11, 14], [5, 9, 12], [6, 17, 21], [7, 8, 10], [8, 18, 20]]),
-      ...runs("Z", [[8, 14, 17], [9, 10, 12], [9, 19, 21]]),
-      // Eyebrows raised high, eyes wide.
-      ...syms("H", [[13, 9, 12]]), ...syms("B", [[12, 9, 9], [11, 10, 12]]),
-      ...syms("x", [[14, 9, 11]]), px(9, 15, "x"), px(22, 15, "x"),
-      // The moustache.
-      run(20, 13, 18, "F"), px(12, 20, "F"), px(19, 20, "F"), run(21, 13, 18, "H"), run(22, 15, 16, "m"),
-    ],
-  },
-  // Tibo Louis-Lucas: swept-up hair, short beard, a wide smile.
-  tibo: {
-    look: { H: "#e6ac86", Y: "#c0825c", I: "#f4c8a4", K: "#6a4a30", L: "#94704c", Z: "#46301e", F: "#9a6c4c", f: "#7a5038", C: "#2a2a30", c: "#18181e", D: "#3e3e48", T: "#f2b58e", t: "#e49f78" },
-    mouth: "grin",
-    draw: [
-      ...syms("K", [[4, 12, 15], [5, 9, 15], [6, 7, 15], [7, 6, 15], [8, 5, 15], [9, 5, 8], [10, 5, 7], [11, 5, 6], [12, 5, 6], [13, 5, 5]]),
-      ...runs("L", [[4, 13, 19], [5, 11, 15], [6, 9, 12], [6, 17, 22], [7, 20, 24]]),
-      ...runs("K", [[9, 9, 12], [9, 21, 22]]),
-      ...STUBBLE, run(20, 13, 18, "F"),
-    ],
-  },
-  // Dagobert Renouf: short dark hair, beard, green leather jacket and a chain.
-  dago: {
-    look: { H: "#e0a482", Y: "#b87a58", I: "#f0c4a2", K: "#46301f", L: "#6a4a32", Z: "#2e1f14", F: "#5a3e2a", f: "#40291b", C: "#2f8f42", c: "#1e6a2e", D: "#58b65e", T: "#cbc4b2", t: "#b8b09c", a: "#e8c25a" },
-    mouth: "grin",
-    draw: [
-      ...syms("K", [[5, 11, 15], [6, 8, 15], [7, 6, 15], [8, 5, 15], [9, 5, 10], [10, 5, 7], [11, 5, 6], [12, 5, 5], [13, 5, 5]]),
-      ...runs("L", [[6, 10, 14], [7, 18, 22]]),
-      ...runs("K", [[9, 13, 18], [10, 15, 16]]),
-      ...BEARD, run(21, 13, 18, "x"), run(20, 13, 18, "m"), px(13, 21, "m"), px(18, 21, "m"), run(22, 14, 17, "m"),
-      // The chain, and a white tee under the open jacket.
-      rect(13, 27, 6, 5, "x"), run(27, 12, 19, "a"), px(12, 28, "a"), px(19, 28, "a"), run(29, 13, 18, "a"),
-      ...syms("c", [[27, 11, 11], [28, 11, 12], [29, 12, 12], [30, 12, 12], [31, 12, 12]]),
-    ],
-  },
-  // Nico Jeannen: brushed-back hair, full beard, a half smile.
-  nico: {
-    look: { H: "#e4aa8a", Y: "#bd7f60", I: "#f2c6a8", K: "#6e4a2e", L: "#96704a", Z: "#4a301c", F: "#8e5c38", f: "#6e4228", C: "#2c2a28", c: "#1c1a18", D: "#403c38", T: "#5b5642", t: "#4c4836" },
-    mouth: "smirk",
-    draw: [
-      ...syms("K", [[5, 11, 15], [6, 8, 15], [7, 6, 15], [8, 5, 15], [9, 5, 9], [10, 5, 7], [11, 5, 6], [12, 5, 5], [13, 5, 5]]),
-      ...runs("L", [[5, 12, 18], [6, 10, 14], [7, 17, 21]]),
-      ...runs("K", [[9, 12, 13]]),
-      ...BEARD, px(18, 20, "m"),
-    ],
-  },
-  // Thomas Sanlis: his avatar is a black and white photo on orange.
-  thomas: {
-    look: { H: "#c8c4c0", Y: "#9a9692", I: "#e4e0dc", K: "#2a2826", L: "#4a4744", Z: "#161514", B: "#2a2826", m: "#6a6662", C: "#1e1d1c", c: "#121110", D: "#34322f", T: "#f4a676", t: "#e8925e" },
-    mouth: "grin",
-    draw: [
-      ...syms("K", [[5, 11, 15], [6, 8, 15], [7, 6, 15], [8, 5, 15], [9, 5, 9], [10, 5, 7], [11, 5, 6], [12, 5, 5], [13, 5, 5]]),
-      // A side parting, swept to the right.
-      ...runs("K", [[9, 16, 26], [10, 19, 26], [11, 23, 26], [4, 14, 22]]),
-      ...runs("L", [[5, 15, 21], [6, 18, 23], [7, 21, 25]]),
-      ...runs("H", [[9, 10, 12]]),
-    ],
-  },
-  // Tony Dinh: black hair over the ears, a denim shirt, a yellow disc on pink.
-  tony: {
-    look: { H: "#e6b48c", Y: "#c08e66", I: "#f4cca8", K: "#1e1a1c", L: "#3a3236", Z: "#0e0c0d", C: "#4b6c8e", c: "#344e6a", D: "#6a8cae", T: "#ea2f86", t: "#f6c22c", b: "#c8d6e4" },
-    mouth: "smile",
-    draw: [
-      ...syms("K", [[5, 11, 15], [6, 8, 15], [7, 6, 15], [8, 5, 15], [9, 5, 15], [10, 5, 12], [11, 4, 9], [12, 4, 7], [13, 4, 6], [14, 4, 5], [15, 3, 4], [16, 3, 4], [17, 3, 4], [18, 4, 4]]),
-      // Parted in the middle.
-      ...runs("H", [[10, 15, 16], [11, 14, 17]]), ...runs("L", [[6, 11, 14], [6, 17, 20], [7, 9, 12], [8, 7, 8], [8, 23, 24]]),
-      // Strands of the fringe over the brows.
-      ...runs("K", [[11, 10, 10], [11, 21, 21], [12, 8, 8], [12, 23, 23]]), ...runs("Z", [[9, 13, 14], [9, 17, 18], [10, 14, 14], [10, 17, 17]]),
-      // Collar and buttons.
-      ...syms("b", [[27, 11, 12], [28, 12, 13]]), px(15, 29, "b"), px(15, 31, "b"),
-    ],
-  },
-  // Danny Postma: hair up in a bun, round glasses, a full beard, a red shirt.
-  danny: {
-    look: { H: "#ebb898", Y: "#c48c6c", I: "#f6d0b4", K: "#8a4a26", L: "#b26a3a", Z: "#5e2e16", F: "#8a4a26", f: "#6a3418", C: "#c8352a", c: "#962218", D: "#e45c48", T: "#6fa4a8", t: "#5c9094", g: "#5a5450" },
-    mouth: "smile",
-    draw: [
-      // The bun, then the hair pulled back.
-      rect(13, 1, 6, 4, "K"), run(1, 14, 16, "L"), run(0, 14, 17, "K"),
-      ...syms("K", [[5, 11, 15], [6, 8, 15], [7, 7, 15], [8, 6, 15], [9, 6, 8], [10, 6, 6], [11, 6, 6]]),
-      ...runs("L", [[6, 10, 14], [7, 9, 12], [8, 8, 10], [6, 18, 20]]),
-      ...runs("Z", [[5, 13, 18]]),
-      ...BEARD, ...ROUND,
-    ],
-  },
-  // Arvid Kahl: auburn hair and beard, round glasses, a red and gold hoodie.
-  arvid: {
-    look: { H: "#ebb698", Y: "#c48a6c", I: "#f6ceb2", K: "#8a5030", L: "#b0703e", Z: "#5e341c", F: "#9a5a32", f: "#74401f", C: "#9e2a22", c: "#701c16", D: "#c43c2e", T: "#3b3f3d", t: "#2f3331", g: "#a89a7a", a: "#e2b440" },
-    mouth: "grin",
-    draw: [
-      ...syms("K", [[4, 11, 15], [5, 8, 15], [6, 6, 15], [7, 5, 15], [8, 5, 15], [9, 5, 9], [10, 5, 7], [11, 5, 6], [12, 5, 5], [13, 5, 5]]),
-      ...runs("L", [[5, 10, 16], [6, 8, 11], [6, 18, 23], [7, 20, 25]]),
-      ...runs("K", [[9, 11, 12], [9, 19, 20]]),
-      ...BEARD, run(21, 13, 18, "x"), run(20, 13, 18, "m"), px(13, 21, "m"), px(18, 21, "m"), run(22, 14, 17, "m"),
-      ...ROUND,
-      // Gold stripes on the hood, a grey tee under it.
-      rect(13, 27, 6, 5, "s"), ...syms("a", [[27, 9, 10], [28, 8, 9], [29, 7, 8], [30, 6, 7], [31, 5, 6]]),
-    ],
-  },
-  // Benjamin Code: a dark cap, glasses, short beard, a white tee.
-  benjamin: {
-    look: { H: "#cfc9c4", Y: "#a39d98", I: "#e6e2de", K: "#3c3a38", L: "#5a5754", Z: "#242322", B: "#3c3a38", m: "#77716c", F: "#5e5a56", f: "#46433f", C: "#f0eeea", c: "#cfccc6", D: "#ffffff", T: "#dcdcdc", t: "#c8c8c8", g: "#2a2826", q: "#3a3a40", Q: "#26262a", r: "#d23a2a", a: "#e8c040" },
-    mouth: "smile",
-    draw: [
-      // The cap: the crown, then the peak, with a little badge.
-      ...syms("q", [[3, 11, 15], [4, 8, 15], [5, 7, 15], [6, 6, 15], [7, 6, 15], [8, 5, 15], [9, 5, 15], [10, 5, 7], [11, 5, 6], [12, 5, 5]]),
-      ...runs("Q", [[10, 8, 23], [11, 7, 24]]), run(9, 6, 25, "Q"),
-      rect(15, 5, 2, 2, "a"), px(15, 5, "r"),
-      ...SQUARE, ...STUBBLE, run(20, 13, 18, "F"),
-    ],
-  },
-  // Flavie Prévot: long brown hair parted in the middle, a wide smile, a denim
-  // shirt, in front of a wall of wooden slats.
-  flavie: {
-    look: { H: "#e9b99c", Y: "#c59073", I: "#f7d5be", K: "#5c3b26", L: "#83593a", Z: "#3b2517", B: "#6e4a32", m: "#a8473a", C: "#5b7fa8", c: "#3f5f86", D: "#80a1c8", T: "#1c1612", t: "#9a6238", a: "#dcb45c" },
-    mouth: "grin",
-    back: [rect(1, 3, 13, 2, "t"), rect(0, 8, 9, 2, "t"), rect(0, 13, 7, 2, "t"), rect(0, 18, 6, 2, "t"), rect(0, 23, 5, 2, "t")],
-    draw: [
-      // The crown, parted in the middle, then a curtain down each side of the
-      // face that widens as the jaw narrows and lies on the shoulders.
-      ...syms("K", [[3, 11, 15], [4, 8, 15], [5, 6, 15], [6, 5, 15], [7, 4, 12], [8, 4, 9], [9, 3, 7], [10, 3, 6]]),
-      ...syms("K", [[11, 3, 6], [12, 3, 5], [13, 3, 5], [14, 2, 4], [15, 2, 3], [16, 2, 3], [17, 2, 3], [18, 2, 4], [19, 2, 4], [20, 2, 5], [21, 2, 5], [22, 2, 6], [23, 2, 7], [24, 2, 8], [25, 2, 9], [26, 2, 8], [27, 2, 6], [28, 3, 6], [29, 3, 5], [30, 4, 5]]),
-      // The light catches the top, and one long strand on each side.
-      ...runs("L", [[4, 10, 13], [5, 8, 11], [6, 6, 9], [5, 18, 21], [6, 21, 24]]),
-      ...syms("L", [[12, 4, 4], [13, 4, 4], [14, 3, 3], [15, 3, 3], [16, 3, 3], [22, 4, 4], [23, 4, 5], [24, 5, 5], [25, 5, 6]]),
-      // In shade where it meets the cheek and the neck.
-      ...syms("Z", [[22, 6, 6], [23, 7, 7], [24, 8, 8], [25, 9, 9], [26, 8, 8], [27, 6, 6], [28, 6, 6]]),
-      ...runs("Z", [[3, 15, 16], [4, 15, 16]]),
-      // A small gold hoop.
-      px(28, 18, "a"), px(28, 19, "a"),
-    ],
-  },
-}
-
-for (const [who, guest] of Object.entries(GUESTS)) {
-  pal({ ...BODY, B: guest.look.Z, x: "#f6f2ea", w: "#f6f2ea", s: "#9aa0a6", ...guest.look })
-  sprite(`_ghead_${who}`, { mx: true }, GHEAD)
-  figure(
-    `_guest_${who}`,
-    { w: 32, h: 32 },
-    guest.look.k ?? BODY.k,
-    stamp(`_ghead_${who}`, 0, 0),
-    ...NOSE,
-    ...MOUTH[guest.mouth],
-    ...guest.draw,
-  )
-  sprite(
-    `guest_${who}`,
-    { w: 32, h: 32 },
-    rect(0, 0, 32, 32, "T"),
-    // Behind them: a line along the bottom, unless the avatar has more to show.
-    ...(guest.back ?? (who === "tony" ? [circ(16, 15, 13, "t")] : [rect(0, 31, 32, 1, "t")])),
-    stamp(`_guest_${who}`, -1, -1),
-  )
-}
+// The members' portraits and the guests' avatars have a file of their own.
+include("faces.px.js")
 
 // ---------------------------------------------------------------------------
 // The picture a link to the game is shared with

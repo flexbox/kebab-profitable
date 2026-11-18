@@ -3,9 +3,9 @@ import type { GuestId } from "@/game/types";
 import type { PersonId } from "./pixels";
 
 /**
- * A head and shoulders, 32 by 32, scaled up with hard pixels. The pictures are
- * painted in `art/kebab.px.js`. They are decoration: the name is always written
- * next to them, so they carry no alternative text.
+ * A face, 32 by 32, scaled up with hard pixels. The pictures are painted in
+ * `art/faces.px.js` (Chef's is in `art/intro.px.js`). They are decoration: the
+ * name is always written next to them, so they carry no alternative text.
  */
 export function Portrait({ who, className }: { who: PersonId; className?: string }) {
   return (

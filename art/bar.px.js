@@ -270,7 +270,7 @@ const BAR_RAISED = [
   grid(14, 3, "xxx\njJj\njJj\njjj"),
 ]
 /** Eyes shut in a smile, mouth wide open: the face of a toast. */
-const BAR_GRIN = [grid(3, 6, ".k.\nkHk\n.H."), grid(8, 6, ".k.\nkHk\n.H."), grid(5, 9, "MxxM\n.MM.")]
+const BAR_GRIN = [...gladEyes(0, 1), grid(5, 9, "MxxM\n.MM.")]
 
 {
   const tint = grader("lamp")
@@ -290,6 +290,7 @@ const BAR_GRIN = [grid(3, 6, ".k.\nkHk\n.H."), grid(8, 6, ".k.\nkHk\n.H."), grid
       C: tint(look.shirt),
       c: tint(darken(look.shirt, 0.24)),
       D: tint(lighten(look.shirt, 0.22)),
+      ...(who === "karl" ? { W: tint("#2c2834"), w: tint("#514a60") } : {}),
     })
     const cape = who === "christophe"
     const shades = who === "matthys"

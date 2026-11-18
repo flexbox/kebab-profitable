@@ -4,7 +4,7 @@ import type { GuestDef, GuestId } from "../types";
  * The public figures who turn up on cameo cards, with their handle on X.
  *
  * Each one is drawn as a 32 by 32 pixel version of their X avatar, in
- * `art/kebab.px.js` (look for `GUESTS`). The avatars themselves are only a
+ * `art/faces.px.js` (look for `GUESTS`). The avatars themselves are only a
  * reference: they stay in `reference/guests/`, which is never committed.
  */
 export const GUESTS: Record<GuestId, GuestDef> = {
