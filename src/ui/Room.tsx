@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { rand } from "@/game/rng";
 import type { ActionId, GameState } from "@/game/types";
 import { B, eventCard, mrrOf } from "@/game";
+import { APERO, drawBar } from "./bar-pixels";
 import { PixelCanvas } from "./PixelCanvas";
 import {
   CHEER,
@@ -65,30 +66,28 @@ function useNeon(lit: boolean): number {
 }
 
 /**
- * How far into the celebration of a new customer the room is, in
- * milliseconds, or null when there is none. `key` names the move being
- * celebrated: another move ends it.
+ * How far into something the room plays out it is, in milliseconds, or null
+ * when there is nothing to play. `key` names the move that set it off:
+ * another move ends it. With reduced motion it does not move: it holds the
+ * moment `still` for as long as it would have lasted.
  */
-function useCheer(key: number): number | null {
-  const [elapsed, setElapsed] = useState<number | null>(null);
+function useSequence(key: number, length: number, still: number): number | null {
+  const [now, setNow] = useState<{ key: number; t: number } | null>(null);
   useEffect(() => {
     if (!key) return;
-    // With reduced motion there is no spin, flash or hop: the pose alone.
-    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const frozen = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const start = performance.now();
     const id = window.setInterval(() => {
       const t = performance.now() - start;
-      if (t >= CHEER.length) {
-        window.clearInterval(id);
-        setElapsed(null);
-      } else setElapsed(still ? CHEER.spin + CHEER.hop : t);
+      if (t >= length) window.clearInterval(id);
+      setNow({ key, t: t >= length ? length : frozen ? still : t });
     }, 30);
-    return () => {
-      window.clearInterval(id);
-      setElapsed(null);
-    };
-  }, [key]);
-  return key ? elapsed : null;
+    return () => window.clearInterval(id);
+  }, [key, length, still]);
+  if (!key) return null;
+  // The first tick has not come yet: it has just begun.
+  if (now?.key !== key) return 0;
+  return now.t >= length ? null : now.t;
 }
 
 /** Night falls: the evening dims, stays dark a moment, and the morning comes up. */
@@ -155,6 +154,7 @@ export function Room({
   preview,
   fasting = false,
   cheer = 0,
+  apero = 0,
   label,
 }: {
   state: GameState;
@@ -164,6 +164,8 @@ export function Room({
   fasting?: boolean;
   /** The number of the move that won a customer, or 0: the founder celebrates it. */
   cheer?: number;
+  /** The number of the move that went to the apéro, or 0: the room gives way to the bar. */
+  apero?: number;
   label: string;
 }) {
   // The room's clock: one beat is the pace of the founder's movements, and
@@ -189,7 +191,11 @@ export function Room({
 
   // Between two days the room shows the evening going dark, then the morning.
   // A new customer or the end of a run is not kept waiting behind it.
-  const { shown: state, dark } = useNightfall(current, cheer !== 0 || !!current.outcome);
+  // Nor is an evening at the bar: it brings its own dark.
+  const { shown: state, dark: nightfall } = useNightfall(
+    current,
+    cheer !== 0 || apero !== 0 || !!current.outcome,
+  );
   const leaving = state !== current;
   // While the evening fades, what is shown is what ended it.
   const shown = leaving ? eveningAction(current) : (preview ?? lastAction(state));
@@ -201,9 +207,26 @@ export function Room({
   else if (state.phase === "idea") pose = "think";
   else if (state.phase === "won") pose = "feast";
   else if (shown) ({ pose, screen } = POSES[shown]);
-  // A new customer comes before all of it, for two seconds.
-  const cheering = useCheer(cheer);
+  // A new customer comes before all of it, for two seconds. With reduced
+  // motion there is no spin, flash or hop: the pose alone.
+  const cheering = useSequence(cheer, CHEER.length, CHEER.spin + CHEER.hop);
   if (cheering !== null) pose = "cheer";
+
+  // The apéro: the room gives way to the bar for the whole evening, then
+  // comes back out of the dark, the next morning.
+  const evening = useSequence(apero, APERO.length + NIGHT.in, APERO.settled);
+  const morning = evening !== null && evening >= APERO.length;
+  // Pointing at the apéro, or still out on a day with one more slot, shows
+  // the evening already under way, and nothing ends it.
+  const out = pose === "out";
+  const bar = evening !== null && !morning ? evening : out ? APERO.settled : null;
+  let dark = nightfall;
+  if (evening !== null) {
+    if (evening < APERO.rise) dark = NIGHT.depth * (1 - evening / APERO.rise);
+    else if (out) dark = 0;
+    else if (morning) dark = NIGHT.depth * (1 - (evening - APERO.length) / NIGHT.in);
+    else dark = NIGHT.depth * Math.max(0, 1 - (APERO.length - evening) / APERO.fade);
+  }
 
   // Lunch is always eaten in daylight, even on a day that a pivot swallowed.
   const time =
@@ -237,9 +260,11 @@ export function Room({
         neon,
         seed: seedNumber,
       };
-      if (art) drawRoom(ctx, art, scene);
+      if (!art) return;
+      if (bar !== null) drawBar(ctx, art, { who, t: bar, frame, beat, dark });
+      else drawRoom(ctx, art, scene);
     },
-    [art, who, time, pose, screen, raining, moral, goal, kebabs, pates, cheering, frame, beat, dark, neon, seedNumber],
+    [art, who, time, pose, screen, raining, moral, goal, kebabs, pates, cheering, bar, frame, beat, dark, neon, seedNumber],
   );
 
   return <PixelCanvas width={ROOM_W} height={ROOM_H} draw={draw} className="room" label={label} />;

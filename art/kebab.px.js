@@ -2025,9 +2025,11 @@ scene("og", { w: 200, h: 105, bg: "n" },
 // Everything the game places, on one sheet.
 // The intro has its own pictures, and its own sheet.
 include("intro.px.js")
+// So has the apéro: the bar, and everyone at the table.
+include("bar.px.js")
 
 sheet(
   "sprites",
-  ["chart_*", "plant_*", "bowl_*", "wrapper_*", "screen_*", "*_front_*", "*_arm_*", "*_back_*", "*_asleep_*", "*_eat_*", "*_hungry_*", "*_side_*", "*_away_*", "*_cheer_*", "*_blink_*", "*_post_*", "*_call_*", "*_ponder_*", "*_alarm_*", "*_type_*", "phone_*", "bubble_*", "sweat", "sparkle_*", "heart_*", "zed_*", "neon"],
+  ["chart_*", "plant_*", "bowl_*", "wrapper_*", "screen_*", "*_front_*", "*_arm_*", "*_back_*", "*_asleep_*", "*_eat_*", "*_hungry_*", "*_side_*", "*_away_*", "*_cheer_*", "*_blink_*", "*_post_*", "*_call_*", "*_ponder_*", "*_alarm_*", "*_type_*", "phone_*", "bubble_*", "sweat", "sparkle_*", "heart_*", "zed_*", "neon", "bar_*"],
   { pad: 1 },
 )

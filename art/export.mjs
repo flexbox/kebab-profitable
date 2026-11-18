@@ -1,5 +1,5 @@
 // Copies what the game uses out of the pxl build: the room in each light, the
-// sprite sheet, the portraits (members and guests), the pictures of the intro,
+// bar, the sprite sheet, the portraits (members and guests), the pictures of the intro,
 // and a compact atlas for each sheet saying where each sprite is.
 import { copyFileSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -13,8 +13,8 @@ mkdirSync(target, { recursive: true });
 
 let files = 0;
 for (const name of readdirSync(join(out, "scenes"))) {
-  // The room in each light, and the three depths of the intro's street.
-  if ((name.startsWith("room_") || name.startsWith("intro_")) && name.endsWith(".png")) {
+  // The room in each light, the bar, and the three depths of the intro's street.
+  if ((name.startsWith("room_") || name.startsWith("intro_") || name === "bar.png") && name.endsWith(".png")) {
     copyFileSync(join(out, "scenes", name), join(target, name));
     files++;
   }

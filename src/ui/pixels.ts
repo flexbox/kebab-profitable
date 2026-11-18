@@ -98,6 +98,8 @@ type RoomName = (typeof ROOMS)[number];
 export interface Art {
   sheet: HTMLImageElement;
   rooms: Record<RoomName, HTMLImageElement>;
+  /** The back room of the bar, on apéro nights. */
+  bar: HTMLImageElement;
 }
 
 export function image(src: string): Promise<HTMLImageElement> {
@@ -111,13 +113,15 @@ export function image(src: string): Promise<HTMLImageElement> {
 
 let loading: Promise<Art> | null = null;
 
-/** Loads the art once. It is seven small images, about 40 kB in all. */
+/** Loads the art once: the sheet, the room in each light, and the bar. */
 export function loadArt(): Promise<Art> {
   loading ??= Promise.all([
     image("/art/sprites.png"),
+    image("/art/bar.png"),
     ...ROOMS.map((name) => image(`/art/room_${name}.png`)),
-  ]).then(([sheet, ...rooms]) => ({
+  ]).then(([sheet, bar, ...rooms]) => ({
     sheet,
+    bar,
     rooms: Object.fromEntries(ROOMS.map((name, i) => [name, rooms[i]])) as Art["rooms"],
   }));
   return loading;
@@ -160,14 +164,14 @@ function onRug(s: RoomScene): Grade {
 // ---------------------------------------------------------------------------
 
 /** The shadow under someone: a flat ellipse, `w` pixels wide, centred on x. */
-function groundShadow(c: Ctx, x: number, y: number, w: number) {
+export function groundShadow(c: Ctx, x: number, y: number, w: number) {
   c.fillStyle = "rgba(24,12,40,0.3)";
   c.fillRect(x - w / 2 + 2, y - 1, w - 4, 1);
   c.fillRect(x - w / 2, y, w, 2);
   c.fillRect(x - w / 2 + 2, y + 2, w - 4, 1);
 }
 
-function sprite(c: Ctx, art: Art, name: string, x: number, y: number, flipped = false) {
+export function sprite(c: Ctx, art: Art, name: string, x: number, y: number, flipped = false) {
   const frame = ATLAS[name];
   if (!frame) return;
   const [fx, fy, w, h] = frame;
@@ -388,10 +392,15 @@ export function drawRoom(c: Ctx, art: Art, s: RoomScene) {
     sprite(c, art, `${s.who}_${blink ? "blink" : "front"}_${rug}`, x, y);
   }
 
-  // Night falling, or lifting: a veil of deep blue over everything, in a few
-  // steps rather than smoothly, the way a console dims its palette.
-  if (s.dark > 0) {
-    c.fillStyle = `rgba(8,10,26,${Math.round(s.dark * 8) / 8})`;
-    c.fillRect(0, 0, ROOM_W, ROOM_H);
-  }
+  veil(c, s.dark);
+}
+
+/**
+ * Night falling, or lifting: a veil of deep blue over everything, in a few
+ * steps rather than smoothly, the way a console dims its palette.
+ */
+export function veil(c: Ctx, dark: number) {
+  if (dark <= 0) return;
+  c.fillStyle = `rgba(8,10,26,${Math.round(dark * 8) / 8})`;
+  c.fillRect(0, 0, ROOM_W, ROOM_H);
 }

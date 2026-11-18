@@ -773,6 +773,9 @@ export function Play({
   const slots = slotsToday(state);
   const who = character(state.character);
   const latest = state.log[state.log.length - 1];
+  // The move just played was the apéro: the room shows the evening at the bar.
+  const lastMove = state.history[state.history.length - 1];
+  const wentOut = !!turn.prev && !state.outcome && lastMove?.t === "act" && lastMove.id === "apero";
   const roomLabel =
     lang === "fr"
       ? `Le studio de ${who.name.split(" ")[0]}, à Lille`
@@ -860,6 +863,7 @@ export function Play({
               preview={preview}
               fasting={fasting && state.phase === "meal"}
               cheer={cueOf(turn) === "customer" ? turn.n : 0}
+              apero={wentOut ? turn.n : 0}
               label={roomLabel}
             />
           </section>
