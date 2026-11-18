@@ -109,6 +109,7 @@ export const CHARACTERS: CharacterDef[] = [
     },
     signatureIdea: "eanscan",
     site: "https://christoribeiro.com",
+    handle: "ChristoRibeiro",
     mods: { cameoBoost: 0.14, aperoIntroSure: true, coffeeChance: 0.1 },
   },
   {

@@ -841,8 +841,8 @@ function sideProps(who) {
       return [rect(1, 1, 7, 3, "W"), rect(1, 3, 7, 1, "w"), rect(6, 4, 4, 1, "w"), grid(4, 2, "x.x")]
     case "mickael": // the cap, its peak where he looks, and the arm of the glasses
       return [rect(1, 1, 7, 3, "y"), rect(1, 3, 7, 1, "w"), rect(6, 4, 4, 1, "w"), px(5, 2, "k"), rect(2, 7, 3, 1, "a")]
-    case "christophe": // the mask goes all the way round
-      return [rect(0, 7, 8, 2, "r"), px(6, 7, "x"), px(6, 8, "k")]
+    case "christophe": // an earbud
+      return [px(2, 8, "x")]
     case "matthys": // the peak points where he looks
       return [rect(1, 1, 7, 3, "y"), rect(1, 3, 7, 1, "w"), rect(6, 4, 4, 1, "w"), rect(5, 7, 4, 2, "k"), px(6, 7, "s")]
     default:
@@ -1027,8 +1027,8 @@ for (const [kind, draw] of Object.entries(SCREENS)) {
  * Everyone shares one body and an emoji-yellow face. The members are told
  * apart by a signature prop, by how their hair falls and by what they wear,
  * not by a likeness: real portraits come later, once each member has approved
- * theirs. David, Karl and Mickael have: their skin, hair and beard are their
- * own. They are drawn the way a 16-bit role-playing game draws its party:
+ * theirs. David, Karl, Mickael and Christophe have: their skin, hair and
+ * beard are their own. They are drawn the way a 16-bit role-playing game draws its party:
  * a large head, eyes two pixels tall, and a costume you can read at a glance.
  * The faces in faces.px.js are the same five people, close up.
  */
@@ -1094,8 +1094,13 @@ const PEOPLE = {
       Q: "#5a5a66", U: "#40404c", q: "#74747f", S: "#b8b0a0", O: "#f4eedd",
     },
   },
-  // Tights and red boots, as the trade requires.
-  christophe: { shirt: "#4a6fc0", wear: { Q: "#34477a", U: "#26345c", q: "#4a5f98", S: "#8c2c22", O: "#c0432f" } },
+  // After his avatar on X: a mop of black hair, a short dark beard, earbuds
+  // and a navy sweatshirt. Dark jeans.
+  christophe: {
+    shirt: "#31456f",
+    beard: true,
+    wear: { H: "#d8a680", I: "#efc8a8", Y: "#b98462", K: "#2c272e", L: "#4a4450", Z: "#1a171c", m: "#8e5446", B: "#3a3338", F: "#2c272c" },
+  },
   // Black joggers, and trainers as yellow as his cap.
   matthys: { shirt: "#8a62cc", wear: { Q: "#3c3644", U: "#2a2630", q: "#544c5e", S: "#c9952e", O: "#f0c050" } },
 }
@@ -1299,27 +1304,27 @@ const HAIR = {
       KKKKKKKKKKKKKK
       KKKKKKKKKKKKKK`,
   },
-  // Brushed up and back: a quiff.
+  // A mop: thick, untidy, standing up, a little over the forehead.
   christophe: {
     front: `
-      ..KKKKKKKKKK..
-      .KLLKLLKLLKKK.
-      KKLKKLKKLKKKKK
-      KKKKKKKKKKKKKK
-      KKKZKKZKKZKKKK
-      KKZHHHHHHHHZKK`,
+      .KK.KKKK.KKK..
+      KKKKLKKKLKKKK.
+      KKLLKKLLKKLKKK
+      KLKKKKKKKKKKKK
+      KKKKZKKZKKKZKK
+      KKZHZHHHZHHZKK`,
     side: `
-      ..KKKKKKK
-      .KLLKLLKK
-      .KLKKLKKK
+      .KK.KKKK.
+      KKKLKKLKK
+      KLLKKLKKK
       KKKKKKKKK
-      KKKKKZKK.
-      KKKZHHHH.`,
+      KKKKKZKZ.
+      KKKZHZHH.`,
     back: `
-      ..KKKKKKKKKK..
-      .KLLKLLKLLKKK.
-      KKLKKLKKLKKKKK
-      KKKKKKKKKKKKKK
+      .KK.KKKK.KKK..
+      KKKKLKKKLKKKK.
+      KKLLKKLLKKLKKK
+      KLKKKKKKKKKKKK
       KKKKKKKKKKKKKK
       KKKKKKKKKKKKKK`,
   },
@@ -1335,8 +1340,6 @@ function chest(who, x = 0, y = 0) {
       return [grid(x + 5, y + 11, "cHHc\n.cc."), grid(x + 8, y + 13, "xrx")]
     case "mickael": // the T-shirt, where the overshirt is open
       return [grid(x + 5, y + 11, "tttt\n.tt.\n.tt.\n.tt.\n.tt.\n.tt.\n.tt.")]
-    case "christophe": // his emblem, and a gold belt
-      return [grid(x + 6, y + 13, "aa\naa"), grid(x + 3, y + 18, "aaaaaaaa")]
     case "matthys": // a chain
       return [grid(x + 5, y + 12, "a..a\n.aa.")]
     default:
@@ -1381,7 +1384,9 @@ function props(who, back) {
       return back
         ? [rect(2, 0, 10, 1, "y"), rect(1, 1, 12, 3, "y"), rect(1, 3, 12, 1, "w"), rect(5, 4, 4, 1, "w")]
         : [rect(2, 0, 10, 1, "y"), rect(1, 1, 12, 3, "y"), rect(1, 3, 12, 1, "w"), rect(8, 4, 6, 1, "w"), grid(6, 1, "k.k\n.k."), rect(5, 7, 4, 1, "a"), px(2, 7, "a"), px(11, 7, "a")]
-    case "christophe": // mask: he is the superhero
+    case "christophe": // an earbud in each ear
+      return [px(0, 8, "x"), px(13, 8, "x")]
+    case "hero": // a mask across the eyes, with eyes of its own: for whoever sets `cape`
       return back
         ? [rect(0, 7, 14, 2, "r")]
         : [rect(0, 7, 14, 2, "r"), px(4, 7, "x"), px(9, 7, "x"), px(4, 8, "k"), px(9, 8, "k")]
@@ -1405,7 +1410,8 @@ for (const g of GRADES) {
       D: tint(lighten(look.shirt, 0.22)),
       ...Object.fromEntries(Object.entries(look.wear).map(([key, h]) => [key, tint(h)])),
     })
-    const cape = who === "christophe"
+    // A mask and a cape, for a member who sets `cape`: nobody does any more.
+    const cape = !!look.cape
     const behind = cape ? [rect(1, 13, 12, 11, "r"), rect(1, 13, 12, 1, "R"), rect(1, 22, 12, 2, "R")] : []
 
     // Standing, facing the room. The cape hangs behind the body.
@@ -1650,7 +1656,7 @@ for (const g of GRADES) {
       { w: 14, h: 12 },
       base.k,
       stamp(`_${who}_asleep_${g}`, 0, 1),
-      ...(who === "matthys" ? props(who, true) : who === "christophe" ? [rect(0, 7, 14, 2, "r")] : props(who, false)),
+      ...(who === "matthys" ? props(who, true) : cape ? [rect(0, 7, 14, 2, "r")] : props(who, false)),
     )
   }
 

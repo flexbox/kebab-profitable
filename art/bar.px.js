@@ -292,7 +292,7 @@ const BAR_GRIN = [...gladEyes(0, 1), grid(5, 9, "MxxM\n.MM.")]
       D: tint(lighten(look.shirt, 0.22)),
       ...Object.fromEntries(Object.entries(look.wear).map(([key, h]) => [key, tint(h)])),
     })
-    const cape = who === "christophe"
+    const cape = !!look.cape
     const shades = who === "matthys"
     const front = [
       ...(cape ? [rect(1, 13, 12, 6, "r"), rect(1, 13, 12, 1, "R")] : []),
