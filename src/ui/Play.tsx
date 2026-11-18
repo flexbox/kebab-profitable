@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import {
   ACTIONS,
   B,
@@ -685,9 +685,36 @@ function JustNow({ turn }: { turn: Turn }) {
           entry,
           isNew: i >= shown.length - written,
         }));
+  // Where the journal is a window of fixed height, a line that wraps leaves
+  // less room: the oldest lines go, whole, so none is ever cut in two. With
+  // more news than room, what the move itself did (the first line) stays.
+  const list = useRef<HTMLUListElement>(null);
+  const keepFirst = written > JOURNAL_LINES;
+  useLayoutEffect(() => {
+    const ul = list.current;
+    if (!ul) return;
+    const fit = () => {
+      const items = Array.from(ul.children) as HTMLElement[];
+      for (const li of items) li.hidden = false;
+      const top = ul.getBoundingClientRect().top;
+      const overflows = () => {
+        const first = items.find((li) => !li.hidden);
+        return !!first && first.getBoundingClientRect().top < top - 0.5;
+      };
+      // The newest line is never dropped.
+      for (const li of items.slice(keepFirst ? 1 : 0, -1)) {
+        if (!overflows()) break;
+        li.hidden = true;
+      }
+    };
+    fit();
+    const watch = new ResizeObserver(fit);
+    watch.observe(ul);
+    return () => watch.disconnect();
+  });
   if (lines.length === 0) return null;
   return (
-    <ul aria-label={t(UI.justNow)}>
+    <ul ref={list} aria-label={t(UI.justNow)}>
       {lines.map(({ entry, isNew }, i) => (
         <li key={i} className={`log log-${entry.tone} ${isNew ? "log-new" : "log-old"}`}>
           {t(entry.text)}
@@ -825,39 +852,49 @@ export function Play({
         <p className="sr-only" role="status">
           {latest ? t(latest.text) : ""}
         </p>
-        {/* On the left, what you do: what came of the last moves, then the question. */}
-        {/* Each urgent card makes its own entrance, even right after another one. */}
-        <section
-          key={urgent ? `urgent-${turn.n}` : "panel"}
-          className={urgent ? "card panel panel-urgent" : "card panel"}
-        >
-          {/* The space is kept even when empty, so the question does not jump. */}
-          {/* Always on show, even over the result of a card. */}
-          <div className="just-now">
-            <JustNow key={turn.n} turn={turn} />
-          </div>
-          {showResult ? (
-            <ResultPanel state={state} onContinue={ack} />
-          ) : state.phase === "idea" ? (
-            <IdeaPanel state={state} play={play} />
-          ) : state.phase === "meal" ? (
-            <MealPanel state={state} play={play} onFasting={setFasting} />
-          ) : state.phase === "event" ? (
-            <EventPanel
-              key={turn.n}
-              state={state}
-              play={play}
-              armed={armed}
-            />
-          ) : state.phase === "report" ? (
-            <ReportPanel state={state} play={play} forceLink={forceLink} />
-          ) : state.phase === "slot" ? (
-            <SlotPanel state={state} play={play} onPreview={setPreview} />
-          ) : (
-            // Nothing is asked once the run is over: the card keeps its height under the ending.
-            <div className="panel-body" />
+        {/* On the left, what you do: Chef's word, what came of the last moves, then the question. */}
+        <div className="col-ask">
+          {state.chef && (
+            <aside className="chef">
+              <Portrait who="chef" className="portrait portrait-md" />
+              <p>
+                <strong>Chef</strong> {t(state.chef)}
+              </p>
+            </aside>
           )}
-        </section>
+          {/* Each urgent card makes its own entrance, even right after another one. */}
+          <section
+            key={urgent ? `urgent-${turn.n}` : "panel"}
+            className={urgent ? "card panel panel-urgent" : "card panel"}
+          >
+            {/* The space is kept even when empty, so the question does not jump. */}
+            {/* Always on show, even over the result of a card. */}
+            <div className="just-now">
+              <JustNow key={turn.n} turn={turn} />
+            </div>
+            {showResult ? (
+              <ResultPanel state={state} onContinue={ack} />
+            ) : state.phase === "idea" ? (
+              <IdeaPanel state={state} play={play} />
+            ) : state.phase === "meal" ? (
+              <MealPanel state={state} play={play} onFasting={setFasting} />
+            ) : state.phase === "event" ? (
+              <EventPanel
+                key={turn.n}
+                state={state}
+                play={play}
+                armed={armed}
+              />
+            ) : state.phase === "report" ? (
+              <ReportPanel state={state} play={play} forceLink={forceLink} />
+            ) : state.phase === "slot" ? (
+              <SlotPanel state={state} play={play} onPreview={setPreview} />
+            ) : (
+              // Nothing is asked once the run is over: the card keeps its height under the ending.
+              <div className="panel-body" />
+            )}
+          </section>
+        </div>
 
         {/* On the right, what you see: the room, then the numbers. */}
         <div className="col-side">
@@ -884,15 +921,6 @@ export function Play({
               label={roomLabel}
             />
           </section>
-
-          {state.chef && (
-            <aside className="chef">
-              <Portrait who="chef" className="portrait portrait-md" />
-              <p>
-                <strong>Chef</strong> {t(state.chef)}
-              </p>
-            </aside>
-          )}
 
           {/* The day of the apéro, the real one is one click away. */}
           {aperoIn === 0 && !over && (

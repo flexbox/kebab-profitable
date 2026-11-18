@@ -843,9 +843,9 @@ button {
 /* ------------------------------------------------------------------------ */
 
 /*
- * Two columns. What you do is on the left: what came of the last moves, then
- * the question. What you see is on the right: the room, then the numbers. The
- * source order is actions, then room and data. That is the reading order here,
+ * Two columns. What you do is on the left: Chef's word, what came of the last
+ * moves, then the question. What you see is on the right: the room, then the
+ * numbers. The source order is Chef and actions, then room and data. That is the reading order here,
  * and the order on a phone.
  */
 .play-grid {
@@ -856,8 +856,14 @@ button {
   align-items: start;
 }
 
-.panel {
+.col-ask {
   grid-area: ask;
+  display: grid;
+  gap: var(--gap);
+  min-width: 0;
+}
+
+.panel {
   /* The choices arrange themselves by the width of this card, not of the screen. */
   container: panel / inline-size;
 }
@@ -1972,30 +1978,31 @@ button {
  * in both languages, with a line of text to spare.
  */
 @media (min-width: 901px) {
+  /* Chef's word, above the card, has room for his longest line (three lines of
+     text at every one of these widths), so the card under it does not move. */
+  .col-ask > .chef {
+    min-height: 120px;
+  }
+
   /* A narrow card stacks the ideas and lays the actions out in two columns. */
   .panel-body {
     min-height: 736px;
   }
 
-  /* Ten lines high. A line that wraps pushes the oldest one out at the top
-     instead of pushing the buttons down from under the pointer. */
+  /* Ten lines high. When a line wraps, the oldest ones are dropped whole (see
+     JustNow) instead of pushing the buttons down from under the pointer. */
   .just-now,
   .just-now:empty {
-    position: relative;
     display: grid;
     height: calc(14.5em + 56px);
     overflow: hidden;
   }
 
-  /* The line on its way out fades under the top edge instead of being cut. */
-  .just-now::before {
-    content: "";
-    position: absolute;
-    inset: 1px 1px auto;
-    height: 14px;
-    background: linear-gradient(var(--color-bg-sunken) 6px, transparent);
-    border-radius: var(--r-control) var(--r-control) 0 0;
-    pointer-events: none;
+  /* The list is the window the lines are measured against. */
+  .just-now ul {
+    height: 100%;
+    align-content: end;
+    overflow: hidden;
   }
 
   /* A wide card has three columns of actions: they need less height. */
