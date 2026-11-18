@@ -1466,9 +1466,10 @@ button {
 }
 
 /*
- * The MVP gauge, a fighting game's super bar: a steel frame drawn in pixels
- * (art/meter.px.js, shown three times as large), quarter marks, and a charge that
- * flows while it fills and flashes gold once the MVP can ship.
+ * The MVP and quality gauges, a fighting game's super bar: a steel frame drawn
+ * in pixels (art/meter.px.js, shown three times as large), quarter marks, and
+ * a charge that flows while it fills. The MVP charges in blue and flashes gold
+ * once it can ship; quality charges in green.
  */
 .super {
   border: 12px solid transparent;
@@ -1495,22 +1496,50 @@ button {
   pointer-events: none;
 }
 
+/* The charge, from its glare down to its shade, and its leading edge. */
+.super {
+  --charge-1: #e8fbff;
+  --charge-2: #7fe3ff;
+  --charge-3: #35b8ff;
+  --charge-4: #1c86f2;
+  --charge-5: #155fc4;
+  --charge-6: #0d3d8c;
+  --charge-tip: #f4fdff;
+}
+
+/* Quality, once the product is out: the same bar, charged in green. */
+.super-quality {
+  --charge-1: #f1ffe2;
+  --charge-2: #b9f58c;
+  --charge-3: #6fdc4c;
+  --charge-4: #3bb83a;
+  --charge-5: #228a35;
+  --charge-6: #125c2c;
+  --charge-tip: #f7fff0;
+}
+
+.super-max {
+  --charge-1: #fff8dc;
+  --charge-2: #ffe27a;
+  --charge-3: #ffc93c;
+  --charge-4: #f29a1f;
+  --charge-5: #d16a12;
+  --charge-6: #8a3d0b;
+}
+
 .super-fill {
   --flow: rgb(255 255 255 / 0.28);
   --flow-core: rgb(255 255 255 / 0.55);
   height: 100%;
   background:
     linear-gradient(to right, transparent 0 60px, var(--flow) 0 66px, var(--flow-core) 0 69px, transparent 0) 0 0 / 96px 100% repeat-x,
-    linear-gradient(#e8fbff 0 3px, #7fe3ff 0 6px, #35b8ff 0 9px, #1c86f2 0 12px, #155fc4 0 15px, #0d3d8c 0);
-  box-shadow: inset -3px 0 #f4fdff;
+    linear-gradient(var(--charge-1) 0 3px, var(--charge-2) 0 6px, var(--charge-3) 0 9px, var(--charge-4) 0 12px, var(--charge-5) 0 15px, var(--charge-6) 0);
+  box-shadow: inset -3px 0 var(--charge-tip);
   transition: width 0.4s steps(8, end);
   animation: super-flow 1.2s steps(32) infinite;
 }
 
 .super-max .super-fill {
-  background:
-    linear-gradient(to right, transparent 0 60px, var(--flow) 0 66px, var(--flow-core) 0 69px, transparent 0) 0 0 / 96px 100% repeat-x,
-    linear-gradient(#fff8dc 0 3px, #ffe27a 0 6px, #ffc93c 0 9px, #f29a1f 0 12px, #d16a12 0 15px, #8a3d0b 0);
   box-shadow: none;
   animation:
     super-flow 0.6s steps(32) infinite,

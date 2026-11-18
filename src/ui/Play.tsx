@@ -279,8 +279,17 @@ function ProjectCard({ state }: { state: GameState }) {
                 <span>{t(UI.quality)}</span>
                 <strong>{p.quality} / 100</strong>
               </div>
-              <div className="meter meter-quality">
-                <div className="meter-fill" style={{ width: `${p.quality}%` }} />
+              <div
+                className="super super-quality"
+                role="meter"
+                aria-label={t(UI.quality)}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={p.quality}
+              >
+                <div className="super-track">
+                  <div className="super-fill" style={{ width: `${Math.min(100, p.quality)}%` }} />
+                </div>
               </div>
             </>
           )}
