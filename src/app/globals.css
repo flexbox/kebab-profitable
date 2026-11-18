@@ -1964,16 +1964,45 @@ button {
 /* Narrow cards and narrow screens                                           */
 /* ------------------------------------------------------------------------ */
 
-/* With room to spare, the question card keeps one height through a day, so
-   nothing under it jumps each time the question changes. */
-@container panel (min-width: 521px) {
+/*
+ * Side by side with the room, the question card keeps one height through a
+ * run, so nothing jumps each time the question changes: the journal is a
+ * fixed window, and the question below it has the room of the tallest one
+ * (the day's actions, or the three ideas). Measured over thousands of screens,
+ * in both languages, with a line of text to spare.
+ */
+@media (min-width: 901px) {
+  /* A narrow card stacks the ideas and lays the actions out in two columns. */
   .panel-body {
-    min-height: 500px;
+    min-height: 736px;
   }
 
-  /* Room for ten lines, so the buttons stay where the pointer left them. */
-  .just-now {
-    min-height: calc(14.5em + 56px);
+  /* Ten lines high. A line that wraps pushes the oldest one out at the top
+     instead of pushing the buttons down from under the pointer. */
+  .just-now,
+  .just-now:empty {
+    position: relative;
+    display: grid;
+    height: calc(14.5em + 56px);
+    overflow: hidden;
+  }
+
+  /* The line on its way out fades under the top edge instead of being cut. */
+  .just-now::before {
+    content: "";
+    position: absolute;
+    inset: 1px 1px auto;
+    height: 14px;
+    background: linear-gradient(var(--color-bg-sunken) 6px, transparent);
+    border-radius: var(--r-control) var(--r-control) 0 0;
+    pointer-events: none;
+  }
+
+  /* A wide card has three columns of actions: they need less height. */
+  @container panel (min-width: 521px) {
+    .panel-body {
+      min-height: 520px;
+    }
   }
 }
 

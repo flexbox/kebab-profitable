@@ -853,7 +853,10 @@ export function Play({
             <ReportPanel state={state} play={play} forceLink={forceLink} />
           ) : state.phase === "slot" ? (
             <SlotPanel state={state} play={play} onPreview={setPreview} />
-          ) : null}
+          ) : (
+            // Nothing is asked once the run is over: the card keeps its height under the ending.
+            <div className="panel-body" />
+          )}
         </section>
 
         {/* On the right, what you see: the room, then the numbers. */}
