@@ -23,10 +23,10 @@ export const CHARACTERS: CharacterDef[] = [
       },
     },
     flaw: {
-      name: { fr: "100 % over-engineered", en: "100% over-engineered" },
+      name: { fr: "Busy", en: "Busy" },
       desc: {
-        fr: "Chaque feature lui prend plus de temps : Coder rapporte 20 % de points en moins.",
-        en: "Every feature takes him longer: Code yields 20% fewer points.",
+        fr: "Il se fait défocus par son podcast : Coder rapporte 20 % de points en moins.",
+        en: "His podcast keeps pulling his focus: Code yields 20% fewer points.",
       },
     },
     signatureIdea: "app-mobile",
