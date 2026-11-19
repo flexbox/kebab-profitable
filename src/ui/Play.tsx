@@ -787,10 +787,12 @@ export function Play({
   const state = turn.state;
   const [preview, setPreview] = useState<ActionId | null>(null);
   const [fasting, setFasting] = useState(false);
-  // The result of an event stays on screen until acknowledged.
+  // The result of an event stays on screen until acknowledged. A card that
+  // ends the run is not waited on: the ending opens at once, and what the card
+  // did is the last line of the journal behind it.
   const [acked, setAcked] = useState(-1);
-  const showResult = !!state.eventResult && acked !== turn.n;
-  const over = !!state.outcome && !showResult;
+  const over = !!state.outcome;
+  const showResult = !!state.eventResult && acked !== turn.n && !over;
   const ack = useCallback(() => setAcked(turn.n), [turn.n]);
   const reportLink = useRef<HTMLAnchorElement>(null);
   const thankLink = useRef<HTMLAnchorElement>(null);
