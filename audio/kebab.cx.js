@@ -40,11 +40,17 @@ sfx("customer", { vol: 0.38, fx: [reverb({ size: 0.3, mix: 0.14 })] },
     noise({ dur: 0.25, env: [0.001, 0.2, 0.1, 0.2], filter: { type: "hp", cutoff: 7000 }, vol: 0.18 })),
   at(CHEST_FIND + 0.06, tone({ wave: "fm", fm: { ratio: 3.5, index: 3, decay: 0.3 }, freq: "G7", dur: 0.4, arp: { notes: [0, 4, 7, 12], rate: 0.06 }, env: [0.001, 0.2, 0.3, 0.3], vol: 0.2 })))
 
-// Lunch: two bites, crisp on top, a thump underneath.
+// Lunch: one bite into a kebab. The bread crackles under the teeth (a burst of
+// tiny grains), then the mouth closes on it with a soft, wet "nom" and one chew.
+const CRUNCH = [0, 0.011, 0.019, 0.031, 0.04, 0.052]
 sfx("bite", { vol: 0.6 },
-  [0, 0.11].map((t, i) => at(t,
-    noise({ dur: 0.05, env: [0.001, 0.05, 0, 0.03], filter: { type: "bp", from: 2600 - i * 400, to: 900, q: 1.2 }, vol: 0.7 }),
-    tone({ wave: "triangle", freq: 170 - i * 30, to: 90, dur: 0.06, env: [0.001, 0.06, 0, 0.03], vol: 0.6 }))))
+  CRUNCH.map((t, i) => at(t,
+    noise({ dur: 0.008, env: [0.0005, 0.01, 0, 0.008], filter: { type: "bp", cutoff: 3200 - (i % 3) * 700, q: 1.5 }, vol: 2.4 - i * 0.2 }))),
+  at(0.07,
+    tone({ wave: "sine", freq: 210, to: 120, dur: 0.07, env: [0.006, 0.06, 0, 0.03], filter: { type: "lp", cutoff: 900 }, vol: 0.55 }),
+    noise({ color: "brown", dur: 0.06, env: [0.004, 0.05, 0, 0.03], filter: { type: "lp", cutoff: 600 }, vol: 0.5 })),
+  at(0.16,
+    noise({ color: "brown", dur: 0.04, env: [0.004, 0.035, 0, 0.02], filter: { type: "lp", cutoff: 450 }, vol: 0.7 })))
 
 // The day is over: a few notes of a lullaby, far away. It rocks down a chord of
 // G and comes to rest, on pure tones with a slow attack: nothing that rings,
