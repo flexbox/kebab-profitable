@@ -390,6 +390,67 @@ export const UI = {
     en: `${days} days. Then back to a day job 💀\n${name} never got kebab profitable.\nThink you'd do better? 👇`,
   }),
 
+  /**
+   * Chef, above the share button at the end of a run. Each list is a deck,
+   * shuffled for the day and dealt one line per run, so someone who plays
+   * again is asked another way. To give him more to say, add a line to a list.
+   */
+  shareCalls: {
+    won: [
+      {
+        fr: "Un score pareil, ça se sert chaud, chef. Poste-le sur X avant qu'il refroidisse.",
+        en: "A score like that is served hot, chef. Post it on X before it goes cold.",
+      },
+      {
+        fr: "Sauce blanche ou harissa ? Harissa. Poste ton score et regarde qui ose te battre.",
+        en: "Garlic sauce or harissa? Harissa. Post your score and see who dares to beat it.",
+      },
+      {
+        fr: "Vingt ans que mon enseigne clignote dans la rue. La tienne, c'est ce post. Allume-la, chef.",
+        en: "My sign has blinked over this street for twenty years. Yours is this post. Switch it on, chef.",
+      },
+      {
+        fr: "Un client content le dit à trois personnes. Toi, tu as X : dis-le à tout le quartier.",
+        en: "A happy customer tells three people. You have X: tell the whole neighbourhood.",
+      },
+      {
+        fr: "Ton score est sur la broche, chef. Fais-le tourner sur X.",
+        en: "Your score is on the spit, chef. Give it a turn on X.",
+      },
+      {
+        fr: "Ce qui se vend, je le mets en vitrine. Mets ton score en vitrine, chef.",
+        en: "What sells goes in my window. Put your score in the window, chef.",
+      },
+    ],
+    lost: [
+      {
+        fr: "Tu t'es brûlé, chef. Passe la harissa aux autres : poste ton score et regarde s'ils tiennent plus longtemps.",
+        en: "You got burnt, chef. Pass the harissa on: post your score and see if the others last longer.",
+      },
+      {
+        fr: "Même mes pires journées, je lève le rideau. Lève le tien : poste ta défaite sur X.",
+        en: "Even on my worst days, I open the shutter. Open yours: post your loss on X.",
+      },
+      {
+        fr: "Le build in public, c'est aussi les jours sans clients. Poste ta défaite, chef.",
+        en: "Build in public covers the days with no customers too. Post your loss, chef.",
+      },
+      {
+        fr: "Perdu ? Trouve quelqu'un qui perd plus vite que toi. Poste ton score sur X.",
+        en: "Lost? Find someone who loses faster than you. Post your score on X.",
+      },
+      {
+        fr: "Un kebab raté, je le refais. Une partie ratée, tu la postes : ça attire du monde au comptoir.",
+        en: "A kebab gone wrong, I make again. A run gone wrong, you post: it brings people to the counter.",
+      },
+    ],
+  } satisfies Record<"won" | "lost", L[]>,
+  /** Above the score form: why the score comes before the post. */
+  saveFirst: {
+    fr: "Inscris ton score avant de le partager, chef : ton post sur X partira avec l'image de ta victoire.",
+    en: "Save your score before you share it, chef: your post on X will carry the picture of your win.",
+  },
+
   leaderboard: { fr: "Classement", en: "Leaderboard" },
   thisWeek: { fr: "Cette semaine", en: "This week" },
   lastWeek: { fr: "Semaine dernière", en: "Last week" },

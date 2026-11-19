@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { character, mrrOf } from "@/game";
+import { shuffle, stream } from "@/game/rng";
 import type { GameState, L } from "@/game/types";
 import { UI } from "@/i18n/strings";
 import { submitScore, type Board, type BoardDay } from "@/lib/api";
@@ -103,6 +104,16 @@ export function End({
       : UI.shareWon(outcome.day, first);
   // A saved win is shared with its own address, and so its own picture.
   const shareUrl = postOnX(t(shareText), sent.status === "done" ? sent.path : "");
+  // A win is shared once its score is saved, so the post shows that score. If
+  // the board cannot take it (closed, or the run is from another day), the
+  // player may still share the game.
+  const canShare =
+    !won || sent.status === "done" || (sent.status === "error" && sent.error !== "pseudo");
+  // Chef asks for the post another way each run: one deck per day and outcome.
+  const calls = won ? UI.shareCalls.won : UI.shareCalls.lost;
+  const shareCall = shuffle(calls, stream(state.seed, "share", outcome.result))[
+    attempts % calls.length
+  ];
 
   return (
     <dialog
@@ -163,6 +174,7 @@ export function End({
 
         {won && sent.status !== "done" && (
           <form className="submit" onSubmit={send}>
+            {!canShare && <p className="submit-why">{t(UI.saveFirst)}</p>}
             <label htmlFor="pseudo">{t(UI.yourPseudo)}</label>
             <p id="pseudo-hint" className="field-hint">
               {t(UI.pseudoHint)}
@@ -206,15 +218,29 @@ export function End({
           </>
         )}
 
+        {canShare && (
+          <aside className="invite end-share">
+            <p>
+              <strong>Chef</strong> {t(shareCall)}
+            </p>
+            {/* One filled button: after a saved win, the post. */}
+            <a
+              className={won && !canSubmit ? "btn btn-primary" : "btn"}
+              href={shareUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t(UI.share)}
+              <span className="sr-only"> {t(UI.newTab)}</span>
+            </a>
+          </aside>
+        )}
+
         <div className="end-actions">
-          {/* One filled button: submitting the score while that is still to do. */}
-          <button type="button" className={canSubmit ? "btn" : "btn btn-primary"} onClick={onRetry}>
+          {/* One filled button: playing again after a lost run. */}
+          <button type="button" className={won ? "btn" : "btn btn-primary"} onClick={onRetry}>
             {t(UI.retry)}
           </button>
-          <a className="btn" href={shareUrl} target="_blank" rel="noopener noreferrer">
-            {t(UI.share)}
-            <span className="sr-only"> {t(UI.newTab)}</span>
-          </a>
           <button type="button" className="btn" onClick={onHome}>
             {t(UI.home)}
           </button>

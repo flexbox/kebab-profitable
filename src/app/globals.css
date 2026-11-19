@@ -154,7 +154,8 @@ button {
 .end-stats dt,
 .trait-kind,
 .table th,
-.chef strong {
+.chef strong,
+.end-share strong {
   color: var(--color-text-muted);
   font-size: var(--text-xs);
   font-weight: 600;
@@ -993,7 +994,8 @@ button {
   text-wrap: pretty;
 }
 
-.chef strong {
+.chef strong,
+.end-share strong {
   display: block;
   margin-block-end: 2px;
 }
@@ -1830,6 +1832,7 @@ button {
 .end-stats,
 .end-kebab,
 .end > .submit,
+.end-share,
 .end-actions,
 .end-board {
   animation: fade-in 300ms ease-out both;
@@ -1841,6 +1844,7 @@ button {
   .end-stats,
   .end-kebab,
   .end > .submit,
+  .end-share,
   .end-actions,
   .end-board {
     animation-name: fade-in-up;
@@ -1861,6 +1865,10 @@ button {
 
 .end > .submit {
   animation-delay: 400ms;
+}
+
+.end-share {
+  animation-delay: 450ms;
 }
 
 .end-actions {
@@ -1894,6 +1902,12 @@ button {
   color: var(--color-text-strong);
   font-size: var(--text-sm);
   font-weight: 600;
+}
+
+/* Why the score comes first: said once, above the field. */
+.submit-why {
+  color: var(--color-text);
+  text-wrap: pretty;
 }
 
 .field-hint {
