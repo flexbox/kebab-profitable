@@ -2,6 +2,10 @@ import type { L, Potential } from "./types";
 
 const plural = (n: number, one: string, many: string) => (n > 1 ? many : one);
 
+/** One line out of several, for a roll in [0, 1). */
+const one = (roll: number, lines: readonly L[]): L =>
+  lines[Math.min(lines.length - 1, Math.floor(roll * lines.length))];
+
 /** Everything the engine writes to the log, in both languages. */
 export const M = {
   intro: (): L => ({
@@ -97,18 +101,112 @@ export const M = {
     fr: `Ton post s'envole : +${gain} abonnés.`,
     en: `Your post takes off: +${gain} followers.`,
   }),
-  outreachWin: (): L => ({
-    fr: "Une réponse positive : un client de plus.",
-    en: "A positive reply: one more customer.",
-  }),
-  outreachFail: (): L => ({
-    fr: "Quarante messages envoyés. Une seule réponse : « désabonnez-moi ».",
-    en: "Forty messages sent. One reply: “unsubscribe me”.",
-  }),
-  waitlist: (gain: number): L => ({
-    fr: `Tu démarches avant le lancement : +${gain} curieux sur la liste d'attente.`,
-    en: `You do outreach before launch: +${gain} curious people on the waitlist.`,
-  }),
+  /** `roll` in [0, 1) picks the line: the engine draws it from the seed. */
+  outreachWin: (roll: number): L =>
+    one(roll, [
+      {
+        fr: "Une réponse positive : un client de plus.",
+        en: "A positive reply: one more customer.",
+      },
+      {
+        fr: "« Ça tombe bien, on cherchait exactement ça. » Un client de plus.",
+        en: "“Good timing, we were looking for exactly that.” One more customer.",
+      },
+      {
+        fr: "Un prospect répond en trois minutes, carte bancaire à la main. Un client de plus.",
+        en: "A prospect replies in three minutes, card in hand. One more customer.",
+      },
+      {
+        fr: "Ton ancien collègue de l'open space dit oui « pour te soutenir ». Un client, c'est un client.",
+        en: "Your old desk neighbour says yes “to support you”. A customer is a customer.",
+      },
+      {
+        fr: "Après quatre relances, il craque : « OK, OK, je prends. » Un client de plus.",
+        en: "After four follow-ups, they give in: “OK, OK, I'll take it.” One more customer.",
+      },
+      {
+        fr: "Une démo de quinze minutes, zéro bug à l'écran. Un client de plus.",
+        en: "A fifteen-minute demo, not one bug on screen. One more customer.",
+      },
+      {
+        fr: "Un DM sur LinkedIn qui marche. Tu fais une capture d'écran pour la postérité. Un client de plus.",
+        en: "A LinkedIn DM that actually works. You screenshot it for posterity. One more customer.",
+      },
+      {
+        fr: "« On l'aurait payé le double. » Tu fais semblant de ne pas avoir entendu. Un client de plus.",
+        en: "“We'd have paid twice as much.” You pretend you didn't hear that. One more customer.",
+      },
+    ]),
+  outreachFail: (roll: number): L =>
+    one(roll, [
+      {
+        fr: "Quarante messages envoyés. Une seule réponse : « désabonnez-moi ».",
+        en: "Forty messages sent. One reply: “unsubscribe me”.",
+      },
+      {
+        fr: "Cinquante mails, cinquante « Lu ». Aucune réponse.",
+        en: "Fifty emails, fifty “Read”. No reply.",
+      },
+      {
+        fr: "« Super projet ! On en reparle au prochain trimestre. » Tu connais la chanson.",
+        en: "“Great project! Let's talk next quarter.” You know how this goes.",
+      },
+      {
+        fr: "Un prospect te répond… pour te vendre son propre SaaS.",
+        en: "A prospect replies… to sell you their own SaaS.",
+      },
+      {
+        fr: "Tes mails finissent tous en spam. Ton domaine a deux jours, Gmail se méfie.",
+        en: "All your emails land in spam. Your domain is two days old and Gmail is suspicious.",
+      },
+      {
+        fr: "Trois appels, trois répondeurs. Le quatrième raccroche à « Bonjour, je suis indie hacker ».",
+        en: "Three calls, three voicemails. The fourth hangs up at “Hi, I'm an indie hacker”.",
+      },
+      {
+        fr: "« Envoyez-moi une plaquette. » Tu n'as pas de plaquette.",
+        en: "“Send me a brochure.” You don't have a brochure.",
+      },
+      {
+        fr: "Une réponse enthousiaste… d'un stagiaire qui n'a aucun budget.",
+        en: "An enthusiastic reply… from an intern with no budget.",
+      },
+      {
+        fr: "LinkedIn bloque ton compte : trop d'invitations aujourd'hui.",
+        en: "LinkedIn locks your account: too many invitations today.",
+      },
+      {
+        fr: "« Ça a l'air génial, mais on a déjà un fichier Excel. »",
+        en: "“Looks great, but we already have a spreadsheet.”",
+      },
+    ]),
+  waitlist: (gain: number, roll: number): L =>
+    one(roll, [
+      {
+        fr: `Tu démarches avant le lancement : +${gain} curieux sur la liste d'attente.`,
+        en: `You do outreach before launch: +${gain} curious people on the waitlist.`,
+      },
+      {
+        fr: `Tu vends un produit qui n'existe pas encore. +${gain} sur la liste d'attente.`,
+        en: `You sell a product that doesn't exist yet. +${gain} on the waitlist.`,
+      },
+      {
+        fr: `« Préviens-moi quand c'est prêt. » +${gain} sur la liste d'attente.`,
+        en: `“Let me know when it's ready.” +${gain} on the waitlist.`,
+      },
+      {
+        fr: `Ta mère s'inscrit, et elle en parle à ses copines. +${gain} sur la liste d'attente.`,
+        en: `Your mum signs up and tells her friends. +${gain} on the waitlist.`,
+      },
+      {
+        fr: `Tu fais le tour des groupes Slack avec ta landing page. +${gain} sur la liste d'attente.`,
+        en: `You make the rounds of Slack groups with your landing page. +${gain} on the waitlist.`,
+      },
+      {
+        fr: `Une maquette Figma et beaucoup d'aplomb : +${gain} sur la liste d'attente.`,
+        en: `A Figma mockup and a lot of nerve: +${gain} on the waitlist.`,
+      },
+    ]),
   supportDone: (): L => ({
     fr: "Tu réponds à tout le monde. Les clients s'en souviendront à la fin du mois.",
     en: "You answer everyone. Customers will remember at month-end.",

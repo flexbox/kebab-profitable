@@ -550,11 +550,11 @@ function act(s: GameState, id: ActionId) {
           eff;
         if (rand(s.seed, "outreach", ...key) < chance) {
           s.moral = clamp(s.moral + 6);
-          log(s, M.outreachWin(), "good");
+          log(s, M.outreachWin(rand(s.seed, "outreach-line", ...key)), "good");
           addCustomers(s, p, 1);
         } else {
           s.moral = clamp(s.moral - 5);
-          log(s, M.outreachFail());
+          log(s, M.outreachFail(rand(s.seed, "outreach-line", ...key)));
         }
       } else {
         const gain = Math.max(
@@ -563,7 +563,7 @@ function act(s: GameState, id: ActionId) {
         );
         s.audience += gain;
         s.moral = clamp(s.moral - 2);
-        log(s, M.waitlist(gain));
+        log(s, M.waitlist(gain, rand(s.seed, "outreach-line", ...key)));
       }
       break;
     }
