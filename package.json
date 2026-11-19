@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "sim": "tsx src/game/sim/run.ts",
+    "stripe:link": "node --env-file=.env.local scripts/stripe-link.mjs",
     "art": "node .claude/skills/pxl-pixel-art/bin/pxl.js build art/kebab.px.js --no-preview && node art/export.mjs",
     "audio": "node .claude/skills/chirp/bin/chirp.js build audio/kebab.cx.js --no-preview && node audio/export.mjs"
   },

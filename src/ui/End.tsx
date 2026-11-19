@@ -6,6 +6,7 @@ import type { GameState, L } from "@/game/types";
 import { UI } from "@/i18n/strings";
 import { submitScore, type Board, type BoardDay } from "@/lib/api";
 import { seedFor } from "@/lib/seed";
+import { KEBAB_LINK } from "@/lib/site";
 import { postOnX, winPath } from "@/lib/share";
 import { store } from "@/lib/storage";
 import { useLang } from "./lang";
@@ -202,6 +203,22 @@ export function End({
             {t(UI.home)}
           </button>
         </div>
+
+        {/* Asked once the run is won, and under the buttons, so it is never in the way. */}
+        {won && KEBAB_LINK && (
+          <aside className="invite end-kebab">
+            <p>{t(UI.kebabOffer)}</p>
+            <a
+              className="btn btn-small"
+              href={`${KEBAB_LINK}?locale=${lang}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t(UI.kebabBuy)}
+              <span className="sr-only"> {t(UI.newTab)}</span>
+            </a>
+          </aside>
+        )}
 
         {/* Under the buttons: a long board never pushes "Play again" out of reach. */}
         {!won && (

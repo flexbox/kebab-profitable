@@ -347,6 +347,17 @@ export const UI = {
   },
   retry: { fr: "Rejouer", en: "Play again" },
   share: { fr: "Partager sur X", en: "Share on X" },
+  /** After a win, under the buttons: the one thing for sale. */
+  kebabOffer: {
+    fr: "Te voilà kebab profitable. Le jeu, pas encore : offre un vrai kebab à son auteur. 9 €, une seule fois.",
+    en: "You are kebab profitable. The game is not, yet: buy its author a real kebab. €9, once.",
+  },
+  kebabBuy: { fr: "Offrir un kebab · 9 €", en: "Buy a kebab · €9" },
+  /** Chef, on the title screen, to someone coming back from the till. */
+  kebabThanks: {
+    fr: "Neuf euros encaissés. Tu vois, chef : faire payer quelqu'un, ça se fait. Merci.",
+    en: "Nine euros in the till. See, chef: getting someone to pay can be done. Thank you.",
+  },
   newTab: { fr: "(nouvel onglet)", en: "(opens in a new tab)" },
   shareWon: (days: number, name: string): L => ({
     fr: `J'ai rendu ${name} kebab profitable en ${days} jours 🥙 À toi de battre ça :`,

@@ -1762,6 +1762,10 @@ button {
   box-shadow: none;
 }
 
+.end .invite {
+  background: var(--color-bg-raised);
+}
+
 .end-stats {
   margin: 0;
   display: grid;
@@ -1825,6 +1829,10 @@ button {
 
 .end-actions {
   animation-delay: 400ms;
+}
+
+.end-kebab {
+  animation: fade-in 300ms ease-out 500ms both;
 }
 
 .end-board {

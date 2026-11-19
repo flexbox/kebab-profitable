@@ -185,6 +185,7 @@ silent.
 | `art/` | The pixel art, as code: `kebab.px.js`, `faces.px.js`, `intro.px.js` and `bar.px.js`. Rendered into `public/art/`. |
 | `audio/` | The sounds and the music, as code: `kebab.cx.js`. Rendered into `public/audio/`. |
 | `src/lib/sound.ts` | Plays them: effects cut from one file, music in a loop. |
+| `scripts/stripe-link.mjs` | Makes the kebab and its payment link at Stripe. |
 | `src/server/` | The leaderboard: it replays each submitted run before recording it. `card.tsx` draws the picture a win is shared with. |
 | `assets/` | What that picture is made of: a background per founder, and the Silkscreen typeface. |
 
@@ -232,6 +233,22 @@ ZREM kp:best zoe59
 
 The first line takes the score off that day's board, the other two off the
 all-time board.
+
+## The kebab
+
+The game is free. After a win it offers one thing: buying its author a real
+kebab, €9, once, through a Stripe Payment Link. Stripe is added to the Vercel
+project from the Marketplace, and the link is made by a script:
+
+```bash
+vercel integration add stripe
+pnpm stripe:link    # prints NEXT_PUBLIC_KEBAB_LINK=...
+```
+
+Put that address in `NEXT_PUBLIC_KEBAB_LINK`. While the variable is empty the
+game offers nothing, so a test link stays in the development environment and
+only a live one goes to production. After paying, the player lands back on the
+title, where Chef says thank you.
 
 ## Add a card
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { UI } from "@/i18n/strings";
 import { music } from "@/lib/sound";
 import { Brand, Controls, Footer, type ChromeProps } from "./Chrome";
@@ -30,6 +30,16 @@ export function Title({
     const id = window.setTimeout(() => music.preload("intro_walk", "intro_dare", "select"), 1200);
     return () => window.clearTimeout(id);
   }, []);
+  // Back from paying for a kebab: Chef says thank you, once, and the address is tidied.
+  const [thanks, setThanks] = useState(false);
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("merci") !== "kebab") return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setThanks(true);
+    url.searchParams.delete("merci");
+    window.history.replaceState(null, "", url);
+  }, []);
   return (
     <div className="page title-page">
       <header className="bar">
@@ -42,6 +52,13 @@ export function Title({
           <div className="hero-chef">
             <Portrait who="chef" className="portrait portrait-xl" />
           </div>
+          {thanks && (
+            <aside className="chef" role="status">
+              <p>
+                <strong>Chef</strong> {t(UI.kebabThanks)}
+              </p>
+            </aside>
+          )}
           <h1 className="logo">
             Kebab
             <br />

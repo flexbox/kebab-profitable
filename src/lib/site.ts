@@ -15,4 +15,10 @@ export const SITE_DESCRIPTION =
 
 export const NAVY = "#0e2439";
 
+/**
+ * The Stripe Payment Link for a kebab, made by `pnpm stripe:link`. Empty until
+ * it is set, and then the game offers nothing for sale.
+ */
+export const KEBAB_LINK = process.env.NEXT_PUBLIC_KEBAB_LINK ?? "";
+
 export const MEETUP_URL = "https://luma.com/indiehackerslille";
