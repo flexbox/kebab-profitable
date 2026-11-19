@@ -4,10 +4,18 @@ import type { PersonId } from "./pixels";
 
 /**
  * A face, 32 by 32, scaled up with hard pixels. The pictures are painted in
- * `art/faces.px.js` (Chef's is in `art/intro.px.js`). They are decoration: the
- * name is always written next to them, so they carry no alternative text.
+ * `art/faces.px.js` (Chef's is in `art/intro.px.js`). Leave alt empty when
+ * the adjacent text already identifies the person.
  */
-export function Portrait({ who, className }: { who: PersonId; className?: string }) {
+export function Portrait({
+  who,
+  className,
+  alt = "",
+}: {
+  who: PersonId;
+  className?: string;
+  alt?: string;
+}) {
   return (
     // A plain image on purpose: pixel art must not be resampled or re-encoded.
     // eslint-disable-next-line @next/next/no-img-element
@@ -15,7 +23,7 @@ export function Portrait({ who, className }: { who: PersonId; className?: string
       src={`/art/portrait_${who}.png`}
       width={32}
       height={32}
-      alt=""
+      alt={alt}
       className={className ? `pixel ${className}` : "pixel"}
     />
   );

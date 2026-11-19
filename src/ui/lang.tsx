@@ -16,17 +16,23 @@ interface LangValue {
 
 const LangContext = createContext<LangValue | null>(null);
 
-export function LangProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("fr");
+export function LangProvider({
+  children,
+  initialLang,
+}: {
+  children: React.ReactNode;
+  initialLang?: Lang;
+}) {
+  const [lang, setLangState] = useState<Lang>(initialLang ?? "fr");
 
-  // The first render matches the server (French); the stored or browser
-  // language is applied right after mount.
+  // The homepage prerenders in French. Shared links specify their own language.
   useEffect(() => {
+    if (initialLang) return;
     const saved = store.lang();
     const detected: Lang = navigator.language.toLowerCase().startsWith("fr") ? "fr" : "en";
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLangState(saved ?? detected);
-  }, []);
+  }, [initialLang]);
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -48,7 +54,11 @@ export function LangProvider({ children }: { children: React.ReactNode }) {
     [lang, setLang],
   );
 
-  return <LangContext.Provider value={value}>{children}</LangContext.Provider>;
+  return (
+    <LangContext.Provider value={value}>
+      {initialLang ? <div lang={lang}>{children}</div> : children}
+    </LangContext.Provider>
+  );
 }
 
 export function useLang(): LangValue {

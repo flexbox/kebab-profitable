@@ -217,6 +217,19 @@ Without the database the deployed game plays normally and the leaderboard
 says it is not open yet. Preview deployments stay that way on purpose, so
 that a test run never reaches the real board.
 
+### Search and social previews
+
+The homepage is the only indexable page and the only entry in `/sitemap.xml`.
+The leaderboard is an interactive section on the homepage, not a separate
+URL. Shared wins are crawlable so social networks can fetch their cards, but
+they carry `noindex, follow`, including when the score is unavailable and
+the link opens the game with the default artwork. French is the homepage's
+initial language; the English toggle is not a separate search URL.
+
+The production hostname lives in `src/lib/site.ts`. If it changes, update
+that file and the homepage link in `public/llms.txt`. Check the canonical,
+sitemap and social cards on a production build before deploying.
+
 ### Remove a name
 
 There is no admin screen. To remove a score, open the database from the

@@ -40,7 +40,7 @@ export function Title({
       <main className="title-main">
         <section className="hero">
           <div className="hero-chef">
-            <Portrait who="chef" className="portrait portrait-xl" />
+            <Portrait who="chef" className="portrait portrait-xl" alt={t(UI.chefPortrait)} />
           </div>
           <h1 className="logo">
             Kebab
@@ -48,7 +48,7 @@ export function Title({
             Profitable
           </h1>
           <p className="tagline">{t(UI.tagline)}</p>
-          <p className="pitch">{t(UI.pitch)}</p>
+          <p className="pitch">{t(UI.gameType)} {t(UI.pitch)}</p>
 
           <div className="hero-actions">
             {canResume && (
@@ -78,21 +78,19 @@ export function Title({
         </section>
 
         <div className="title-side">
-        <section className="card how">
-          <h2>{t(UI.howTitle)}</h2>
-          <ol>
-            {UI.how.map((line, i) => (
-              <li key={i}>{t(line)}</li>
-            ))}
-          </ol>
-        </section>
-
-        {seed && (
-          <section className="card">
-            <h2>{t(UI.leaderboard)}</h2>
-            <Leaderboard seed={seed} />
+          <section className="card how">
+            <h2>{t(UI.howTitle)}</h2>
+            <ol>
+              {UI.how.map((line, i) => (
+                <li key={i}>{t(line)}</li>
+              ))}
+            </ol>
           </section>
-        )}
+
+          <section className="card" id="classement">
+            <h2>{t(UI.leaderboard)}</h2>
+            {seed ? <Leaderboard seed={seed} /> : <p className="muted">{t(UI.loadingScores)}</p>}
+          </section>
         </div>
       </main>
       <Footer />

@@ -10,6 +10,15 @@ export const UI = {
     fr: "Tu viens de quitter ton CDI. Tu as 1 500 €, un studio à Lille et un kebab en bas de chez toi. Objectif : 270 € de MRR, le prix d'un kebab par jour.",
     en: "You just quit your job. You have €1,500, a studio in Lille and a kebab shop downstairs. The goal: €270 of MRR, the price of a kebab a day.",
   },
+  gameType: {
+    fr: "Un jeu de gestion gratuit dans ton navigateur. Pas de compte, juste toi et ta boîte.",
+    en: "A free management game in your browser. No account, just you and your startup.",
+  },
+  chefPortrait: {
+    fr: "Chef, le patron du kebab, en pixel art",
+    en: "Chef, the kebab shop owner, in pixel art",
+  },
+  loadingRun: { fr: "Chargement de la partie…", en: "Loading your run…" },
   playToday: { fr: "Jouer la partie du jour", en: "Play today's run" },
   resume: { fr: "Reprendre la partie", en: "Resume your run" },
   newRun: { fr: "Nouvelle partie", en: "New run" },

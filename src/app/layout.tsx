@@ -1,34 +1,22 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { Inter } from "next/font/google";
+import { SITE_NAME, SITE_URL, THEME_COLOR } from "@/lib/site";
 import "./globals.css";
 
 // One readable typeface for the whole interface.
 const sans = Inter({
   variable: "--font-sans",
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"],
 });
 
-const description =
-  "Un jeu parodique sur la vie d'indie hacker, par Indie Hackers Lille. Objectif : 270 € de MRR, le prix d'un kebab par jour.";
-
 export const metadata: Metadata = {
-  metadataBase: new URL("https://kebab-profitable.vercel.app"),
-  title: "Kebab Profitable",
-  description,
-  openGraph: {
-    title: "Kebab Profitable",
-    description,
-    type: "website",
-    locale: "fr_FR",
-    alternateLocale: "en_GB",
-  },
-  // The picture itself is `opengraph-image.png`, next to this file: X shows it large.
-  twitter: { card: "summary_large_image" },
+  metadataBase: new URL(SITE_URL),
+  title: SITE_NAME,
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0e2439",
+  themeColor: THEME_COLOR,
   width: "device-width",
   initialScale: 1,
 };

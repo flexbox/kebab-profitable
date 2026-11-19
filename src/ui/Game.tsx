@@ -1,17 +1,31 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { apply, createRun } from "@/game";
-import type { CharacterId, GameState, Move } from "@/game/types";
+import type { CharacterId, GameState, Lang, Move } from "@/game/types";
+import { UI } from "@/i18n/strings";
 import { seedFor } from "@/lib/seed";
 import { setMuted as setSoundMuted, sfx } from "@/lib/sound";
 import { store } from "@/lib/storage";
 import { cueOf } from "./cue";
 import { Intro } from "./Intro";
-import { LangProvider } from "./lang";
-import { Play } from "./Play";
+import { LangProvider, useLang } from "./lang";
 import { Select } from "./Select";
 import { Title } from "./Title";
+
+const Play = dynamic(() => import("./Play").then((module) => module.Play), {
+  loading: LoadingPlay,
+});
+
+function LoadingPlay() {
+  const { t } = useLang();
+  return (
+    <main className="page">
+      <p role="status">{t(UI.loadingRun)}</p>
+    </main>
+  );
+}
 
 type View = "title" | "intro" | "select" | "play";
 
@@ -157,9 +171,9 @@ function GameInner() {
   );
 }
 
-export function Game() {
+export function Game({ initialLang }: { initialLang?: Lang }) {
   return (
-    <LangProvider>
+    <LangProvider initialLang={initialLang}>
       <GameInner />
     </LangProvider>
   );

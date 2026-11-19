@@ -1,0 +1,10 @@
+# Kebab Profitable
+
+> A free browser management game about indie hacking in Lille, playable in French and English.
+
+You start with €1,500 and try to reach €270 in monthly recurring revenue, the price of a kebab a day. Each day in the game has three action slots. Build and launch a product, find customers, make rent, and try not to go back to your day job. The game was made for Indie Hackers Lille and requires JavaScript to play.
+
+## Links
+
+- [Play Kebab Profitable and read the rules](https://kebab-profitable.vercel.app/): The homepage also shows the daily and all-time leaderboard when available.
+- [Source code and game mechanics](https://github.com/flexbox/kebab-profitable): How the game, pixel art, and scoring work.
