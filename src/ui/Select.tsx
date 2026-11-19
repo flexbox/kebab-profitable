@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { CHARACTERS, idea } from "@/game";
 import type { CharacterId } from "@/game/types";
 import { UI } from "@/i18n/strings";
+import { FOUNDER_LINK, REPO_URL } from "@/lib/site";
 import { music } from "@/lib/sound";
 import { Controls, Footer, type ChromeProps } from "./Chrome";
 import { useLang } from "./lang";
@@ -17,7 +18,7 @@ export function Select({
   onPick: (who: CharacterId) => void;
   onBack: () => void;
 } & ChromeProps) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   // The roster has its own tune, for as long as it is on screen.
   useEffect(() => {
     music.play("select");
@@ -76,9 +77,48 @@ export function Select({
               </div>
               <div>
                 <h2>{t(UI.custom)}</h2>
-                <p className="muted">{t(UI.customSoon)}</p>
+                <p className="muted">{t(UI.customRole)}</p>
               </div>
             </div>
+            {/* Laid out like the cards beside it: this is what one gets. */}
+            <dl className="traits">
+              <div className="trait trait-good">
+                <dt>
+                  <span className="trait-kind">{t(UI.perk)}</span>
+                </dt>
+                <dd>{t(UI.customPerk)}</dd>
+              </div>
+              <div className="trait trait-bad">
+                <dt>
+                  <span className="trait-kind">{t(UI.flaw)}</span>
+                </dt>
+                <dd>{t(UI.customFlaw)}</dd>
+              </div>
+              <div className="trait">
+                <dt>
+                  <span className="trait-kind">{t(UI.signature)}</span> {t(UI.customIdea)}
+                </dt>
+              </div>
+            </dl>
+            {FOUNDER_LINK && (
+              <a
+                className="btn"
+                href={`${FOUNDER_LINK}?locale=${lang}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t(UI.customBuy)}
+                <span className="sr-only"> {t(UI.newTab)}</span>
+              </a>
+            )}
+            <p className="muted who-terms">
+              {FOUNDER_LINK && <>{t(UI.customTerms)} {t(UI.customFree)} </>}
+              <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
+                {t(UI.customPr)}
+                <span className="sr-only"> {t(UI.newTab)}</span>
+              </a>
+              .
+            </p>
           </li>
         </ul>
       </main>

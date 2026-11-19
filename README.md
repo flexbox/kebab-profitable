@@ -185,7 +185,7 @@ silent.
 | `art/` | The pixel art, as code: `kebab.px.js`, `faces.px.js`, `intro.px.js` and `bar.px.js`. Rendered into `public/art/`. |
 | `audio/` | The sounds and the music, as code: `kebab.cx.js`. Rendered into `public/audio/`. |
 | `src/lib/sound.ts` | Plays them: effects cut from one file, music in a loop. |
-| `scripts/stripe-link.mjs` | Makes the kebab and its payment link at Stripe. |
+| `scripts/stripe-link.mjs` | Makes what the game sells, and its payment links, at Stripe. |
 | `src/server/` | The leaderboard: it replays each submitted run before recording it. `card.tsx` draws the picture a win is shared with. |
 | `assets/` | What that picture is made of: a background per founder, and the Silkscreen typeface. |
 
@@ -238,21 +238,29 @@ The first line takes that day's score off the week's board: run it for each
 day of the week the name played. The other two take it off the all-time
 board.
 
-## The kebab
+## What it sells
 
-The game is free. After a win it offers one thing: buying its author a real
-kebab, €9, once, through a Stripe Payment Link. Stripe is added to the Vercel
-project from the Marketplace, and the link is made by a script:
+The game is free. It sells two things, each once, through Stripe Payment Links:
+
+- **a kebab, €9.** After a win, the end screen offers to buy the author a
+  real one.
+- **a founder card of your own, €27.** The last card of the roster: a
+  pixel-art portrait and a playable card, drawn and balanced with the buyer by
+  e-mail. A card by pull request stays free.
+
+Stripe is added to the Vercel project from the Marketplace, and the links are
+made by a script:
 
 ```bash
 vercel integration add stripe
-pnpm stripe:link    # prints NEXT_PUBLIC_KEBAB_LINK=...
+pnpm stripe:link    # prints NEXT_PUBLIC_KEBAB_LINK=... and NEXT_PUBLIC_FOUNDER_LINK=...
 ```
 
-Put that address in `NEXT_PUBLIC_KEBAB_LINK`. While the variable is empty the
-game offers nothing, so a test link stays in the development environment and
-only a live one goes to production. After paying, the player lands back on the
-title, where Chef says thank you.
+Put each address in its variable. While a variable is empty the game does not
+offer that thing, so test links stay in the development environment and only
+live ones go to production. For the live ones, run the script with a live key:
+`STRIPE_SECRET_KEY=sk_live_... pnpm stripe:link`. After paying, the player
+lands back on the title, where Chef says thank you.
 
 ## Add a card
 

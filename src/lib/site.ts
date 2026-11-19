@@ -21,4 +21,9 @@ export const NAVY = "#0e2439";
  */
 export const KEBAB_LINK = process.env.NEXT_PUBLIC_KEBAB_LINK ?? "";
 
+/** The same, for a founder card of one's own. Empty: the card is by pull request only. */
+export const FOUNDER_LINK = process.env.NEXT_PUBLIC_FOUNDER_LINK ?? "";
+
+export const REPO_URL = "https://github.com/flexbox/kebab-profitable";
+
 export const MEETUP_URL = "https://luma.com/indiehackerslille";

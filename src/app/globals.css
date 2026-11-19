@@ -825,6 +825,12 @@ button {
   border: 1px dashed var(--color-border-control);
 }
 
+.who-terms {
+  margin: 0;
+  font-size: var(--text-sm);
+  text-wrap: pretty;
+}
+
 .traits {
   margin: 0;
   display: grid;

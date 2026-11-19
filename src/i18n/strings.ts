@@ -131,10 +131,22 @@ export const UI = {
     en: `Play as ${name}`,
   }),
   custom: { fr: "Crée le tien", en: "Create your own" },
-  customSoon: {
-    fr: "Bientôt. En attendant, propose ta carte par pull request.",
-    en: "Coming soon. Meanwhile, send your card as a pull request.",
+  /** The last card of the roster is the player's own, still to be made. */
+  customRole: {
+    fr: "Ton portrait en pixel art, et ta carte jouable par tout le monde.",
+    en: "Your portrait in pixel art, and your card for everyone to play.",
   },
+  customPerk: { fr: "À toi de le choisir.", en: "Yours to choose." },
+  customFlaw: { fr: "Tu en as un. On le trouvera.", en: "You have one. We will find it." },
+  customIdea: { fr: "Ton produit", en: "Your product" },
+  customBuy: { fr: "Entrer dans le jeu · 27 €", en: "Get into the game · €27" },
+  customTerms: {
+    fr: "Trois kebabs, une seule fois. On t'écrit par e-mail pour la dessiner avec toi.",
+    en: "Three kebabs, once. We e-mail you to draw it with you.",
+  },
+  /** The free way in, which the paid one never replaces. */
+  customFree: { fr: "Ou gratuitement :", en: "Or for free:" },
+  customPr: { fr: "propose ta carte par pull request", en: "send your card as a pull request" },
   back: { fr: "Retour", en: "Back" },
   home: { fr: "Retour à l'accueil", en: "Back to home" },
 
@@ -357,6 +369,10 @@ export const UI = {
   kebabThanks: {
     fr: "Neuf euros encaissés. Tu vois, chef : faire payer quelqu'un, ça se fait. Merci.",
     en: "Nine euros in the till. See, chef: getting someone to pay can be done. Thank you.",
+  },
+  founderThanks: {
+    fr: "Vingt-sept euros, chef. À ce prix-là, tu as ton nom sur la carte. On t'écrit par e-mail pour ton portrait, ton atout et ton défaut.",
+    en: "Twenty-seven euros, chef. At that price your name goes on the menu. We will e-mail you about your portrait, your perk and your flaw.",
   },
   newTab: { fr: "(nouvel onglet)", en: "(opens in a new tab)" },
   /*

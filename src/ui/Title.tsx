@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { L } from "@/game/types";
 import { UI } from "@/i18n/strings";
 import { music } from "@/lib/sound";
 import { Brand, Controls, Footer, type ChromeProps } from "./Chrome";
@@ -30,13 +31,15 @@ export function Title({
     const id = window.setTimeout(() => music.preload("intro_walk", "intro_dare", "select"), 1200);
     return () => window.clearTimeout(id);
   }, []);
-  // Back from paying for a kebab: Chef says thank you, once, and the address is tidied.
-  const [thanks, setThanks] = useState(false);
+  // Back from paying: Chef says thank you, once, and the address is tidied.
+  const [thanks, setThanks] = useState<L | null>(null);
   useEffect(() => {
     const url = new URL(window.location.href);
-    if (url.searchParams.get("merci") !== "kebab") return;
+    const bought = url.searchParams.get("merci");
+    const line = bought === "kebab" ? UI.kebabThanks : bought === "fondateur" ? UI.founderThanks : null;
+    if (!line) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setThanks(true);
+    setThanks(line);
     url.searchParams.delete("merci");
     window.history.replaceState(null, "", url);
   }, []);
@@ -55,7 +58,7 @@ export function Title({
           {thanks && (
             <aside className="chef" role="status">
               <p>
-                <strong>Chef</strong> {t(UI.kebabThanks)}
+                <strong>Chef</strong> {t(thanks)}
               </p>
             </aside>
           )}
