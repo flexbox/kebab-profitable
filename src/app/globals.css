@@ -21,6 +21,7 @@
   --blue-400: #74b3f2;
   --green-400: #57d39a;
   --red-400: #ff8585;
+  --amber-300: #f7cb73;
   --amber-400: #f2b441;
 
   /* Roles: the only colour names the rules below use. */
@@ -42,6 +43,8 @@
   --color-positive: var(--green-400);
   --color-negative: var(--red-400);
   --color-brand: var(--amber-400);
+  --color-brand-hover: var(--amber-300);
+  --color-on-brand: var(--navy-950);
   --color-backdrop: rgba(4, 12, 22, 0.8);
   /* The edge of a card on the dark page, and of a picture. */
   --color-ring: rgba(255, 255, 255, 0.08);
@@ -314,6 +317,17 @@ button {
   background: var(--color-accent);
 }
 
+/* The kebab offer: filled in the kebab's own amber, apart from the blue of the game. */
+.btn-kebab {
+  background: var(--color-brand);
+  border-color: transparent;
+  color: var(--color-on-brand);
+}
+
+.btn-kebab:active:not(:disabled) {
+  background: var(--color-brand);
+}
+
 .btn-small {
   min-height: 36px;
   padding: 6px 12px;
@@ -357,6 +371,11 @@ button {
 
   .btn-primary:hover:not(:disabled) {
     background: var(--color-accent-hover);
+    border-color: transparent;
+  }
+
+  .btn-kebab:hover:not(:disabled) {
+    background: var(--color-brand-hover);
     border-color: transparent;
   }
 }
@@ -1766,6 +1785,11 @@ button {
   background: var(--color-bg-raised);
 }
 
+/* After a win the offer is about the kebab, so it takes the kebab's colour. */
+.end .end-kebab {
+  box-shadow: 0 0 0 1px var(--color-brand);
+}
+
 .end-stats {
   margin: 0;
   display: grid;
@@ -1793,11 +1817,12 @@ button {
   flex-wrap: wrap;
 }
 
-/* The end of a run arrives in order: verdict, Chef, the numbers, what next,
-   and after a lost run, who made it today. */
+/* The end of a run arrives in order: verdict, Chef, the numbers, the kebab
+   offer after a win, what next, and after a lost run, who made it this week. */
 .end-head,
 .end > .chef,
 .end-stats,
+.end-kebab,
 .end > .submit,
 .end-actions,
 .end-board {
@@ -1808,6 +1833,7 @@ button {
   .end-head,
   .end > .chef,
   .end-stats,
+  .end-kebab,
   .end > .submit,
   .end-actions,
   .end-board {
@@ -1823,16 +1849,16 @@ button {
   animation-delay: 200ms;
 }
 
-.end > .submit {
+.end-kebab {
   animation-delay: 300ms;
 }
 
-.end-actions {
+.end > .submit {
   animation-delay: 400ms;
 }
 
-.end-kebab {
-  animation: fade-in 300ms ease-out 500ms both;
+.end-actions {
+  animation-delay: 500ms;
 }
 
 .end-board {

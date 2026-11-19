@@ -145,6 +145,22 @@ export function End({
             ))}
         </dl>
 
+        {/* Asked once the run is won, right under the numbers that earned it. */}
+        {won && KEBAB_LINK && (
+          <aside className="invite end-kebab">
+            <p>{t(UI.kebabOffer)}</p>
+            <a
+              className="btn btn-small btn-kebab"
+              href={`${KEBAB_LINK}?locale=${lang}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t(UI.kebabBuy)}
+              <span className="sr-only"> {t(UI.newTab)}</span>
+            </a>
+          </aside>
+        )}
+
         {won && sent.status !== "done" && (
           <form className="submit" onSubmit={send}>
             <label htmlFor="pseudo">{t(UI.yourPseudo)}</label>
@@ -203,22 +219,6 @@ export function End({
             {t(UI.home)}
           </button>
         </div>
-
-        {/* Asked once the run is won, and under the buttons, so it is never in the way. */}
-        {won && KEBAB_LINK && (
-          <aside className="invite end-kebab">
-            <p>{t(UI.kebabOffer)}</p>
-            <a
-              className="btn btn-small"
-              href={`${KEBAB_LINK}?locale=${lang}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {t(UI.kebabBuy)}
-              <span className="sr-only"> {t(UI.newTab)}</span>
-            </a>
-          </aside>
-        )}
 
         {/* Under the buttons: a long board never pushes "Play again" out of reach. */}
         {!won && (
