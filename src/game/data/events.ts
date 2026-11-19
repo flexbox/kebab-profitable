@@ -7,7 +7,8 @@ import { URGENT_CARDS } from "./urgent";
  * day, are in `urgent.ts` and join the deck at the end of this file.
  *
  * House rules for cameo cards (kind: "cameo"):
- *  - the figure appears by name, never as a quote;
+ *  - the figure appears by name, never as a quote; the "in real life" advice
+ *    under the result is the game's own, see `lesson` in `guests.ts`;
  *  - the joke is about what they are famous for, never about a setback;
  *  - anyone named can ask for their card to be removed (see the README).
  *

@@ -24,7 +24,6 @@ import type {
   EventDef,
   EventOutcome,
   GameState,
-  GuestId,
   L,
   MealId,
   Move,
@@ -988,6 +987,14 @@ export function step(s: GameState, move: Move): void {
       else throw new Error("Expected a choice");
       break;
     case "report":
+      if (move.t === "share") {
+        // Once per report: the month stays open until it is dismissed.
+        if (!s.report || s.report.shared) throw new Error("Already shared");
+        s.report.shared = true;
+        s.moral = clamp(s.moral + B.shareMoral);
+        log(s, M.reportShared(), "good", -1);
+        break;
+      }
       if (move.t !== "ok") throw new Error("Expected a dismissal");
       s.report = null;
       break;
@@ -1079,17 +1086,6 @@ export function replay(
   const s = createRun(seed, characterId);
   for (const move of moves) step(s, move);
   return s;
-}
-
-/** The guests whose cards this run has answered: the latest first, each one once. */
-export function guestsMet(s: GameState): GuestId[] {
-  const met: GuestId[] = [];
-  for (let i = s.eventsSeen.length - 1; i >= 0; i--) {
-    // A saved run may hold a card that no longer exists.
-    const who = EVENTS.find((e) => e.id === s.eventsSeen[i])?.who;
-    if (who && !met.includes(who)) met.push(who);
-  }
-  return met;
 }
 
 /** Which event choices are open, and for Karl, their odds. */

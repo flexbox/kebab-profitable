@@ -13,7 +13,6 @@ import {
   eventCard,
   shownChoices,
   guest,
-  guestsMet,
   idea,
   isLive,
   legalActions,
@@ -22,7 +21,7 @@ import {
   slotsToday,
 } from "@/game";
 import { effectTone } from "@/game/engine";
-import type { ActionId, GameState, L, Move } from "@/game/types";
+import type { ActionId, GameState, GuestId, L, Move } from "@/game/types";
 import { monthName } from "@/i18n/format";
 import { UI } from "@/i18n/strings";
 import { postOnX } from "@/lib/share";
@@ -589,6 +588,7 @@ function ResultPanel({ state, onContinue }: { state: GameState; onContinue: () =
       {ev.who && <Guest id={ev.who} />}
       <h2 className="ask">{t(ev.title)}</h2>
       <p className="event-text">{t(result.text)}</p>
+      {ev.who && <Lesson who={ev.who} />}
       <button type="button" className="btn btn-primary" onClick={onContinue} autoFocus>
         <span className="key">1</span>
         {t(UI.continue)}
@@ -597,31 +597,48 @@ function ResultPanel({ state, onContinue }: { state: GameState; onContinue: () =
   );
 }
 
+/**
+ * Under a cameo's result: one thing to do outside the game, and a post that
+ * thanks the guest for it by their handle, so their followers see it.
+ */
+function Lesson({ who }: { who: GuestId }) {
+  const { t } = useLang();
+  const { handle, lesson } = guest(who);
+  return (
+    <aside className="invite lesson">
+      <p>
+        <strong>{t(UI.inRealLife)}</strong> {t(lesson)}
+      </p>
+      <a
+        className="btn btn-small"
+        href={postOnX(t(UI.thankPost(handle, lesson)))}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {t(UI.thank(handle))}
+        <span className="sr-only"> {t(UI.newTab)}</span>
+      </a>
+    </aside>
+  );
+}
+
 /** Where the real apéros of Indie Hackers Lille are announced. */
 const LUMA = "https://luma.com/indiehackerslille";
-
-/** How many guests a call for support names. */
-const FORCE_TAGS = 2;
 
 function ReportPanel({
   state,
   play,
-  forceLink,
+  reportLink,
 }: {
   state: GameState;
   play: (m: Move) => void;
-  /** The link that asks X for support: the keyboard follows it too. */
-  forceLink: RefObject<HTMLAnchorElement | null>;
+  /** The link that posts the report on X: the keyboard follows it too. */
+  reportLink: RefObject<HTMLAnchorElement | null>;
 }) {
   const { t, euro, lang } = useLang();
   const r = state.report!;
-  // Asking for support thanks the guests met so far, by their handle: their
-  // followers see the post. Two at most, the latest first, or it reads as spam.
-  const handles = guestsMet(state)
-    .slice(0, FORCE_TAGS)
-    .map((who) => guest(who).handle);
-  const forceUrl = postOnX(
-    t(UI.forcePost(monthName(r.month, lang), euro(r.mrr), euro(r.cashAfter), handles)),
+  const reportUrl = postOnX(
+    t(UI.reportPost(monthName(r.month, lang), euro(r.mrr), euro(r.cashAfter))),
   );
   const line = (label: string, amount: number, sign: 1 | -1) => (
     <div className={sign > 0 ? "line line-in" : "line line-out"}>
@@ -654,12 +671,25 @@ function ReportPanel({
           <span className="key">1</span>
           {t(UI.nextMonth)}
         </button>
-        <a ref={forceLink} className="btn" href={forceUrl} target="_blank" rel="noopener noreferrer">
+        {/* Posting the report lifts morale, the first time each month. */}
+        <a
+          ref={reportLink}
+          className="btn"
+          href={reportUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => {
+            if (!r.shared) play({ t: "share" });
+          }}
+        >
           <span className="key">2</span>
-          {t(UI.askForce)}
+          {t(UI.shareReport)}
           <span className="sr-only"> {t(UI.newTab)}</span>
         </a>
       </div>
+      <p className={r.shared ? "report-share shared" : "report-share"} role="status">
+        {t(r.shared ? UI.reportShared(B.shareMoral) : UI.shareReportHint(B.shareMoral))}
+      </p>
     </div>
   );
 }
@@ -753,7 +783,7 @@ export function Play({
   const showResult = !!state.eventResult && acked !== turn.n;
   const over = !!state.outcome && !showResult;
   const ack = useCallback(() => setAcked(turn.n), [turn.n]);
-  const forceLink = useRef<HTMLAnchorElement>(null);
+  const reportLink = useRef<HTMLAnchorElement>(null);
 
   // A card can land under a finger already on its way to a button. Its
   // choices open a moment after it appears, so it is never answered unread.
@@ -787,7 +817,7 @@ export function Play({
         // Enter on a link follows the link: it does not also close the month.
         if (confirm && target?.closest("a")) return;
         if (confirm || n === 1) play({ t: "ok" });
-        else if (n === 2) forceLink.current?.click();
+        else if (n === 2) reportLink.current?.click();
         return;
       }
       if (!n) return;
@@ -889,7 +919,7 @@ export function Play({
                 armed={armed}
               />
             ) : state.phase === "report" ? (
-              <ReportPanel state={state} play={play} forceLink={forceLink} />
+              <ReportPanel state={state} play={play} reportLink={reportLink} />
             ) : state.phase === "slot" ? (
               <SlotPanel state={state} play={play} onPreview={setPreview} />
             ) : (

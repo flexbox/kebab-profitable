@@ -277,31 +277,35 @@ export const UI = {
     en: `Customers gained: ${gained} · Customers lost: ${lost} · MRR: ${mrr}`,
   }),
   nextMonth: { fr: "Passer au mois suivant", en: "Start next month" },
-  askForce: { fr: "Demander de la force sur X", en: "Ask X for a boost" },
+  shareReport: { fr: "Partager mon bilan sur X", en: "Share my report on X" },
+  /** Under the buttons: what posting the report does in the game. */
+  shareReportHint: (moral: number): L => ({
+    fr: `Partager ton bilan remonte le moral : +${moral}, une fois par mois.`,
+    en: `Sharing your report lifts morale: +${moral}, once a month.`,
+  }),
+  reportShared: (moral: number): L => ({
+    fr: `Bilan partagé. Moral : +${moral}.`,
+    en: `Report shared. Morale: +${moral}.`,
+  }),
   /**
-   * The post behind that button: the month's numbers, a thank-you to the
-   * guests met in the run (their handles on X), and a call for support.
-   * "For the cameo" says they were met in the game, not in real life.
+   * The post behind that button: the month's numbers, the goal, and a dare.
+   * It names nobody: guests are thanked from their own card, see `thankPost`.
    */
-  forcePost: (month: string, mrr: string, cash: string, handles: string[]): L => {
-    const tags = handles.map((handle) => `@${handle}`);
-    const thanks = (and: string) =>
-      tags.length > 1 ? `${tags.slice(0, -1).join(", ")} ${and} ${tags[tags.length - 1]}` : tags[0];
-    return {
-      fr: [
-        `Fin ${month} : ${mrr} de MRR, ${cash} en caisse 🥙`,
-        "Objectif : kebab profitable avant le retour au CDI.",
-        ...(tags.length ? [`Merci ${thanks("et")} pour le caméo 🙏`] : []),
-        "Envoyez de la force 👇",
-      ].join("\n"),
-      en: [
-        `End of ${month}: ${mrr} MRR, ${cash} in the bank 🥙`,
-        "Goal: kebab profitable before the day job calls back.",
-        ...(tags.length ? [`Thanks ${thanks("and")} for the cameo 🙏`] : []),
-        "Send some support 👇",
-      ].join("\n"),
-    };
-  },
+  reportPost: (month: string, mrr: string, cash: string): L => ({
+    fr: `Bilan de ${month} : ${mrr} de MRR, ${cash} en caisse 🥙\nObjectif : kebab profitable avant le retour au CDI.\nTu tiendrais combien de mois ? 👇`,
+    en: `${month} report: ${mrr} MRR, ${cash} in the bank 🥙\nGoal: kebab profitable before the day job calls back.\nHow many months would you last? 👇`,
+  }),
+  /** Under the result of a cameo card: advice to use outside the game. */
+  inRealLife: { fr: "Dans la vraie vie", en: "In real life" },
+  thank: (handle: string): L => ({
+    fr: `Remercier @${handle} sur X`,
+    en: `Thank @${handle} on X`,
+  }),
+  /** The post behind that button: where the advice came from, then the advice. */
+  thankPost: (handle: string, lesson: L): L => ({
+    fr: `Ce que je retiens du caméo de @${handle} dans Kebab Profitable 🥙\n${lesson.fr}\nMerci du conseil 🙏`,
+    en: `What I take from @${handle}'s cameo in Kebab Profitable 🥙\n${lesson.en}\nThanks for the advice 🙏`,
+  }),
 
   quit: { fr: "Abandonner", en: "Give up" },
   quitConfirm: {

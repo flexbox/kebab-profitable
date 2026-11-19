@@ -30,6 +30,8 @@ export const B = {
   nightMoral: -3,
   restEnergie: 20,
   restMoral: 10,
+  /** Posting the month's report on X: saying the numbers out loud helps. */
+  shareMoral: 4,
   /** Gauges after a day lost to exhaustion or gloom. */
   lostDayEnergie: 60,
   lostDayMoral: 38,

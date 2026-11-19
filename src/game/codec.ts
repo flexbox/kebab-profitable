@@ -11,6 +11,7 @@ import type { Move } from "./types";
  *   x-z  an event choice (0, 1, 2)
  *   T    an urgent card the clock ran out on
  *   k    a dismissed month report
+ *   S    a month report posted on X
  *   Ixx  an idea (two base-36 digits, by position in IDEAS)
  */
 export function encodeMoves(moves: readonly Move[]): string {
@@ -31,6 +32,9 @@ export function encodeMoves(moves: readonly Move[]): string {
         break;
       case "ok":
         out += "k";
+        break;
+      case "share":
+        out += "S";
         break;
       case "idea":
         out += "I" + IDEAS.findIndex((i) => i.id === move.id).toString(36).padStart(2, "0");
@@ -53,6 +57,8 @@ export function decodeMoves(code: string): Move[] {
       moves.push({ t: "miss" });
     } else if (c === "k") {
       moves.push({ t: "ok" });
+    } else if (c === "S") {
+      moves.push({ t: "share" });
     } else if (c >= "x" && c <= "z") {
       moves.push({ t: "choice", id: c.charCodeAt(0) - 120 });
     } else if (c >= "0" && c <= "9") {

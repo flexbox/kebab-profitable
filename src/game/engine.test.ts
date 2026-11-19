@@ -14,7 +14,6 @@ import {
   createRun,
   drawIdeas,
   effectTone,
-  guestsMet,
   legalActions,
   mrrOf,
   potentialOf,
@@ -332,15 +331,29 @@ describe("rules", () => {
     expect(walkOns.size).toBe(MILESTONES.firstCustomer.length);
   });
 
-  it("lists the guests met, the latest first and each one once", () => {
-    const s = createRun("met", "david");
-    expect(guestsMet(s)).toEqual([]);
-    const cameos = EVENTS.filter((e) => e.kind === "cameo");
-    const marc = cameos.filter((e) => e.who === "marc");
-    const levels = cameos.find((e) => e.who === "levels")!;
-    const other = EVENTS.find((e) => e.kind !== "cameo")!;
-    s.eventsSeen.push(marc[0].id, other.id, levels.id, marc[1].id, "a-card-that-is-gone");
-    expect(guestsMet(s)).toEqual(["marc", "levels"]);
+  it("gives every guest advice short enough to post", () => {
+    for (const who of Object.values(GUESTS)) {
+      expect(filled(who.lesson)).toBe(true);
+      expect(who.lesson.fr.length).toBeLessThanOrEqual(150);
+      expect(who.lesson.en.length).toBeLessThanOrEqual(150);
+    }
+  });
+
+  it("lifts morale when the month's report is shared, once", () => {
+    const s = createRun("share-seed", "david");
+    while (!s.outcome && s.phase !== "report") step(s, BOTS.expert(s));
+    expect(s.phase).toBe("report");
+    const before = s.moral;
+    expect(before).toBeLessThanOrEqual(100 - B.shareMoral);
+    step(s, { t: "share" });
+    expect(s.moral).toBe(before + B.shareMoral);
+    // The month stays open, and a second post earns nothing.
+    expect(s.phase).toBe("report");
+    expect(() => step(s, { t: "share" })).toThrow();
+    step(s, { t: "ok" });
+    expect(s.phase).not.toBe("report");
+    expect(decodeMoves(encodeMoves(s.history))).toEqual(s.history);
+    expect(replay("share-seed", "david", s.history)).toEqual(s);
   });
 
   it("deals urgent choices in a seeded new order, and leaves the others alone", () => {

@@ -154,7 +154,8 @@ button {
 .end-stats dt,
 .trait-kind,
 .table th,
-.chef strong {
+.chef strong,
+.lesson strong {
   color: var(--color-text-muted);
   font-size: var(--text-xs);
   font-weight: 600;
@@ -993,7 +994,8 @@ button {
   text-wrap: pretty;
 }
 
-.chef strong {
+.chef strong,
+.lesson strong {
   display: block;
   margin-block-end: 2px;
 }
@@ -1237,6 +1239,21 @@ button {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+/* What posting the report does, then that it is done. */
+.report-share {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+
+.report-share.shared {
+  color: var(--color-positive);
+  font-weight: 600;
+}
+
+.report-share.shared::before {
+  content: "✓ ";
 }
 
 /* --- what just happened ------------------------------------------------- */

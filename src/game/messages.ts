@@ -244,6 +244,10 @@ export const M = {
     en: "You are introduced to someone, who subscribes on the spot.",
   }),
   slotLost: (): L => ({ fr: "Créneau perdu.", en: "Slot lost." }),
+  reportShared: (): L => ({
+    fr: "Tu publies ton bilan sur X. Dire ses chiffres tout haut, ça soulage.",
+    en: "You post your report on X. Saying the numbers out loud is a relief.",
+  }),
   coffee: (): L => ({
     fr: "« Un café ? » Tu n'as pas su dire non. L'après-midi y passe.",
     en: "“Coffee?” You couldn't say no. There goes the afternoon.",

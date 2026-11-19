@@ -44,6 +44,8 @@ export type Move =
   | { t: "choice"; id: number }
   /** The clock ran out on an urgent card. */
   | { t: "miss" }
+  /** The month's report is posted on X, once: it lifts morale. */
+  | { t: "share" }
   | { t: "ok" };
 
 export interface Project {
@@ -96,6 +98,8 @@ export interface MonthReport {
   newCustomers: number;
   cashAfter: number;
   mrr: number;
+  /** The player has posted this report on X. */
+  shared?: boolean;
 }
 
 export interface LogEntry {
@@ -350,6 +354,11 @@ export interface GuestDef {
   name: string;
   /** Their handle on X, without the @. */
   handle: string;
+  /**
+   * What their card teaches, to use outside the game: one thing to do, in the
+   * game's own words. It is drawn from what they are known for, never a quote.
+   */
+  lesson: L;
 }
 
 export type EventKind = "cameo" | "admin" | "lille" | "scene" | "urgent";
