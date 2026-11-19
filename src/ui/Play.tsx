@@ -21,7 +21,7 @@ import {
   slotsToday,
 } from "@/game";
 import { effectTone } from "@/game/engine";
-import type { ActionId, GameState, GuestId, L, Move } from "@/game/types";
+import type { ActionId, GameState, L, Move } from "@/game/types";
 import { monthName } from "@/i18n/format";
 import { UI } from "@/i18n/strings";
 import { postOnX } from "@/lib/share";
@@ -569,10 +569,20 @@ function EventPanel({
   );
 }
 
-function ResultPanel({ state, onContinue }: { state: GameState; onContinue: () => void }) {
+function ResultPanel({
+  state,
+  onContinue,
+  thankLink,
+}: {
+  state: GameState;
+  onContinue: () => void;
+  /** The link that thanks a guest on X: the keyboard follows it too. */
+  thankLink: RefObject<HTMLAnchorElement | null>;
+}) {
   const { t } = useLang();
   const result = state.eventResult!;
   const ev = eventCard(result.id);
+  const who = ev.who ? guest(ev.who) : null;
   return (
     <div className={`panel-body event event-${ev.kind}`}>
       <p className="event-kind">
@@ -588,37 +598,36 @@ function ResultPanel({ state, onContinue }: { state: GameState; onContinue: () =
       {ev.who && <Guest id={ev.who} />}
       <h2 className="ask">{t(ev.title)}</h2>
       <p className="event-text">{t(result.text)}</p>
-      {ev.who && <Lesson who={ev.who} />}
-      <button type="button" className="btn btn-primary" onClick={onContinue} autoFocus>
-        <span className="key">1</span>
-        {t(UI.continue)}
-      </button>
+      {/* A cameo ends on one thing to do outside the game: words only, so they
+          keep the full width. The post that thanks the guest for it sits with
+          the other button, where the month's report has its own. */}
+      {who && (
+        <aside className="lesson">
+          <p>
+            <strong>{t(UI.inRealLife)}</strong> {t(who.lesson)}
+          </p>
+        </aside>
+      )}
+      <div className="panel-actions">
+        <button type="button" className="btn btn-primary" onClick={onContinue} autoFocus>
+          <span className="key">1</span>
+          {t(UI.continue)}
+        </button>
+        {who && (
+          <a
+            ref={thankLink}
+            className="btn"
+            href={postOnX(t(UI.thankPost(who.handle, who.lesson)))}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span className="key">2</span>
+            {t(UI.thank(who.handle))}
+            <span className="sr-only"> {t(UI.newTab)}</span>
+          </a>
+        )}
+      </div>
     </div>
-  );
-}
-
-/**
- * Under a cameo's result: one thing to do outside the game, and a post that
- * thanks the guest for it by their handle, so their followers see it.
- */
-function Lesson({ who }: { who: GuestId }) {
-  const { t } = useLang();
-  const { handle, lesson } = guest(who);
-  return (
-    <aside className="invite lesson">
-      <p>
-        <strong>{t(UI.inRealLife)}</strong> {t(lesson)}
-      </p>
-      <a
-        className="btn btn-small"
-        href={postOnX(t(UI.thankPost(handle, lesson)))}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {t(UI.thank(handle))}
-        <span className="sr-only"> {t(UI.newTab)}</span>
-      </a>
-    </aside>
   );
 }
 
@@ -666,7 +675,7 @@ function ReportPanel({
       <p className="muted">
         {t(UI.reportSummary(r.newCustomers, r.churned, euro(r.mrr)))}
       </p>
-      <div className="report-actions">
+      <div className="panel-actions">
         <button type="button" className="btn btn-primary" onClick={() => play({ t: "ok" })} autoFocus>
           <span className="key">1</span>
           {t(UI.nextMonth)}
@@ -784,6 +793,7 @@ export function Play({
   const over = !!state.outcome && !showResult;
   const ack = useCallback(() => setAcked(turn.n), [turn.n]);
   const reportLink = useRef<HTMLAnchorElement>(null);
+  const thankLink = useRef<HTMLAnchorElement>(null);
 
   // A card can land under a finger already on its way to a button. Its
   // choices open a moment after it appears, so it is never answered unread.
@@ -809,7 +819,10 @@ export function Play({
       if (n) e.preventDefault();
       // A single button is always 1, like the first of several.
       if (showResult) {
+        // Enter on a link follows the link: it does not also close the card.
+        if (confirm && target?.closest("a")) return;
         if (confirm || n === 1) ack();
+        else if (n === 2) thankLink.current?.click();
         return;
       }
       if (state.outcome) return;
@@ -906,7 +919,7 @@ export function Play({
               <JustNow key={turn.n} turn={turn} />
             </div>
             {showResult ? (
-              <ResultPanel state={state} onContinue={ack} />
+              <ResultPanel state={state} onContinue={ack} thankLink={thankLink} />
             ) : state.phase === "idea" ? (
               <IdeaPanel state={state} play={play} />
             ) : state.phase === "meal" ? (

@@ -1234,11 +1234,27 @@ button {
   justify-self: start;
 }
 
-/* The month goes on, or it is shown off first. */
-.report-actions {
+/* What comes next, then the post that shows it off: one row, which wraps. */
+.panel-actions {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+/* Under a cameo's result: advice to use outside the game. A quieter shape
+   than the card around it, and no ring: it is to be read, not answered.
+   The margin sets it apart from the story above and the buttons below. */
+.lesson {
+  margin-block: 4px;
+  padding: 14px 16px;
+  background: var(--color-bg-raised);
+  border-radius: var(--r-card);
+}
+
+.lesson p {
+  max-width: 65ch;
+  color: var(--color-text);
+  text-wrap: pretty;
 }
 
 /* What posting the report does, then that it is done. */

@@ -297,9 +297,10 @@ export const UI = {
   }),
   /** Under the result of a cameo card: advice to use outside the game. */
   inRealLife: { fr: "Dans la vraie vie", en: "In real life" },
+  // A no-break space keeps "X" with its preposition when the label wraps.
   thank: (handle: string): L => ({
-    fr: `Remercier @${handle} sur X`,
-    en: `Thank @${handle} on X`,
+    fr: `Remercier @${handle} sur\u00a0X`,
+    en: `Thank @${handle} on\u00a0X`,
   }),
   /** The post behind that button: where the advice came from, then the advice. */
   thankPost: (handle: string, lesson: L): L => ({
