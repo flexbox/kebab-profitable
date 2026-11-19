@@ -1,0 +1,25 @@
+# Kebab Profitable
+
+> A free parody management game about indie hacking, played in the browser, in French and English. Made for Indie Hackers Lille. You have just signed your rupture conventionnelle: €1,500, a studio in Lille, a kebab shop downstairs and one goal, €270 of MRR, the price of a kebab a day. Run out of cash and it's retour au CDI.
+
+- Play: https://kebab-profitable.vercel.app/
+- No account and no download. The current run is saved in the browser.
+- Everyone plays the same run each day (a daily seed, Paris time), and wins go on a daily and an all-time leaderboard.
+- A good player is kebab profitable in about 45 game days, some 200 clicks.
+
+## How it plays
+
+- One turn is one day with three slots: matin, après-midi, soir. One action per slot.
+- Nine actions: Coder, Shipper, Poster, Démarcher, Support, Freelance, Se reposer, Pivoter, and the monthly Apéro.
+- Each midi you pick a meal: nothing, pâtes au beurre (€1), a kebab (€9) or a welsh (€16).
+- Seven gauges: Faim, Énergie, Moral for you; Cash, MRR, Produit, Audience for the business.
+- You pick one of three ideas. How well it sells is hidden until you launch. When it flops, pivot.
+- Each month-end takes €600 of rent and 22% of URSSAF on what you earned.
+- Urgent cards land mid-day with a 6 or 8 second timer: a safe answer or a gamble.
+- Chef, who owns the kebab shop downstairs, coaches you whether you asked or not.
+
+## About
+
+- Made for Indie Hackers Lille, a monthly meetup: https://luma.com/indiehackerslille
+- Open source (MIT): https://github.com/flexbox/kebab-profitable
+- An affectionate parody, not affiliated with indiehackers.com.
