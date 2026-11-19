@@ -154,8 +154,7 @@ button {
 .end-stats dt,
 .trait-kind,
 .table th,
-.chef strong,
-.end-share strong {
+.chef strong {
   color: var(--color-text-muted);
   font-size: var(--text-xs);
   font-weight: 600;
@@ -994,8 +993,7 @@ button {
   text-wrap: pretty;
 }
 
-.chef strong,
-.end-share strong {
+.chef strong {
   display: block;
   margin-block-end: 2px;
 }
@@ -1793,6 +1791,18 @@ button {
   background: var(--color-bg-raised);
 }
 
+/* Chef at the end of a run: his face, his word, and the post he asks for.
+   The button drops under the words when the card is too narrow for both. */
+.end-share {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* 140px keeps the words beside his face on a 320px screen. */
+.end-share p {
+  flex: 1 1 140px;
+}
+
 /* After a win the offer is about the kebab, so it takes the kebab's colour. */
 .end .end-kebab {
   box-shadow: 0 0 0 1px var(--color-brand);
@@ -1825,10 +1835,9 @@ button {
   flex-wrap: wrap;
 }
 
-/* The end of a run arrives in order: verdict, Chef, the numbers, the kebab
-   offer after a win, what next, and after a lost run, who made it this week. */
+/* The end of a run arrives in order: verdict, the numbers, the kebab offer
+   after a win, Chef and what next, and after a lost run, who made it this week. */
 .end-head,
-.end > .chef,
 .end-stats,
 .end-kebab,
 .end > .submit,
@@ -1840,8 +1849,7 @@ button {
 
 @media (prefers-reduced-motion: no-preference) {
   .end-head,
-  .end > .chef,
-  .end-stats,
+    .end-stats,
   .end-kebab,
   .end > .submit,
   .end-share,
@@ -1851,32 +1859,28 @@ button {
   }
 }
 
-.end > .chef {
+.end-stats {
   animation-delay: 100ms;
 }
 
-.end-stats {
+.end-kebab {
   animation-delay: 200ms;
 }
 
-.end-kebab {
+.end > .submit {
   animation-delay: 300ms;
 }
 
-.end > .submit {
-  animation-delay: 400ms;
-}
-
 .end-share {
-  animation-delay: 450ms;
+  animation-delay: 300ms;
 }
 
 .end-actions {
-  animation-delay: 500ms;
+  animation-delay: 400ms;
 }
 
 .end-board {
-  animation-delay: 500ms;
+  animation-delay: 400ms;
 }
 
 @keyframes fade-in {
@@ -1902,12 +1906,6 @@ button {
   color: var(--color-text-strong);
   font-size: var(--text-sm);
   font-weight: 600;
-}
-
-/* Why the score comes first: said once, above the field. */
-.submit-why {
-  color: var(--color-text);
-  text-wrap: pretty;
 }
 
 .field-hint {

@@ -136,15 +136,6 @@ export function End({
           </div>
         </div>
 
-        {state.chef && (
-          <aside className="chef">
-            <Portrait who="chef" className="portrait portrait-md" />
-            <p>
-              <strong>Chef</strong> {t(state.chef)}
-            </p>
-          </aside>
-        )}
-
         <dl className="end-stats">
           {stats
             .filter(([, value]) => value > 0)
@@ -172,9 +163,18 @@ export function End({
           </aside>
         )}
 
+        {/* Chef speaks once on this screen: first for the score, then for the post. */}
+        {!canShare && (
+          <aside className="chef end-share">
+            <Portrait who="chef" className="portrait portrait-md" />
+            <p>
+              <strong>Chef</strong> {t(UI.saveFirst)}
+            </p>
+          </aside>
+        )}
+
         {won && sent.status !== "done" && (
           <form className="submit" onSubmit={send}>
-            {!canShare && <p className="submit-why">{t(UI.saveFirst)}</p>}
             <label htmlFor="pseudo">{t(UI.yourPseudo)}</label>
             <p id="pseudo-hint" className="field-hint">
               {t(UI.pseudoHint)}
@@ -219,7 +219,8 @@ export function End({
         )}
 
         {canShare && (
-          <aside className="invite end-share">
+          <aside className="chef end-share">
+            <Portrait who="chef" className="portrait portrait-md" />
             <p>
               <strong>Chef</strong> {t(shareCall)}
             </p>
