@@ -3,12 +3,12 @@ import { isSeed, seedFor } from "@/lib/seed";
 import { scoreStore } from "@/server/store";
 import { board, submit, underLimit } from "@/server/submit";
 
-/** GET /api/scores?seed=YYYY-MM-DD: today's board and the all-time board. */
+/** GET /api/scores?seed=YYYY-MM-DD: that seed's week board and the all-time board. */
 export async function GET(request: Request) {
   const asked = new URL(request.url).searchParams.get("seed");
   const seed = asked && isSeed(asked) ? asked : seedFor(new Date());
   const store = scoreStore();
-  if (!store) return Response.json({ today: [], allTime: [], offline: true });
+  if (!store) return Response.json({ week: [], allTime: [], offline: true });
   return Response.json(await board(store, seed));
 }
 

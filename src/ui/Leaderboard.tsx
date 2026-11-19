@@ -8,24 +8,32 @@ import { pseudoKey } from "@/lib/pseudo";
 import { useLang } from "./lang";
 import { Portrait } from "./Portrait";
 
-type Tab = "today" | "allTime";
+/** The day a run of this week was played: "mer." or "Wed". */
+function weekday(seed: string, lang: string): string {
+  return new Intl.DateTimeFormat(lang === "fr" ? "fr-FR" : "en-GB", {
+    weekday: "short",
+    timeZone: "UTC",
+  }).format(new Date(`${seed}T12:00:00Z`));
+}
+
+type Tab = "week" | "allTime";
 
 export function Leaderboard({
   seed,
   board: given,
-  day = "today",
+  day = "thisWeek",
   highlight,
 }: {
   seed: string;
   /** A board already in hand (after submitting a score). */
   board?: Board;
-  /** Which day the seed is: a run finished after midnight shows yesterday's board. */
+  /** Which week the seed is in: Sunday's run finished after midnight shows last week's board. */
   day?: BoardDay;
   /** The name to highlight. */
   highlight?: string;
 }) {
-  const { t, euro } = useLang();
-  const [tab, setTab] = useState<Tab>("today");
+  const { t, euro, lang } = useLang();
+  const [tab, setTab] = useState<Tab>("week");
   const [loaded, setLoaded] = useState<{ seed: string; board: Board | "error" } | null>(null);
 
   useEffect(() => {
@@ -50,7 +58,7 @@ export function Leaderboard({
   return (
     <div className="board">
       <div className="seg" role="group" aria-label={t(UI.leaderboard)}>
-        {(["today", "allTime"] as Tab[]).map((id) => (
+        {(["week", "allTime"] as Tab[]).map((id) => (
           <button
             key={id}
             type="button"
@@ -58,7 +66,7 @@ export function Leaderboard({
             className={tab === id ? "seg-on" : ""}
             onClick={() => setTab(id)}
           >
-            {t(id === "allTime" ? UI.allTime : day === "today" ? UI.today : UI.yesterday)}
+            {t(id === "allTime" ? UI.allTime : day === "thisWeek" ? UI.thisWeek : UI.lastWeek)}
           </button>
         ))}
       </div>
@@ -83,7 +91,7 @@ export function Leaderboard({
                 >
                   <td className="num">{i + 1}</td>
                   {/* One cell for the player: the name they chose, then who they played
-                      (and which day, on the all-time board). It stays readable on a phone. */}
+                      and which day. It stays readable on a phone. */}
                   <td>
                     <span className="who-cell">
                       <Portrait who={row.character} className="portrait portrait-xs" />
@@ -91,7 +99,7 @@ export function Leaderboard({
                         <span className="who-pseudo">{row.pseudo}</span>
                         <span className="who-meta">
                           {character(row.character).name.split(" ")[0]}
-                          {tab === "allTime" && ` · ${row.seed}`}
+                          {` · ${tab === "allTime" ? row.seed : weekday(row.seed, lang)}`}
                         </span>
                       </span>
                     </span>

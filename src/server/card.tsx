@@ -63,7 +63,7 @@ export function cardWords({ entry, rank }: SharedScore, lang: Lang) {
   const first = character(entry.character).name.split(" ")[0];
   return lang === "fr"
     ? {
-        rank: `${rank === 1 ? "1er" : `${rank}e`} du jour`,
+        rank: `${rank === 1 ? "1er" : `${rank}e`} de la semaine`,
         days: String(entry.days),
         unit: "jours",
         who: entry.pseudo,
@@ -73,7 +73,7 @@ export function cardWords({ entry, rank }: SharedScore, lang: Lang) {
         title: `${entry.pseudo} : kebab profitable en ${entry.days} jours`,
       }
     : {
-        rank: `#${rank} of the day`,
+        rank: `#${rank} of the week`,
         days: String(entry.days),
         unit: "days",
         who: entry.pseudo,
@@ -194,7 +194,7 @@ export async function winCard(score: SharedScore, lang: Lang): Promise<Response>
         { name: "Silkscreen", data: regular, weight: 400, style: "normal" },
         { name: "Silkscreen", data: bold, weight: 700, style: "normal" },
       ],
-      // The rank can still move during the day: the picture is not kept for long.
+      // The rank can still move during the week: the picture is not kept for long.
       headers: { "cache-control": "public, max-age=300" },
     },
   );

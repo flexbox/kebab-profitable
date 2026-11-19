@@ -5,7 +5,7 @@ import { byRank, type ScoreEntry, type ScoreStore } from "./scores";
  * The hosted leaderboard: Upstash Redis, provisioned from the Vercel
  * Marketplace, which sets the connection variables on the project.
  *
- *   kp:seed:<seed>      hash    name key -> entry   (one day's board)
+ *   kp:seed:<seed>      hash    name key -> entry   (one day's scores; the week's board reads seven)
  *   kp:all              hash    name key -> entry   (each player's best run)
  *   kp:best             zset    name key, scored by days then cash
  *   kp:hits:<key>:<n>   counter submissions in one window; it expires by itself

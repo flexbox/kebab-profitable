@@ -40,7 +40,7 @@ export function End({
   const dialog = useRef<HTMLDialogElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const canSubmit = won && sent.status !== "done";
-  // A lost run cannot enter the board, but the player can see who is on it today.
+  // A lost run cannot enter the board, but the player can see who is on it this week.
   const [today] = useState(() => seedFor(new Date()));
 
   // A modal dialog: the page behind is inert, focus moves inside, and it
@@ -95,10 +95,10 @@ export function End({
     else setSent({ status: "error", error: result.error });
   }
 
-  // The post carries the rank once the score is on today's board.
+  // The post carries the rank once the score is on this week's board.
   const shareText = !won
     ? UI.shareLost(outcome.day, first)
-    : sent.status === "done" && sent.day === "today"
+    : sent.status === "done" && sent.day === "thisWeek"
       ? UI.shareRanked(sent.rank, outcome.day, first)
       : UI.shareWon(outcome.day, first);
   // A saved win is shared with its own address, and so its own picture.

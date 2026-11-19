@@ -363,10 +363,10 @@ export const UI = {
     fr: `J'ai rendu ${name} kebab profitable en ${days} jours 🥙 À toi de battre ça :`,
     en: `I got ${name} to kebab profitable in ${days} days 🥙 Your turn to beat it:`,
   }),
-  /** Once the score is saved on today's board: the post carries the rank. */
+  /** Once the score is saved on this week's board: the post carries the rank. */
   shareRanked: (rank: number, days: number, name: string): L => ({
-    fr: `Je suis ${rank === 1 ? "1er" : `${rank}e`} du jour : ${name} kebab profitable en ${days} jours 🥙 À toi de battre ça :`,
-    en: `I'm #${rank} today: got ${name} to kebab profitable in ${days} days 🥙 Your turn to beat it:`,
+    fr: `Je suis ${rank === 1 ? "1er" : `${rank}e`} de la semaine : ${name} kebab profitable en ${days} jours 🥙 À toi de battre ça :`,
+    en: `I'm #${rank} this week: got ${name} to kebab profitable in ${days} days 🥙 Your turn to beat it:`,
   }),
   shareLost: (days: number, name: string): L => ({
     fr: `${name} a tenu ${days} jours avant de retourner au CDI 🥙 Tu feras mieux ?`,
@@ -374,8 +374,8 @@ export const UI = {
   }),
 
   leaderboard: { fr: "Classement", en: "Leaderboard" },
-  today: { fr: "Aujourd'hui", en: "Today" },
-  yesterday: { fr: "Hier", en: "Yesterday" },
+  thisWeek: { fr: "Cette semaine", en: "This week" },
+  lastWeek: { fr: "Semaine dernière", en: "Last week" },
   allTime: { fr: "Depuis toujours", en: "All-time" },
   rank: { fr: "#", en: "#" },
   player: { fr: "Joueur", en: "Player" },
@@ -388,16 +388,16 @@ export const UI = {
   pseudoHint: { fr: "De 2 à 16 caractères.", en: "2 to 16 characters." },
   submit: { fr: "Inscrire mon score", en: "Submit my score" },
   submitting: { fr: "Vérification…", en: "Checking…" },
-  submitted: (rank: number, day: "today" | "yesterday"): L => {
+  submitted: (rank: number, day: "thisWeek" | "lastWeek"): L => {
     const place = rank === 1 ? "1er" : `${rank}e`;
-    return day === "today"
+    return day === "thisWeek"
       ? {
-          fr: `Score inscrit. Tu es ${place} aujourd'hui.`,
-          en: `Score saved. You are #${rank} today.`,
+          fr: `Score inscrit. Tu es ${place} cette semaine.`,
+          en: `Score saved. You are #${rank} this week.`,
         }
       : {
-          fr: `Score inscrit. Tu es ${place} au classement d'hier.`,
-          en: `Score saved. You are #${rank} on yesterday's board.`,
+          fr: `Score inscrit. Tu es ${place} au classement de la semaine dernière.`,
+          en: `Score saved. You are #${rank} on last week's board.`,
         };
   },
   errors: {

@@ -7,8 +7,10 @@ import { playRun } from "@/game/sim/run";
 import { cleanPseudo } from "./pseudo";
 import { bestScore } from "./redis";
 import { byRank, fileStore, type ScoreEntry } from "./scores";
+import { weekOf } from "@/lib/seed";
 import { board, LIMIT, openSeeds, placeOf, submit, underLimit } from "./submit";
 
+// A Thursday: the day before is in the same week.
 const NOW = new Date("2026-12-10T19:30:00+01:00");
 const SEED = "2026-12-10";
 const EVE = "2026-12-09";
@@ -75,10 +77,10 @@ describe("submitting a score", () => {
       },
       NOW,
     );
-    expect(result).toMatchObject({ ok: true, rank: 1, days: run.outcome!.day, day: "today" });
+    expect(result).toMatchObject({ ok: true, rank: 1, days: run.outcome!.day, day: "thisWeek" });
     const saved = await board(store, SEED);
-    expect(saved.today).toHaveLength(1);
-    expect(saved.today[0]).toMatchObject({
+    expect(saved.week).toHaveLength(1);
+    expect(saved.week[0]).toMatchObject({
       pseudo: "flexbox",
       attempts: 3,
       cash: Math.round(run.cash),
@@ -101,7 +103,7 @@ describe("submitting a score", () => {
       },
       NOW,
     );
-    const [saved] = (await board(store, SEED)).today;
+    const [saved] = (await board(store, SEED)).week;
     expect(saved).toMatchObject({ days: run.outcome!.day, cash: Math.round(run.cash) });
   });
 
@@ -115,8 +117,8 @@ describe("submitting a score", () => {
     // The same run with fewer attempts: attempts no longer decide anything.
     const second = await submit(store, { ...body, pseudo: "Mick", attempts: 1 }, later);
     const saved = await board(store, SEED);
-    expect(saved.today.map((e) => e.pseudo)).toEqual(["Karl", "Mick"]);
-    expect(saved.today[0]).toMatchObject({ attempts: 5, at: NOW.getTime() });
+    expect(saved.week.map((e) => e.pseudo)).toEqual(["Karl", "Mick"]);
+    expect(saved.week[0]).toMatchObject({ attempts: 5, at: NOW.getTime() });
     expect(second).toMatchObject({ ok: true, rank: 2 });
   });
 
@@ -145,18 +147,59 @@ describe("submitting a score", () => {
       NOW,
     );
     expect(result).toMatchObject({ ok: true, rank: 56 });
-    expect(result.ok && result.board.today).toHaveLength(50);
+    expect(result.ok && result.board.week).toHaveLength(50);
   });
 
-  it("says which day's board a run finished after midnight went to", async () => {
+  it("says which week's board a run finished after midnight went to", async () => {
     const store = tempStore();
     const run = winningRun(EVE);
+    const body = { seed: EVE, character: run.character, moves: encodeMoves(run.history) };
+    // Wednesday's run, finished on Thursday: still this week.
+    expect(await submit(store, { ...body, pseudo: "flexbox" }, NOW)).toMatchObject({
+      ok: true,
+      rank: 1,
+      day: "thisWeek",
+    });
+    // Sunday's run, finished on Monday at half past midnight: last week's board.
+    const sunday = "2026-12-13";
+    const late = winningRun(sunday);
     const result = await submit(
       store,
-      { seed: EVE, character: run.character, pseudo: "flexbox", moves: encodeMoves(run.history) },
-      NOW,
+      { seed: sunday, character: late.character, pseudo: "flexbox", moves: encodeMoves(late.history) },
+      new Date("2026-12-14T00:30:00+01:00"),
     );
-    expect(result).toMatchObject({ ok: true, rank: 1, day: "yesterday" });
+    expect(result).toMatchObject({ ok: true, day: "lastWeek" });
+  });
+
+  it("runs from Monday to Sunday, Paris time", () => {
+    expect(weekOf(SEED)).toEqual([
+      "2026-12-07",
+      "2026-12-08",
+      "2026-12-09",
+      "2026-12-10",
+      "2026-12-11",
+      "2026-12-12",
+      "2026-12-13",
+    ]);
+    expect(weekOf("2026-12-07")[0]).toBe("2026-12-07");
+    expect(weekOf("2026-12-13")[0]).toBe("2026-12-07");
+    expect(weekOf("2027-01-01")[0]).toBe("2026-12-28");
+  });
+
+  it("keeps each player's best run of the week on the week's board", async () => {
+    const store = tempStore();
+    await store.put("flexbox", score("Flexbox", { seed: EVE, days: 30 }));
+    await store.put("flexbox", score("flexbox", { days: 50 }));
+    await store.put("mick", score("Mick", { seed: EVE, days: 45 }));
+    await store.put("mick", score("Mick", { days: 35 }));
+    // The week before does not count.
+    await store.put("old", score("Old", { seed: "2026-12-06", days: 1 }));
+
+    const { week } = await board(store, SEED);
+    expect(week.map((e) => [e.pseudo, e.seed, e.days])).toEqual([
+      ["Flexbox", EVE, 30],
+      ["Mick", SEED, 35],
+    ]);
   });
 
   it("shows one row per player on the all-time board: their best run", async () => {
@@ -207,19 +250,22 @@ describe("submitting a score", () => {
       ok: false,
       error: "pseudo",
     });
-    expect((await board(store, SEED)).today).toHaveLength(0);
+    expect((await board(store, SEED)).week).toHaveLength(0);
   });
 });
 
 describe("the score a share link points to", () => {
-  it("is the saved score and its place that day, whatever the link claims", async () => {
+  it("is the saved score and its place that week, whatever the link claims", async () => {
     const store = tempStore();
     await store.put("rich", score("Rich", { cash: 2500 }));
     await store.put("zoe59", score("Zoé 59"));
     await store.put("eve", score("Eve", { seed: EVE, days: 1 }));
+    // Last week's runs, and Zoé's own better run, do not push this one down.
+    await store.put("old", score("Old", { seed: "2026-12-06", days: 1 }));
+    await store.put("zoe59", score("Zoé 59", { seed: EVE, days: 2 }));
 
     expect(await placeOf(store, SEED, "zoe59")).toMatchObject({
-      rank: 2,
+      rank: 3,
       entry: { pseudo: "Zoé 59", days: 40 },
     });
     // Another day's score, and a name nobody saved: there is nothing to show.

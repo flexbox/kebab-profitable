@@ -59,8 +59,8 @@ with indiehackers.com.
   air, beaming, for two seconds.
 - A run is short: a good player is kebab profitable in about 45 days, some
   200 clicks. `pnpm sim` prints the current figures.
-- Everyone plays the same seeded run each day, so the leaderboard compares
-  decisions, not luck. The luck is the same for everyone playing the same
+- Everyone plays the same seeded run each day, so two runs of the same day
+  compare decisions, not luck. The luck is the same for everyone playing the same
   founder: who drops by overnight, and which guest walks on at a milestone,
   change with the founder and with what you have done so far.
 - Each month's report has a button that asks X for support: it opens the
@@ -100,7 +100,7 @@ scene `og`: 200 by 105, exported six times larger to
 
 A saved win is shared with a picture of its own. The X post links to
 `/v/fr/2026-11-19/flexbox/44`: the game, under a picture with the founder who
-won, the days, the name and the place on that day's board. The backgrounds
+won, the days, the name and the place on that week's board. The backgrounds
 are the scene `og_win`, exported once per founder to `assets/og/`, and
 `src/server/card.tsx` writes the score on them when the picture is asked for.
 The score is read from the leaderboard, never from the link, so a link cannot
@@ -197,10 +197,13 @@ finds. Nothing the browser claims is ranked.
 
 - **Order:** fewer days to the kebab first, then more cash in the bank on the
   winning day, then the earlier score.
-- **Boards:** "Aujourd'hui" holds the day's run, one score per name.
-  "Depuis toujours" holds each player's best run on any day.
-- **Who is on it:** winning runs only. A run finished after midnight goes to
-  the board of the day before, which stays open one more day.
+- **Boards:** "Cette semaine" holds each player's best run from Monday to
+  Sunday, Paris time; each row says which day it was played. Everyone still
+  plays the day's run: the board is weekly so that it is not empty most of
+  the time. "Depuis toujours" holds each player's best run on any day.
+- **Who is on it:** winning runs only. A run finished after midnight counts
+  for the day before, which stays open one more day: Sunday's run finished
+  on Monday goes to last week's board.
 - **Names:** a free name of 2 to 16 characters, with no account. "Karl" and
   "karl" are the same player.
 - **Limit:** 30 scores per 10 minutes from one address. It is wide because a
@@ -231,8 +234,9 @@ HDEL kp:all zoe59
 ZREM kp:best zoe59
 ```
 
-The first line takes the score off that day's board, the other two off the
-all-time board.
+The first line takes that day's score off the week's board: run it for each
+day of the week the name played. The other two take it off the all-time
+board.
 
 ## The kebab
 
