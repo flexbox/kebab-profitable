@@ -280,16 +280,16 @@ export const UI = {
       tags.length > 1 ? `${tags.slice(0, -1).join(", ")} ${and} ${tags[tags.length - 1]}` : tags[0];
     return {
       fr: [
-        `Bilan de ${month} dans Kebab Profitable 🥙`,
-        `MRR : ${mrr} · En caisse : ${cash}`,
-        ...(tags.length ? [`Merci à ${thanks("et")} pour le caméo 🙏`] : []),
-        "Envoyez de la force 💪",
+        `Fin ${month} : ${mrr} de MRR, ${cash} en caisse 🥙`,
+        "Objectif : kebab profitable avant le retour au CDI.",
+        ...(tags.length ? [`Merci ${thanks("et")} pour le caméo 🙏`] : []),
+        "Envoyez de la force 👇",
       ].join("\n"),
       en: [
-        `${month} in Kebab Profitable 🥙`,
-        `MRR: ${mrr} · Cash: ${cash}`,
+        `End of ${month}: ${mrr} MRR, ${cash} in the bank 🥙`,
+        "Goal: kebab profitable before the day job calls back.",
         ...(tags.length ? [`Thanks ${thanks("and")} for the cameo 🙏`] : []),
-        "Send some support 💪",
+        "Send some support 👇",
       ].join("\n"),
     };
   },
@@ -359,18 +359,22 @@ export const UI = {
     en: "Nine euros in the till. See, chef: getting someone to pay can be done. Thank you.",
   },
   newTab: { fr: "(nouvel onglet)", en: "(opens in a new tab)" },
+  /*
+   * The posts a run is shared with: one post each, read in two seconds. The
+   * number first, then the proof, then the dare, with the game's link under it.
+   */
   shareWon: (days: number, name: string): L => ({
-    fr: `J'ai rendu ${name} kebab profitable en ${days} jours 🥙 À toi de battre ça :`,
-    en: `I got ${name} to kebab profitable in ${days} days 🥙 Your turn to beat it:`,
+    fr: `${days} jours pour être kebab profitable 🥙\nAvec ${name}. Sans levée de fonds, sans CDI.\nBats-moi 👇`,
+    en: `${days} days to kebab profitable 🥙\nWith ${name}. No VC, no day job.\nBeat that 👇`,
   }),
   /** Once the score is saved on this week's board: the post carries the rank. */
   shareRanked: (rank: number, days: number, name: string): L => ({
-    fr: `Je suis ${rank === 1 ? "1er" : `${rank}e`} de la semaine : ${name} kebab profitable en ${days} jours 🥙 À toi de battre ça :`,
-    en: `I'm #${rank} this week: got ${name} to kebab profitable in ${days} days 🥙 Your turn to beat it:`,
+    fr: `${rank === 1 ? "1er" : `${rank}e`} de la semaine sur Kebab Profitable 🥙\n${name} rentable en ${days} jours. Sans levée de fonds.\nViens me piquer la place 👇`,
+    en: `#${rank} this week on Kebab Profitable 🥙\n${name} profitable in ${days} days. No VC.\nCome take my spot 👇`,
   }),
   shareLost: (days: number, name: string): L => ({
-    fr: `${name} a tenu ${days} jours avant de retourner au CDI 🥙 Tu feras mieux ?`,
-    en: `${name} lasted ${days} days before going back to a day job 🥙 Think you can do better?`,
+    fr: `${days} jours. Puis retour au CDI 💀\n${name} n'a jamais été kebab profitable.\nTu ferais mieux ? 👇`,
+    en: `${days} days. Then back to a day job 💀\n${name} never got kebab profitable.\nThink you'd do better? 👇`,
   }),
 
   leaderboard: { fr: "Classement", en: "Leaderboard" },
