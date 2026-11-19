@@ -97,7 +97,7 @@ describe("content", () => {
       // A handle on X is written without the @.
       if (c.handle) expect(c.handle, c.id).toMatch(/^\w{1,15}$/);
     }
-    expect(IDEAS).toHaveLength(15);
+    expect(IDEAS).toHaveLength(30);
     expect(EVENTS.filter((e) => e.kind === "cameo").every((e) => !!e.who)).toBe(true);
     // Every guest has a cameo, and a handle without the @.
     for (const [id, g] of Object.entries(GUESTS)) {

@@ -1008,7 +1008,7 @@ export function apply(state: GameState, move: Move): GameState {
 export function createRun(seed: string, characterId: CharacterId): GameState {
   character(characterId); // throws on an unknown id
   const s: GameState = {
-    v: 2,
+    v: 3,
     seed,
     character: characterId,
     day: 1,
