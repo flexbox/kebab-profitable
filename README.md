@@ -246,7 +246,7 @@ The game is free. It sells two things, each once, through Stripe Payment Links:
   real one.
 - **a founder card of your own, €27.** The last card of the roster: a
   pixel-art portrait and a playable card, drawn and balanced with the buyer by
-  e-mail. A card by pull request stays free.
+  e-mail.
 
 Stripe is added to the Vercel project from the Marketplace, and the links are
 made by a script:

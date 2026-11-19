@@ -144,9 +144,6 @@ export const UI = {
     fr: "Trois kebabs, une seule fois. On t'écrit par e-mail pour la dessiner avec toi.",
     en: "Three kebabs, once. We e-mail you to draw it with you.",
   },
-  /** The free way in, which the paid one never replaces. */
-  customFree: { fr: "Ou gratuitement :", en: "Or for free:" },
-  customPr: { fr: "propose ta carte par pull request", en: "send your card as a pull request" },
   back: { fr: "Retour", en: "Back" },
   home: { fr: "Retour à l'accueil", en: "Back to home" },
 

@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { CHARACTERS, idea } from "@/game";
 import type { CharacterId } from "@/game/types";
 import { UI } from "@/i18n/strings";
-import { FOUNDER_LINK, REPO_URL } from "@/lib/site";
+import { FOUNDER_LINK } from "@/lib/site";
 import { music } from "@/lib/sound";
 import { Controls, Footer, type ChromeProps } from "./Chrome";
 import { useLang } from "./lang";
@@ -101,24 +101,19 @@ export function Select({
               </div>
             </dl>
             {FOUNDER_LINK && (
-              <a
-                className="btn"
-                href={`${FOUNDER_LINK}?locale=${lang}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {t(UI.customBuy)}
-                <span className="sr-only"> {t(UI.newTab)}</span>
-              </a>
+              <>
+                <a
+                  className="btn"
+                  href={`${FOUNDER_LINK}?locale=${lang}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t(UI.customBuy)}
+                  <span className="sr-only"> {t(UI.newTab)}</span>
+                </a>
+                <p className="muted who-terms">{t(UI.customTerms)}</p>
+              </>
             )}
-            <p className="muted who-terms">
-              {FOUNDER_LINK && <>{t(UI.customTerms)} {t(UI.customFree)} </>}
-              <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
-                {t(UI.customPr)}
-                <span className="sr-only"> {t(UI.newTab)}</span>
-              </a>
-              .
-            </p>
           </li>
         </ul>
       </main>
