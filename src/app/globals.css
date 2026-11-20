@@ -511,12 +511,25 @@ button {
 }
 
 .choice.choice-pick {
+  position: relative;
   border-color: var(--color-brand);
   box-shadow: 0 0 0 1px var(--color-brand);
 }
 
+/*
+ * On the button, the badge is a tab on its top edge: it takes no room from
+ * the title, which keeps its width in a narrow column, and no height from the
+ * panel, which is sized for the tallest question.
+ */
 .choice-pick .badge-pick {
-  justify-self: end;
+  position: absolute;
+  top: 0;
+  right: 10px;
+  translate: 0 -50%;
+  /* At most 16px high: half of it fits the 8px gap above a second-row button. */
+  padding-block: 0;
+  background: var(--color-bg-surface);
+  pointer-events: none;
 }
 
 /* How a card turned out: a word and a shape, with the colour on top. */
