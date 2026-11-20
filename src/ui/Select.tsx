@@ -10,13 +10,23 @@ import { Controls, Footer, type ChromeProps } from "./Chrome";
 import { useLang } from "./lang";
 import { Handle, Portrait } from "./Portrait";
 
+/**
+ * The founder Chef points a newcomer to. In `pnpm sim`, the newcomer bot gets
+ * to the goal fastest with Karl, and his perk shows the hidden numbers: which
+ * idea is worth it, and the odds on each card. He teaches while he plays.
+ */
+const FIRST_PICK: CharacterId = "karl";
+
 export function Select({
   onPick,
   onBack,
+  newcomer,
   ...chrome
 }: {
   onPick: (who: CharacterId) => void;
   onBack: () => void;
+  /** A first run: one founder is marked as the easy start. */
+  newcomer: boolean;
 } & ChromeProps) {
   const { t, lang } = useLang();
   // The roster has its own tune, for as long as it is on screen.
@@ -36,13 +46,16 @@ export function Select({
         <h1 className="screen-title">{t(UI.chooseCharacter)}</h1>
         <ul className="roster">
           {CHARACTERS.map((c) => (
-            <li key={c.id} className="card who">
+            <li key={c.id} className={newcomer && c.id === FIRST_PICK ? "card who who-pick" : "card who"}>
               <div className="who-head">
                 <Portrait who={c.id} className="portrait portrait-lg" />
                 <div>
                   <h2>{c.name}</h2>
                   {c.handle && <Handle handle={c.handle} />}
                   <p className="muted">{t(c.role)}</p>
+                  {newcomer && c.id === FIRST_PICK && (
+                    <span className="badge badge-pick">{t(UI.coach.firstPick)}</span>
+                  )}
                 </div>
               </div>
               <dl className="traits">
@@ -65,7 +78,11 @@ export function Select({
                   </dt>
                 </div>
               </dl>
-              <button type="button" className="btn" onClick={() => onPick(c.id)}>
+              <button
+                type="button"
+                className={newcomer && c.id === FIRST_PICK ? "btn btn-primary" : "btn"}
+                onClick={() => onPick(c.id)}
+              >
                 {t(UI.playAs(c.name.split(" ")[0]))}
               </button>
             </li>

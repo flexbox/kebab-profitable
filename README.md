@@ -24,6 +24,12 @@ with indiehackers.com.
   on the evening you signed your rupture conventionnelle, and Chef, who owns
   the kebab shop downstairs, dares you to make more money than he does. It can
   be skipped at any moment.
+- On a first run, Chef shows the way to a first customer: a five-step road
+  that opens one step in (you have already quit the day job), a tip for the
+  step you are on, and his pick outlined among the ideas and the actions. It
+  goes once a first customer signs, or when hidden. The tips are checked
+  against the sim (`src/ui/coach.test.ts`): a newcomer who follows them wins
+  far more often. Karl is marked as the good first pick on the roster.
 - A run starts on 1 January 2027. One turn is one day with three slots:
   matin, après-midi, soir.
 - Nine actions: Coder, Shipper, Poster, Démarcher, Support, Freelance,

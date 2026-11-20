@@ -27,6 +27,7 @@ import { UI } from "@/i18n/strings";
 import { postOnX } from "@/lib/share";
 import { sfx } from "@/lib/sound";
 import { Brand, Controls, type ChromeProps } from "./Chrome";
+import { roadmap, suggestAction, suggestIdea } from "./coach";
 import { cueOf } from "./cue";
 import { End } from "./End";
 import type { Turn } from "./Game";
@@ -328,12 +329,73 @@ function ProjectCard({ state }: { state: GameState }) {
 }
 
 // ---------------------------------------------------------------------------
+// Chef's first-run tips
+// ---------------------------------------------------------------------------
+
+/** Pointed at by Chef: an outline and a word, so colour is not the only sign. */
+function PickBadge() {
+  const { t } = useLang();
+  return <span className="badge badge-pick">{t(UI.coach.pick)}</span>;
+}
+
+/**
+ * The road to a first customer, on a first run. It opens one step in (you
+ * have quit the day job), names the step you are on, and says Chef's tip for
+ * it. It stays to mark the first customer, then the next run plays without.
+ */
+function Roadmap({ state, onHide }: { state: GameState; onHide: () => void }) {
+  const { t } = useLang();
+  const { steps, tip, reached } = roadmap(state);
+  const now = steps.findIndex((x) => !x.done);
+  const done = steps.filter((x) => x.done).length;
+  return (
+    <section className={reached ? "card roadmap roadmap-reached" : "card roadmap"}>
+      <div className="roadmap-head">
+        <h2>{t(reached ? UI.coach.reachedTitle : UI.coach.title)}</h2>
+        <span className="roadmap-count">
+          {done}/{steps.length}
+        </span>
+      </div>
+      <ol className="roadmap-steps">
+        {steps.map((step, i) => (
+          <li
+            key={i}
+            className={step.done ? "step step-done" : i === now ? "step step-now" : "step"}
+            aria-current={i === now ? "step" : undefined}
+          >
+            {t(step.label)}
+            {step.progress !== undefined && step.progress > 0 && (
+              <> · {Math.min(99, Math.floor(step.progress * 100))} %</>
+            )}
+          </li>
+        ))}
+      </ol>
+      <p className="roadmap-tip">
+        <strong>Chef</strong> {t(tip)}
+      </p>
+      <button type="button" className="btn btn-small roadmap-hide" onClick={onHide}>
+        {t(UI.coach.hide)}
+      </button>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Panels: what the player is asked right now
 // ---------------------------------------------------------------------------
 
-function IdeaPanel({ state, play }: { state: GameState; play: (m: Move) => void }) {
+function IdeaPanel({
+  state,
+  play,
+  tips,
+}: {
+  state: GameState;
+  play: (m: Move) => void;
+  tips: boolean;
+}) {
   const { t, euro } = useLang();
   const who = character(state.character);
+  const pick = tips ? suggestIdea(state) : null;
   return (
     <div className="panel-body">
       <h2 className="ask">{t(UI.askIdea)}</h2>
@@ -345,9 +407,15 @@ function IdeaPanel({ state, play }: { state: GameState; play: (m: Move) => void 
           const slots = Math.ceil(def.mvp / (B.coderPoints * (who.mods.coderMult ?? 1)));
           const potential = potentialOf(state.seed, id);
           return (
-            <button key={id} type="button" className="choice idea" onClick={() => play({ t: "idea", id })}>
+            <button
+              key={id}
+              type="button"
+              className={id === pick ? "choice idea choice-pick" : "choice idea"}
+              onClick={() => play({ t: "idea", id })}
+            >
               <span className="key">{i + 1}</span>
               <span className="choice-title">{t(def.name)}</span>
+              {id === pick && <PickBadge />}
               {def.owner === state.character && <span className="badge badge-you">{t(UI.yours)}</span>}
               <span className="choice-desc">{t(def.pitch)}</span>
               <span className="idea-facts">
@@ -382,13 +450,16 @@ function SlotPanel({
   state,
   play,
   onPreview,
+  tips,
 }: {
   state: GameState;
   play: (m: Move) => void;
   onPreview: (id: ActionId | null) => void;
+  tips: boolean;
 }) {
   const { t } = useLang();
   const options = legalActions(state);
+  const pick = tips ? suggestAction(state) : null;
   return (
     <div className="panel-body">
       <h2 className="ask">{t(UI.askSlot[Math.min(3, state.slot)])}</h2>
@@ -399,7 +470,7 @@ function SlotPanel({
             <button
               key={def.id}
               type="button"
-              className={`choice action action-${def.id}`}
+              className={`choice action action-${def.id}${def.id === pick ? " choice-pick" : ""}`}
               disabled={!option.enabled}
               onClick={() => {
                 onPreview(null);
@@ -412,6 +483,7 @@ function SlotPanel({
             >
               <span className="key">{def.key}</span>
               <span className="choice-title">{t(def.name)}</span>
+              {def.id === pick && <PickBadge />}
               <span className="choice-desc">
                 {!option.enabled && option.reason ? t(option.reason) : t(def.desc)}
               </span>
@@ -774,6 +846,8 @@ export function Play({
   onRetry,
   onHome,
   attempts,
+  tips,
+  onHideTips,
   ...chrome
 }: {
   turn: Turn;
@@ -782,6 +856,9 @@ export function Play({
   onRetry: () => void;
   onHome: () => void;
   attempts: number;
+  /** A first run: Chef shows the way to a first customer. */
+  tips: boolean;
+  onHideTips: () => void;
 } & ChromeProps) {
   const { t, date, lang } = useLang();
   const state = turn.state;
@@ -923,7 +1000,7 @@ export function Play({
             {showResult ? (
               <ResultPanel state={state} onContinue={ack} thankLink={thankLink} />
             ) : state.phase === "idea" ? (
-              <IdeaPanel state={state} play={play} />
+              <IdeaPanel state={state} play={play} tips={tips} />
             ) : state.phase === "meal" ? (
               <MealPanel state={state} play={play} onFasting={setFasting} />
             ) : state.phase === "event" ? (
@@ -936,7 +1013,7 @@ export function Play({
             ) : state.phase === "report" ? (
               <ReportPanel state={state} play={play} reportLink={reportLink} />
             ) : state.phase === "slot" ? (
-              <SlotPanel state={state} play={play} onPreview={setPreview} />
+              <SlotPanel state={state} play={play} onPreview={setPreview} tips={tips} />
             ) : (
               // Nothing is asked once the run is over: the card keeps its height under the ending.
               <div className="panel-body" />
@@ -981,6 +1058,7 @@ export function Play({
             </aside>
           )}
 
+          {tips && !over && <Roadmap state={state} onHide={onHideTips} />}
           <Gauges turn={turn} />
           <ProjectCard state={state} />
         </div>

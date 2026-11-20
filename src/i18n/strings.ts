@@ -511,6 +511,59 @@ export const UI = {
   },
   loadingScores: { fr: "Chargement du classement…", en: "Loading the leaderboard…" },
 
+  /**
+   * Chef's tips on a first run: the road to a first customer, and the one
+   * choice he would make. They go once a first customer has signed.
+   */
+  coach: {
+    title: { fr: "Ta route vers le premier client", en: "Your road to a first customer" },
+    reachedTitle: { fr: "Premier client !", en: "First customer!" },
+    hide: { fr: "Masquer les conseils", en: "Hide tips" },
+    pick: { fr: "Conseil du chef", en: "Chef's pick" },
+    firstPick: { fr: "Idéal pour débuter", en: "Good first pick" },
+    steps: {
+      quit: { fr: "Quitter le CDI", en: "Quit the day job" },
+      idea: { fr: "Choisir une idée", en: "Pick an idea" },
+      build: { fr: "Coder le MVP", en: "Build the MVP" },
+      ship: { fr: "Shipper", en: "Ship it" },
+      customer: { fr: "Premier client", en: "First customer" },
+    },
+    tips: {
+      idea: {
+        fr: "Prends l'idée la plus rapide à tester : plus le MVP est petit, plus vite le marché te répond.",
+        en: "Take the quickest idea to test: the smaller the MVP, the sooner the market answers.",
+      },
+      ideaHidden: {
+        fr: "Tu vois le vrai potentiel des idées : prends la meilleure, pas ta préférée.",
+        en: "You can see each idea's real potential: take the best one, not your favourite.",
+      },
+      build: {
+        fr: "Code le matin et l'après-midi, poste le soir : une audience qui attend, ce sont des inscrits le jour du lancement.",
+        en: "Code in the morning and afternoon, post in the evening: an audience waiting means signups on launch day.",
+      },
+      ship: {
+        fr: "Le MVP est prêt. Shippe maintenant : un produit pas fini t'en apprend plus qu'un produit parfait.",
+        en: "The MVP is ready. Ship it now: an unfinished product teaches you more than a perfect one.",
+      },
+      review: {
+        fr: "C'est en ligne. Le marché répond dans quelques jours : continue de poster en attendant.",
+        en: "It is out. The market answers in a few days: keep posting meanwhile.",
+      },
+      customer: {
+        fr: "Le marché a répondu. Continue de poster : chaque post amène des inscrits, et le premier client finit par signer.",
+        en: "The market has answered. Keep posting: each post brings signups, and the first customer ends up signing.",
+      },
+      tired: {
+        fr: "À vide, tu travailles mal. Repose-toi, puis reprends.",
+        en: "Running on empty, you work badly. Rest, then get back to it.",
+      },
+      reached: {
+        fr: "Premier euro dans la caisse, chef. Maintenant, 270 € de MRR : poste, démarche, et fais du support en fin de mois pour garder tes clients.",
+        en: "First euro in the till, chef. Now €270 of MRR: post, reach out, and do support at month-end to keep your customers.",
+      },
+    },
+  },
+
   mute: { fr: "Couper le son", en: "Mute" },
   unmute: { fr: "Activer le son", en: "Unmute" },
   language: { fr: "Langue", en: "Language" },

@@ -6,6 +6,7 @@ const KEY = {
   mute: "kp.mute",
   pseudo: "kp.pseudo",
   run: "kp.run",
+  tips: "kp.tips",
   attempts: (seed: string) => `kp.attempts.${seed}`,
   best: (seed: string) => `kp.best.${seed}`,
 };
@@ -53,6 +54,20 @@ export const store = {
   },
   setRun: (state: GameState | null) =>
     write(KEY.run, state ? JSON.stringify(state) : null),
+
+  /**
+   * Chef's first-run tips: on until a first customer signs, or until hidden.
+   * Someone who has already won somewhere does not need them either.
+   */
+  tips: (): boolean => {
+    if (read(KEY.tips) === "off") return false;
+    try {
+      return !Object.keys(window.localStorage).some((k) => k.startsWith("kp.best."));
+    } catch {
+      return true;
+    }
+  },
+  setTipsOff: () => write(KEY.tips, "off"),
 
   attempts: (seed: string) => Number(read(KEY.attempts(seed)) ?? 0) || 0,
   addAttempt: (seed: string) => {
