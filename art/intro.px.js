@@ -357,22 +357,49 @@ function paintStreet(c, grade) {
   p.box(SHOP.x, 93, SHOP.w, 17, "#5a3a26")
   p.e(SHOP.x + 1, 94, SHOP.w - 2, 15, WINDOW_LIGHT)
   p.e(SHOP.x + 1, 104, SHOP.w - 2, 5, "#e0a850")
-  // In the window: the spit on its rod, and somebody in a tall hat.
-  const shade = "#7a4a22"
-  p.e(SHOP.x + 43, 94, 1, 15, "#5a3a26")
-  p.e(SHOP.x + 39, 96, 9, 3, "#8a4a26")
-  p.e(SHOP.x + 40, 99, 7, 4, "#8a4a26")
-  p.e(SHOP.x + 41, 103, 5, 3, "#8a4a26")
-  p.e(SHOP.x + 38, 107, 11, 2, "#5a3a26")
-  p.e(SHOP.x + 14, 94, 7, 1, "#fff8dc")
-  p.e(SHOP.x + 12, 95, 11, 2, "#fff8dc")
-  p.e(SHOP.x + 14, 97, 7, 2, "#fff8dc")
-  p.e(SHOP.x + 14, 98, 7, 1, "#e8dcb8")
-  p.e(SHOP.x + 14, 99, 7, 4, shade)
-  p.e(SHOP.x + 10, 103, 15, 6, shade)
-  p.e(SHOP.x + 15, 101, 5, 1, "#33201a")
-  p.e(SHOP.x + 14, 100, 1, 1, "#33201a")
-  p.e(SHOP.x + 20, 100, 1, 1, "#33201a")
+  // In the window: the spit on its rod, and Chef behind his counter.
+  // The spit is the one he stands beside later: steel, a tomato on top, and
+  // meat stacked in layers, browner on the side away from the grill.
+  p.e(SHOP.x + 43, 94, 1, 13, "#8f989e")
+  p.e(SHOP.x + 42, 95, 3, 1, "#c0432f")
+  for (const [y, h, half] of [[96, 3, 4], [99, 4, 3], [103, 3, 2]]) {
+    p.e(SHOP.x + 43 - half, y, half * 2 + 1, h, "#a5602f")
+    p.e(SHOP.x + 43 - half, y, 1, h, "#7a4526")
+    p.e(SHOP.x + 43 + half, y, 1, h, "#c98445")
+    p.e(SHOP.x + 43 - half, y + h - 1, half * 2 + 1, 1, "#5f3319")
+  }
+  p.e(SHOP.x + 38, 106, 11, 1, "#c9ced2")
+  p.e(SHOP.x + 38, 107, 11, 1, "#8f989e")
+  // He is the man of the portrait, fourteen pixels tall: the toque and its
+  // pleats, the brows, the moustache turned up at the ends, the straps of the
+  // apron over the red shirt, and the knife upright in his fist. The shop's
+  // own light is on him, so he is drawn in his colours, inside a brown line
+  // that keeps him apart from the glass.
+  const chef = { ...BODY, ...CHEF, w: "#fff8dc", e: "#2a1a12", o: "#6a4226" }
+  const CHEF_IN_WINDOW = `
+    ...xxxxxxxxxXX.....
+    ..xxxxxxxxxxxXX....
+    ..xxxxxxxxxxxXX.v..
+    ...xXxxXxxXxxX..vW.
+    ...XXXXXXXXXXX..vW.
+    ...ZHHIHHHHHYZ..vW.
+    ...ZHKKKHKKKYZ..vW.
+    ...HHweHHweHYY..vW.
+    ....KIHHYHHHK...vW.
+    ....KLLKKKKKK...vW.
+    .....HHmmmHY....VV.
+    .cDCCxCYYYCxCCCHHH.
+    cCCCCxxxxxxXCCCHYH.
+    cCCCCxxxxxxXCCCcqc.`
+  const lines = rows(CHEF_IN_WINDOW)
+  const [cx, cy] = [SHOP.x + 8, 94]
+  const there = (i, j) => (lines[j]?.[i] ?? ".") !== "."
+  lines.forEach((line, j) => {
+    for (let i = 0; i < line.length; i++) {
+      if (there(i, j)) c.px(cx + i, cy + j, chef[line[i]])
+      else if (there(i - 1, j) || there(i + 1, j) || there(i, j - 1) || there(i, j + 1)) c.px(cx + i, cy + j, chef.o)
+    }
+  })
   // The counter, along the bottom of the glass.
   p.e(SHOP.x + 1, 108, SHOP.w - 2, 1, "#b8802e")
   p.box(K + 70, 93, 10, PAVE_Y - 93, "#5a3a26")
