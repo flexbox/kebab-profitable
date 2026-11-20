@@ -174,6 +174,14 @@ one pass apart (see `audio/export.mjs` and `src/lib/sound.ts`). The speaker
 button at the top of every screen turns everything off, and a hidden tab is
 silent.
 
+## The launch film
+
+`video/` makes a 48-second film for the launch, drawn by the game's own code
+and scored from the same timeline. Two real runs from the rules engine: the
+one that never posts goes broke on day 59, and the one that posts is kebab
+profitable on day 43. `cd video && npm install && npm run render`. See
+`video/README.md`.
+
 ## Where things live
 
 | Path | What |

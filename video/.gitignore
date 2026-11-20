@@ -1,0 +1,6 @@
+node_modules/
+.build/
+# The renders are rebuilt by `npm run render`; only the captions and the contact sheet are kept.
+out/*
+!out/captions.srt
+!out/contact.png

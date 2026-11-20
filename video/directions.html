@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Film directions</title>
+<style>
+  :root {
+    --ground: #081726; --panel: #0e2439; --line: #264663; --text: #e8eff7; --soft: #b6cce2; --accent: #f2b441;
+  }
+  body { margin: 0; background: var(--ground); color: var(--text); font: 15px/1.5 ui-sans-serif, system-ui, sans-serif; }
+  main { max-width: 1120px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  p.lead { color: var(--soft); margin: 0 0 28px; max-width: 70ch; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+  article { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
+  article.won { border-color: var(--accent); }
+  .frame { aspect-ratio: 16 / 9; background: var(--ground); position: relative; overflow: hidden; }
+  .frame img { image-rendering: pixelated; position: absolute; }
+  .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+  h2 { font-size: 16px; margin: 0; }
+  .tag { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--soft); }
+  .won .tag { color: var(--accent); }
+  ul { margin: 0; padding-left: 18px; color: var(--soft); }
+  .why { border-top: 1px solid var(--line); padding-top: 8px; }
+  .bars { position: absolute; display: flex; gap: 4px; }
+  .bars span { width: 6px; background: repeating-linear-gradient(to top, var(--soft) 0 2px, transparent 2px 3px); }
+  .bars span.mrr { background: repeating-linear-gradient(to top, var(--accent) 0 2px, transparent 2px 3px); }
+  .label { position: absolute; font: 700 13px/1 ui-monospace, monospace; letter-spacing: .12em; color: var(--text); }
+  .chart { position: absolute; inset: 14% 8%; border-left: 2px solid var(--line); border-bottom: 2px solid var(--line); }
+  .chart i { position: absolute; bottom: 0; width: 9%; background: var(--accent); }
+  .chart b { position: absolute; left: 0; right: 0; border-top: 2px dashed var(--soft); }
+  footer { margin-top: 28px; color: var(--soft); max-width: 75ch; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Kebab Profitable: four directions for the launch film</h1>
+  <p class="lead">One idea to carry: the same run goes broke if it only codes and wins if it posts. Each direction below is anchored to the game's real art. The winner is outlined and has its reason; the others say why they lost.</p>
+
+  <div class="grid">
+    <article class="won">
+      <div class="frame">
+        <img src="out/contact.png" alt="Contact sheet of the boss-fight direction" style="width:400%;left:-102%;top:-170%">
+      </div>
+      <div class="body">
+        <span class="tag">A · Chosen</span>
+        <h2>Boss fight</h2>
+        <ul>
+          <li>The room from the game, a segmented energy bar each for cash and MRR, and Chef as the boss with a full bar.</li>
+          <li>WARNING, READY, a bar filling tick by tick: the Mega Man X feel, all of it drawn new.</li>
+          <li>Two real runs from the engine, with one variable changed.</li>
+        </ul>
+        <p class="why"><strong>Why it won:</strong> it is the only one where the picture is the model. The bars are the goal and the cash, and the runs show cause and effect. Chef earns his place as the bar to clear.</p>
+      </div>
+    </article>
+
+    <article>
+      <div class="frame">
+        <img src="../public/art/intro_sky.png" alt="" style="width:100%;left:0;top:0">
+        <img src="../public/art/intro_far.png" alt="" style="width:150%;left:0;top:0">
+        <img src="../public/art/intro_street.png" alt="" style="width:218%;left:-55%;top:0">
+      </div>
+      <div class="body">
+        <span class="tag">B</span>
+        <h2>The walk home</h2>
+        <ul>
+          <li>The intro, extended: Lille in the rain, the box under the arm, Chef's dare in the shop doorway.</li>
+          <li>All atmosphere, with the game's own music.</li>
+        </ul>
+        <p class="why"><strong>Why not:</strong> it sets a mood and teaches nothing. Viewers would finish it without knowing the goal or the loop.</p>
+      </div>
+    </article>
+
+    <article>
+      <div class="frame">
+        <img src="../public/art/room_afternoon.png" alt="" style="width:62%;left:19%;top:6%">
+        <div class="bars" style="left:4%;top:12%;height:70%"><span style="height:100%"></span><span class="mrr" style="height:30%;align-self:end"></span></div>
+        <div class="label" style="left:24%;bottom:6%">INSERT COIN · HI 41 DAYS</div>
+      </div>
+      <div class="body">
+        <span class="tag">C</span>
+        <h2>Attract mode</h2>
+        <ul>
+          <li>An arcade demo loop: a run plays itself at speed, and the weekly leaderboard scrolls by.</li>
+          <li>It ends on "press start".</li>
+        </ul>
+        <p class="why"><strong>Why not:</strong> it shows that a game exists, not what it is about. A good run at full speed looks like noise.</p>
+      </div>
+    </article>
+
+    <article>
+      <div class="frame">
+        <div class="chart">
+          <b style="bottom:76%"></b>
+          <i style="left:6%;height:4%"></i><i style="left:20%;height:9%"></i><i style="left:34%;height:14%"></i><i style="left:48%;height:30%"></i><i style="left:62%;height:62%"></i><i style="left:76%;height:80%"></i>
+        </div>
+        <img src="../public/art/portrait_chef.png" alt="" style="width:16%;right:6%;top:4%">
+      </div>
+      <div class="body">
+        <span class="tag">D</span>
+        <h2>The spreadsheet</h2>
+        <ul>
+          <li>A clean chart: MRR climbing to a dashed €270 line, Chef's till in the corner, the two runs as two series.</li>
+        </ul>
+        <p class="why"><strong>Why not:</strong> it is clear, but it looks like every SaaS ad. It drops the pixel art that makes the game itself.</p>
+      </div>
+    </article>
+  </div>
+
+  <footer>Restraint check on A: the urgent cards, meals, pivots, URSSAF and the apéro were all cut. They are true but not needed for the one idea.</footer>
+</main>
+</body>
+</html>
