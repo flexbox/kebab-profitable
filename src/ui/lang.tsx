@@ -19,13 +19,13 @@ const LangContext = createContext<LangValue | null>(null);
 export function LangProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Lang>("fr");
 
-  // The game is French, whatever the browser speaks: English is only for
-  // someone who picked it. That choice is applied right after mount, so the
-  // first render matches the server.
+  // The first render matches the server (French); the stored or browser
+  // language is applied right after mount.
   useEffect(() => {
     const saved = store.lang();
+    const detected: Lang = navigator.language.toLowerCase().startsWith("fr") ? "fr" : "en";
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (saved) setLangState(saved);
+    setLangState(saved ?? detected);
   }, []);
 
   useEffect(() => {
