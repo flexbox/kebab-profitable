@@ -874,6 +874,17 @@ export function Play({
   const reportLink = useRef<HTMLAnchorElement>(null);
   const thankLink = useRef<HTMLAnchorElement>(null);
 
+  // A shorter question than the last one shortens the page under a reader who
+  // had scrolled down to the buttons: the new card would land above the
+  // screen, an urgent one with its clock running. It is brought back into view.
+  const panel = useRef<HTMLElement>(null);
+  useLayoutEffect(() => {
+    const el = panel.current;
+    if (!el || el.getBoundingClientRect().top >= 0) return;
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollIntoView({ block: "start", behavior: still ? "auto" : "smooth" });
+  }, [turn.n, showResult]);
+
   // A card can land under a finger already on its way to a button. Its
   // choices open a moment after it appears, so it is never answered unread.
   const [armedFor, setArmedFor] = useState(-1);
@@ -988,6 +999,7 @@ export function Play({
           {/* Each urgent card makes its own entrance, even right after another one. */}
           <section
             key={urgent ? `urgent-${turn.n}` : "panel"}
+            ref={panel}
             className={urgent ? "card panel panel-urgent" : "card panel"}
           >
             {/* The space is kept even when empty, so the question does not jump. */}

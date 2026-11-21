@@ -927,6 +927,8 @@ button {
 .panel {
   /* The choices arrange themselves by the width of this card, not of the screen. */
   container: panel / inline-size;
+  /* Brought back into view, it keeps a little air above it. */
+  scroll-margin-block-start: 8px;
 }
 
 .col-side {
