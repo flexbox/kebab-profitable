@@ -860,7 +860,7 @@ export function Play({
   tips: boolean;
   onHideTips: () => void;
 } & ChromeProps) {
-  const { t, date, lang } = useLang();
+  const { t, lang } = useLang();
   const state = turn.state;
   const [preview, setPreview] = useState<ActionId | null>(null);
   const [fasting, setFasting] = useState(false);
@@ -952,11 +952,9 @@ export function Play({
       <header className="bar">
         <div className="bar-left">
           <Brand as="h1" />
-          <span className="when">
-            <strong>{t(UI.day(state.day))}</strong> · {date(state.day)}
-          </span>
         </div>
         <div className="bar-right">
+          <span className="when">{t(UI.day(state.day))}</span>
           <span className={rentIn <= 3 ? "chip chip-warn" : "chip"}>{t(UI.rentIn(rentIn))}</span>
           <span className={aperoIn === 0 ? "chip chip-good" : "chip"}>{t(UI.aperoIn(aperoIn))}</span>
           <Controls {...chrome} />
