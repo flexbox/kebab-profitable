@@ -1,4 +1,4 @@
-import { eventCard } from "@/game";
+import { eventCard, slotsToday } from "@/game";
 import type { GameState } from "@/game/types";
 import type { Turn } from "./Game";
 
@@ -19,6 +19,11 @@ export function cueOf({ state, prev }: Turn): Cue | null {
   if (dealt) return "card";
   if (state.eventResult?.tone === "bad") return "bad";
   if (last?.t === "meal" && last.id !== "skip") return "bite";
-  if (state.day !== prev.day) return "night";
+  // Bedtime: the day ends once its last slot is played (or the card that came
+  // up after it is answered). A day cut short, by a pivot, a trip or a card
+  // that eats the afternoon, is not a night in bed.
+  const used = prev.slot + (last?.t === "act" ? 1 : 0);
+  const bedtime = last?.t !== "idea" && used >= slotsToday(prev);
+  if (state.day !== prev.day && bedtime) return "night";
   return "click";
 }
