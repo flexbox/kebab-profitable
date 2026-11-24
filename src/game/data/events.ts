@@ -613,6 +613,54 @@ export const EVENTS: EventDef[] = [
       },
     ],
   },
+  // A catastrophe of paper: the URSSAF login lives on a sheet somewhere in
+  // the flat. Found, it costs nothing but an alert; lost, it costs the day.
+  {
+    id: "urssaf-login",
+    kind: "admin",
+    tone: "bad",
+    title: { fr: "Connexion à l'URSSAF", en: "Logging in to URSSAF" },
+    text: {
+      fr: "Il faut te connecter à ton espace URSSAF ce matin. Ton identifiant et ton mot de passe sont sur une feuille de papier. Quelque part.",
+      en: "You have to log in to your URSSAF account this morning. Your username and password are on a sheet of paper. Somewhere.",
+    },
+    when: { hasProject: true, minDay: 5 },
+    choices: [
+      {
+        label: { fr: "Chercher la feuille", en: "Look for the sheet" },
+        outcomes: [
+          {
+            p: 0.5,
+            effect: { moral: -1 },
+            text: {
+              fr: "Elle était sous le clavier. Tu te connectes, et l'URSSAF t'envoie aussitôt une alerte : « Nouvelle connexion détectée sur votre espace ». C'était toi.",
+              en: "It was under the keyboard. You log in, and URSSAF sends you an alert at once: “New sign-in detected on your account”. It was you.",
+            },
+          },
+          {
+            p: 0.5,
+            effect: { skipSlots: 3, moral: -8 },
+            text: {
+              fr: "Tu vides trois classeurs, deux cartons et la boîte à chaussures des « papiers importants ». Tu retrouves ton diplôme de natation. Pas la feuille. La journée y est passée.",
+              en: "You empty three binders, two boxes and the shoebox of “important papers”. You find your swimming certificate. Not the sheet. The whole day is gone.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Appeler l'URSSAF", en: "Call URSSAF" },
+        outcomes: [
+          {
+            effect: { skipSlots: 2, moral: -4 },
+            text: {
+              fr: "Quarante minutes de musique d'attente, un code reçu par courrier « sous cinq jours ouvrés », et finalement un conseiller qui te reconnecte. Ta matinée et ton après-midi y sont passés.",
+              en: "Forty minutes of hold music, a code sent by post “within five working days”, and at last an adviser who gets you back in. Your morning and afternoon are gone.",
+            },
+          },
+        ],
+      },
+    ],
+  },
   // A catastrophe: either answer costs dearly. It goes after those who have
   // something to take: a product that earns, and money in the bank. Measured
   // with `pnpm sim`, it costs a first-timer five to eight points of win rate;
