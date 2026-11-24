@@ -703,6 +703,58 @@ export const EVENTS: EventDef[] = [
       },
     ],
   },
+  // A catastrophe of the administration: URSSAF strikes the founder off by
+  // mistake and opens them again at the same address, so the whole year's
+  // adjustment falls due at once. Letting it go costs the most money; calling
+  // costs the day, and a struck-off founder may not be allowed to pay in parts.
+  // Measured with `pnpm sim`, it costs a first-timer four to eight points of
+  // win rate, like the cease and desist.
+  {
+    id: "urssaf-struck-off",
+    kind: "admin",
+    tone: "bad",
+    title: { fr: "Radié par l'URSSAF", en: "Struck off by URSSAF" },
+    text: {
+      fr: "Tu n'as pas bougé d'un mètre cette année. L'URSSAF a quand même réussi à te radier, pour te rouvrir dans la foulée au même endroit. Toute ta régularisation est à payer d'un coup : 420 € avant le 15. Le prélèvement est déjà lancé.",
+      en: "You haven't moved an inch this year. URSSAF still managed to strike you off, then open you again at the same address. Your whole adjustment is due at once: €420 before the 15th. The direct debit has already gone out.",
+    },
+    when: { launched: true, minMrr: 40, minCash: 500, minDay: 30 },
+    choices: [
+      {
+        label: { fr: "Laisser passer le prélèvement (420 €)", en: "Let the debit go through (€420)" },
+        outcomes: [
+          {
+            effect: { cash: -420, moral: -6 },
+            text: {
+              fr: "Le prélèvement passe. Tu finances la santé et la retraite, et en prime le travail mal fait de quelqu'un d'autre.",
+              en: "The debit goes through. You pay for healthcare and pensions, and for someone else's botched work on top.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Appeler l'URSSAF", en: "Call URSSAF" },
+        outcomes: [
+          {
+            p: 0.4,
+            effect: { skipSlots: 2, cash: -150, moral: -3 },
+            text: {
+              fr: "La conseillère vérifie : « Ah bah oui, vous avez raison. Mais qu'est-ce qu'ils ont fait ? » Tu fais toi-même opposition au prélèvement, et un gestionnaire t'accorde un étalement. 150 € ce mois-ci.",
+              en: "The adviser checks: “Oh, yes, you're right. But what have they done?” You stop the debit yourself, and a case manager lets you pay in parts. €150 this month.",
+            },
+          },
+          {
+            p: 0.6,
+            effect: { skipSlots: 2, cash: -480, moral: -10 },
+            text: {
+              fr: "« C'est normal, c'est le temps que ce soit pris en compte. » Un radié n'a pas le droit d'étaler. Tu paies les 420 €, plus 60 € de pénalités de retard pour une erreur qui n'est pas la tienne.",
+              en: "“That's normal, it takes time to be taken into account.” A struck-off founder may not pay in parts. You pay the €420, plus €60 in late fees for a mistake that isn't yours.",
+            },
+          },
+        ],
+      },
+    ],
+  },
 
   // =========================================================================
   // Clichés of the scene
