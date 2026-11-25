@@ -119,8 +119,70 @@ sfx("dare", { vol: 0.5, fx: [drive({ amount: 1.8 }), reverb({ size: 0.3, mix: 0.
   noise({ dur: 0.4, env: [0.001, 0.25, 0.15, 0.35], filter: { type: "hp", cutoff: 6000 }, vol: 0.35 }),
   tone({ wave: "sine", freq: 80, to: 40, dur: 0.3, env: [0.001, 0.2, 0.3, 0.2], vol: 0.8 }))
 
+// The apéro: the bar comes up out of the dark, and everyone beams in, the way a
+// hero drops into the first screen of a stage. It follows the picture to the
+// hundredth (see APERO in src/ui/bar-pixels.ts): a drum pickup while the bar
+// rises, sixteen streaks of light 105 ms apart (a semiquaver at 143), each one
+// falling in pitch and landing on a note, so the guests play a run that climbs
+// through E minor, C, D and B. Then a beat, the founder's own streak, longer
+// and lower, with the warble of a body taking shape, and every glass goes up
+// on a chord of G, with a clink.
+const APERO_STEP = 0.105
+const APERO_GUESTS = [
+  "E5", "G5", "B5", "E6",   "E5", "G5", "C6", "E6",
+  "F#5", "A5", "D6", "F#6", "F#5", "B5", "D#6", "F#6",
+]
+const APERO_FIRST = 0.42
+const APERO_FOUNDER = 2.35
+const APERO_TOAST = 2.85
+/** A streak of light starts two octaves above the note it lands on. */
+const fallFrom = (note) => note.replace(/\d/, (n) => String(Number(n) + 2))
+sfx("apero", { vol: 0.36, fx: [reverb({ size: 0.35, mix: 0.12 }), limiter({ ceiling: 0.8 })] },
+  // The bar comes up: a riser, and a snare pickup into the first guest.
+  noise({ dur: 0.42, env: [0.3, 0.05, 0.6, 0.05], filter: { type: "bp", from: 400, to: 5000, q: 1.5 }, vol: 0.12 }),
+  [0, 1, 2, 3].map((i) => at(i * APERO_STEP, play("_apero_snare", { vol: 0.35 + i * 0.15 }))),
+  // The guests, one streak each.
+  APERO_GUESTS.map((note, i) => at(APERO_FIRST + i * APERO_STEP - 0.13,
+    tone({ wave: "square", duty: 0.125, freq: fallFrom(note), to: note, slide: 0.12, dur: 0.12, env: [0.001, 0.05, 0.5, 0.02], vol: 0.16 }),
+    at(0.13,
+      tone({ wave: "square", duty: 0.25, freq: note, dur: 0.06, env: [0.001, 0.03, 0.5, 0.04], vol: 0.5 }),
+      tone({ wave: "triangle", freq: note, dur: 0.06, env: [0.001, 0.03, 0.5, 0.04], vol: 0.4 })))),
+  // Under them, a bass on every quaver and a kick on every beat, one chord a beat.
+  ["E2", "C2", "D2", "B1"].map((root, beat) => [0, 2].map((half) =>
+    at(APERO_FIRST + (beat * 4 + half) * APERO_STEP,
+      tone({ wave: "triangle", freq: root, dur: 0.16, env: [0.002, 0.05, 0.8, 0.04], vol: 0.7 }),
+      tone({ wave: "square", duty: 0.5, freq: root, dur: 0.16, env: [0.002, 0.04, 0.5, 0.04], vol: 0.15, filter: { type: "lp", cutoff: 700 } })))),
+  [0, 1, 2, 3].map((beat) => at(APERO_FIRST + beat * 4 * APERO_STEP, play("_apero_kick", { vol: 0.8 }))),
+  // A snare roll fills the beat while the founder is awaited.
+  [16, 17, 18, 19, 20, 21].map((step, i) => at(APERO_FIRST + step * APERO_STEP, play("_apero_snare", { vol: 0.3 + i * 0.1 }))),
+  // The founder: a long streak from high above, then the body takes shape.
+  at(APERO_FOUNDER - 0.13,
+    tone({ wave: "square", duty: 0.125, freq: "B7", to: "B4", slide: 0.13, dur: 0.13, env: [0.001, 0.05, 0.7, 0.02], vol: 0.3 }),
+    noise({ dur: 0.13, env: [0.001, 0.08, 0.4, 0.03], filter: { type: "bp", from: 9000, to: 1200, q: 2 }, vol: 0.12 })),
+  at(APERO_FOUNDER,
+    play("_apero_kick", { vol: 1 }),
+    tone({ wave: "square", duty: 0.25, freq: "B4", dur: 0.3, arp: { notes: [0, 12, 7, 19, 12, 24], rate: 0.025 }, env: [0.001, 0.08, 0.6, 0.1], vol: 0.45 }),
+    tone({ wave: "triangle", freq: "B2", dur: 0.3, env: [0.002, 0.1, 0.7, 0.1], vol: 0.7 })),
+  // Every glass goes up: a chord of G, a cymbal, and glass on glass.
+  at(APERO_TOAST,
+    play("_apero_kick", { vol: 1 }),
+    tone({ wave: "square", duty: 0.25, freq: "G6", dur: 0.55, env: [0.002, 0.12, 0.65, 0.4], vibrato: { rate: 6, depth: 0.2, delay: 0.18 }, vol: 0.55 }),
+    tone({ wave: "square", duty: 0.5, freq: "D6", dur: 0.55, env: [0.002, 0.12, 0.55, 0.4], vol: 0.3 }),
+    tone({ wave: "triangle", freq: "B5", dur: 0.55, env: [0.002, 0.12, 0.65, 0.4], vol: 0.5 }),
+    tone({ wave: "triangle", freq: "G4", dur: 0.55, env: [0.002, 0.12, 0.7, 0.4], vol: 0.6 }),
+    tone({ wave: "triangle", freq: "G2", dur: 0.55, env: [0.002, 0.12, 0.8, 0.4], vol: 0.8 }),
+    noise({ dur: 0.35, env: [0.001, 0.25, 0.15, 0.4], filter: { type: "hp", cutoff: 6500 }, vol: 0.2 })),
+  at(APERO_TOAST + 0.04,
+    tone({ wave: "fm", fm: { ratio: 3.5, index: 3, decay: 0.25 }, freq: "B7", dur: 0.05, env: [0.001, 0.15, 0, 0.3], vol: 0.25 }),
+    at(0.07, tone({ wave: "fm", fm: { ratio: 3.5, index: 3, decay: 0.25 }, freq: "D8", dur: 0.05, env: [0.001, 0.15, 0, 0.3], vol: 0.18 }))))
+// Drum hits for it, as single sounds it can place to the hundredth.
+sfx("_apero_kick", {}, tone({ wave: "sine", freq: 150, to: 45, dur: 0.12, env: [0.001, 0.1, 0, 0.05], vol: 0.9 }),
+  noise({ dur: 0.01, env: [0.001, 0.01, 0, 0.01], filter: { type: "lp", cutoff: 3000 }, vol: 0.3 }))
+sfx("_apero_snare", {}, noise({ dur: 0.07, env: [0.001, 0.06, 0, 0.04], filter: { type: "bp", cutoff: 2500, q: 0.8 }, vol: 0.6 }),
+  tone({ wave: "triangle", freq: 220, to: 160, dur: 0.05, env: [0.001, 0.04, 0, 0.02], vol: 0.4 }))
+
 // One file for all of them, each with a little silence after it.
-bank("sfx", ["click", "customer", "bite", "night", "card", "alarm", "tick", "bad", "win", "lose", "pick", "type_*", "talk_*", "slam", "dare"], { gap: 0.15 })
+bank("sfx", ["click", "customer", "bite", "night", "card", "alarm", "tick", "bad", "win", "lose", "pick", "type_*", "talk_*", "slam", "dare", "apero"], { gap: 0.15 })
 
 // ---------------------------------------------------------------------------
 // Music

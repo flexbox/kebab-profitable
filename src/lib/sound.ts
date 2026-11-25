@@ -114,6 +114,8 @@ export const sfx = {
   slam: () => play("slam"),
   /** The dare: a chord struck hard. */
   dare: () => play("dare"),
+  /** The apéro: everyone beams into the bar, as at the start of a stage. */
+  apero: () => play("apero"),
 };
 
 // --- Music -------------------------------------------------------------------
