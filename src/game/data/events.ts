@@ -1,10 +1,12 @@
 import type { EventDef, EventOutcome } from "../types";
+import { APERO_CARDS } from "./apero";
 import { URGENT_CARDS } from "./urgent";
 
 /**
  * The event deck. One card may turn up overnight and is answered in the
  * morning. The urgent cards, answered against the clock in the middle of a
- * day, are in `urgent.ts` and join the deck at the end of this file.
+ * day, are in `urgent.ts`, and the cards of the apéro in `apero.ts`: both
+ * join the deck at the end of this file.
  *
  * House rules for cameo cards (kind: "cameo"):
  *  - the figure appears by name, never as a quote; the "in real life" advice
@@ -15,53 +17,10 @@ import { URGENT_CARDS } from "./urgent";
  * Adding a card: copy one, give it a new `id`, and describe what happens with
  * `effect`. See `Effect` in src/game/types.ts for everything an effect can do.
  */
-/**
- * The card of the apéro. It is never drawn from the deck: the evening at the
- * bar deals it, in place of anything urgent, the first time you go.
- */
-export const APERO_CARD = "ih-apero";
-
 export const EVENTS: EventDef[] = [
   // =========================================================================
   // Cameos
   // =========================================================================
-  {
-    id: APERO_CARD,
-    kind: "cameo",
-    tone: "good",
-    who: "ih",
-    title: { fr: "Apéro Indie Hackers", en: "Indie Hackers apéro" },
-    text: {
-      fr: "Entre deux verres, quelqu'un d'Indie Hackers te demande où tu en es. Pas le pitch : les chiffres, et ce qui coince.",
-      en: "Between two drinks, someone from Indie Hackers asks where you stand. Not the pitch: the numbers, and what is stuck.",
-    },
-    choices: [
-      {
-        label: { fr: "Tout dire, chiffres compris", en: "Tell it all, numbers included" },
-        outcomes: [
-          {
-            effect: { audience: 20, socialMoral: 4 },
-            text: {
-              fr: "Tu donnes ton MRR, ton churn et ce qui bloque. Trois personnes ont une idée, une a un contact. La meilleure heure du mois.",
-              en: "You give your MRR, your churn and what is blocking you. Three people have an idea, one has a contact. Best hour of the month.",
-            },
-          },
-        ],
-      },
-      {
-        label: { fr: "Sortir le pitch", en: "Give the pitch" },
-        outcomes: [
-          {
-            effect: { moral: 2 },
-            text: {
-              fr: "Ton pitch est parfait. Tout le monde hoche la tête poliment et retourne parler de ses vrais chiffres.",
-              en: "Your pitch is flawless. Everyone nods politely and goes back to talking about their real numbers.",
-            },
-          },
-        ],
-      },
-    ],
-  },
   {
     id: "levels-ship",
     kind: "cameo",
@@ -1358,6 +1317,7 @@ export const EVENTS: EventDef[] = [
     ],
   },
   ...URGENT_CARDS,
+  ...APERO_CARDS,
 ];
 
 export function eventCard(id: string): EventDef {

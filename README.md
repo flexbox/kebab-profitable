@@ -192,6 +192,7 @@ profitable on day 43. `cd video && npm install && npm run render`. See
 | `src/game/data/ideas.ts` | The fifteen project ideas. |
 | `src/game/data/events.ts` | The event deck, answered at leisure in the morning. |
 | `src/game/data/urgent.ts` | The urgent cards, answered against the clock. |
+| `src/game/data/apero.ts` | The cards of the apéro: one is dealt every evening at the bar. |
 | `src/game/data/chef.ts` | What the kebab shop owner says, and on which occasion. Add a line to a list and he will say it. |
 | `src/game/sim/` | Scripted players used to tune the balance. |
 | `src/ui/` | The screens, and `pixels.ts`, which puts the room together from the art. |
@@ -289,6 +290,12 @@ An urgent card is the same thing with a clock, in `src/game/data/urgent.ts`:
 runs out. Keep its text short, because it is read while the counter runs, and
 guard anything that costs money with `minCash`: the tests refuse a card that
 could end a run by itself.
+
+Every apéro deals a card from `src/game/data/apero.ts`: somebody at the table
+always has a deal for you, a tip, an offer or a bet. Indie Hackers hosts the
+first one; then each evening brings a card not met yet. A card in which a
+member gives the advice uses `notFounder`, so that nobody is sold their own
+tip.
 
 An outcome can deal another card at once with `then`, in place of a result to
 read. The VAT fine comes back this way when it is refused: three reminders in

@@ -249,6 +249,7 @@ export const UI = {
     lille: { fr: "Lille", en: "Lille" },
     scene: { fr: "La scène", en: "The scene" },
     urgent: { fr: "Urgent", en: "Urgent" },
+    apero: { fr: "Apéro", en: "Apéro" },
   },
   /** Read out when an urgent card lands. */
   urgentAlert: (seconds: number): L => ({

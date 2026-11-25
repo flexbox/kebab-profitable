@@ -11,7 +11,8 @@ import { dateOf, daysToApero, isAperoDay, SLOT_COUNT } from "./calendar";
 import { ACTIONS, action } from "./data/actions";
 import { character } from "./data/characters";
 import { CHEF, MILESTONES, type ChefCue } from "./data/chef";
-import { APERO_CARD, EVENTS, FOLLOW_UPS, eventCard } from "./data/events";
+import { APERO_CARDS, APERO_HOST } from "./data/apero";
+import { EVENTS, FOLLOW_UPS, eventCard } from "./data/events";
 import { IDEAS, idea } from "./data/ideas";
 import { meal } from "./data/meals";
 import { M, WHY } from "./messages";
@@ -35,7 +36,8 @@ import type {
 const clamp = (v: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, v));
 
 /** Cards drawn at random. The others only come when another card deals them. */
-const DECK = EVENTS.filter((e) => !FOLLOW_UPS.has(e.id) && e.id !== APERO_CARD);
+const APERO = new Set(APERO_CARDS.map((e) => e.id));
+const DECK = EVENTS.filter((e) => !FOLLOW_UPS.has(e.id) && !APERO.has(e.id));
 /** Cards dealt overnight and answered in the morning, at leisure. */
 const OVERNIGHT = DECK.filter((e) => !e.urgent);
 /** Cards dealt in the middle of the day and answered against the clock. */
@@ -315,6 +317,7 @@ function holds(s: GameState, cond: Condition | undefined): boolean {
   if (cond.mrrGrew !== undefined && mrrOf(s) > s.month.startMrr !== cond.mrrGrew) {
     return false;
   }
+  if (cond.notFounder !== undefined && s.character === cond.notFounder) return false;
   return true;
 }
 
@@ -635,11 +638,9 @@ function act(s: GameState, id: ActionId) {
   }
 
   if (s.outcome || s.pendingEvent) return;
-  // At the bar, nothing urgent reaches you: the first time, Indie Hackers
-  // comes over instead.
+  // At the bar, nothing urgent reaches you: somebody has a deal for you instead.
   if (id === "apero") {
-    const card = eventCard(APERO_CARD);
-    if (playable(s, card)) s.pendingEvent = card.id;
+    s.pendingEvent = aperoCard(s);
     return;
   }
   // Now and then something cannot wait until tomorrow morning.
@@ -738,6 +739,19 @@ function playable(s: GameState, e: EventDef): boolean {
     holds(s, e.when) &&
     e.choices.some((c) => holds(s, c.when))
   );
+}
+
+/**
+ * The card of an evening at the bar. Indie Hackers hosts the first one; then
+ * it is anybody at the table, someone not met yet if there is one left.
+ */
+function aperoCard(s: GameState): string | null {
+  const fitting = APERO_CARDS.filter((e) => holds(s, e.when) && e.choices.some((c) => holds(s, c.when)));
+  const unseen = fitting.filter((e) => !s.eventsSeen.includes(e.id));
+  if (unseen.some((e) => e.id === APERO_HOST)) return APERO_HOST;
+  const pool = unseen.length > 0 ? unseen : fitting;
+  if (pool.length === 0) return null;
+  return pool[Math.floor(rand(s.seed, "apero-card", s.day) * pool.length)].id;
 }
 
 /** An urgent card for the slot that was just played, now and then. */

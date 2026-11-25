@@ -278,6 +278,8 @@ export interface Condition {
   minBuilt?: number;
   /** MRR is higher than at the start of the month. */
   mrrGrew?: boolean;
+  /** Any founder but this one: for a card in which that member gives the advice. */
+  notFounder?: CharacterId;
 }
 
 export interface Effect {
@@ -349,8 +351,9 @@ export type GuestId =
   | "arvid"
   | "benjamin"
   | "flavie"
-  /** Not a person: the community itself, which hosts the apéro. */
-  | "ih";
+  /** Not people: the community that hosts the apéro, and a tool a member swears by. */
+  | "ih"
+  | "raycast";
 
 export interface GuestDef {
   name: string;
@@ -363,7 +366,7 @@ export interface GuestDef {
   lesson: L;
 }
 
-export type EventKind = "cameo" | "admin" | "lille" | "scene" | "urgent";
+export type EventKind = "cameo" | "admin" | "lille" | "scene" | "urgent" | "apero";
 
 export interface EventDef {
   id: string;

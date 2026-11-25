@@ -110,6 +110,14 @@ export const GUESTS: Record<GuestId, GuestDef> = {
       en: "Post your real numbers and what blocks you, then ask one precise question. People help those who say where they are stuck.",
     },
   },
+  raycast: {
+    name: "Raycast",
+    handle: "raycast",
+    lesson: {
+      fr: "Repère les trois choses que tu fais cent fois par jour et mets-les derrière un raccourci. Les secondes gagnées font des heures.",
+      en: "Find the three things you do a hundred times a day and put them behind a shortcut. Saved seconds add up to hours.",
+    },
+  },
 };
 
 export function guest(id: GuestId): GuestDef {

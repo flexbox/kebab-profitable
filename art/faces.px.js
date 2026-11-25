@@ -839,3 +839,29 @@ sprite("guest_ih", { w: 32, h: 32 },
   circ(16, 13, 8, "#2a2a30"), circ(16, 13, 7, "#f4f4f6"), clip([18, 15, 7], circ(16, 13, 7, "#d0d0d6")),
   ellipse(17, 13, 5, 4, "#2f6fde"), ellipse(16, 13, 4, 4, "#0c0c12"),
   px(13, 11, "#ffffff"), px(14, 10, "#ffffff"), px(13, 12, "#9aa0b0"))
+
+// Raycast: their avatar is their mark, white on near black: a diamond of
+// diagonal stripes with a solid square set into it. The shapes are measured on
+// the 400 px avatar and sampled at the centre of each pixel, a little larger.
+sprite("guest_raycast", { w: 32, h: 32 },
+  rect(0, 0, 32, 32, "#1a1a1a"),
+  (c) => {
+    const k = Math.SQRT1_2
+    // Stripes run down to the right: [distance across, from, to along], at 400 px.
+    const stripes = [[-75, 200, 366], [-37, 196, 365], [37, 196, 365], [75, 200, 366], [0, 198, 222], [0, 340, 364]]
+    for (let y = 0; y < 32; y++) {
+      for (let x = 0; x < 32; x++) {
+        const X = 200 + (x + 0.5 - 16) / 0.1
+        const Y = 200 + (y + 0.5 - 16) / 0.1
+        const across = (Y - X) * k
+        const along = (X + Y) * k
+        const square = X >= 168 && X <= 257 && Y >= 143 && Y <= 232
+        // A dark gap keeps the inner stripes off the square.
+        const gap = X >= 152 && X <= 273 && Y >= 127 && Y <= 248
+        const striped = stripes.some(
+          ([d, from, to]) => Math.abs(across - d) <= 11 && along >= from && along <= to && !(gap && Math.abs(d) === 37),
+        )
+        if (square || striped) c.px(x, y, "#ffffff")
+      }
+    }
+  })
