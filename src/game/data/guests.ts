@@ -102,6 +102,14 @@ export const GUESTS: Record<GuestId, GuestDef> = {
       en: "Sell before you build: find three people ready to pay before you write the first line of code.",
     },
   },
+  ih: {
+    name: "Indie Hackers",
+    handle: "IndieHackers",
+    lesson: {
+      fr: "Publie tes vrais chiffres et ce qui te bloque, puis pose une question précise. On aide ceux qui disent où ils coincent.",
+      en: "Post your real numbers and what blocks you, then ask one precise question. People help those who say where they are stuck.",
+    },
+  },
 };
 
 export function guest(id: GuestId): GuestDef {

@@ -348,7 +348,9 @@ export type GuestId =
   | "danny"
   | "arvid"
   | "benjamin"
-  | "flavie";
+  | "flavie"
+  /** Not a person: the community itself, which hosts the apéro. */
+  | "ih";
 
 export interface GuestDef {
   name: string;

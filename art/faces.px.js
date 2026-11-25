@@ -818,3 +818,24 @@ for (const [who, guest] of Object.entries(GUESTS)) {
   const { look, ...rest } = guest
   face(`guest_${who}`, { look: { ...GUEST, ...look }, ...rest })
 }
+
+// Indie Hackers: not a face but the community's avatar, an astronaut in front
+// of the moon, the IH patch on the shoulder. It hosts the card of the apéro.
+sprite("guest_ih", { w: 32, h: 32 },
+  rect(0, 0, 32, 32, "#0b0b10"),
+  ...[[2, 3], [28, 5], [5, 26], [29, 22], [1, 15], [25, 1]].map(([x, y]) => px(x, y, "#e8e8f0")),
+  // The moon, lit from the top left, with its craters.
+  circ(16, 14, 13, "#7c7c82"),
+  clip([12, 10, 10], circ(16, 14, 13, "#a4a4aa")),
+  circ(7, 10, 2, "#77777c"), circ(10, 22, 2, "#77777c"), circ(25, 9, 1, "#77777c"), circ(26, 19, 2, "#77777c"), px(14, 4, "#77777c"),
+  // The backpack, behind the shoulders.
+  rect(22, 15, 6, 13, "#b8b8bc"), rect(23, 16, 4, 11, "#d8d8dc"), rect(22, 15, 6, 1, "#5a5a60"),
+  // The suit.
+  poly([8, 32, 9, 23, 13, 20, 22, 20, 26, 23, 27, 32], "#e6e6ea"),
+  rect(9, 26, 3, 6, "#c4c4c8"), rect(15, 24, 6, 4, "#c4c4c8"), rect(16, 25, 2, 2, "#3b7be8"),
+  // The IH patch.
+  rect(20, 21, 9, 7, "#2f6fde"), text(21, 22, "IH", "#ffffff"),
+  // The helmet: a white shell, a black visor with a glint and a blue rim.
+  circ(16, 13, 8, "#2a2a30"), circ(16, 13, 7, "#f4f4f6"), clip([18, 15, 7], circ(16, 13, 7, "#d0d0d6")),
+  ellipse(17, 13, 5, 4, "#2f6fde"), ellipse(16, 13, 4, 4, "#0c0c12"),
+  px(13, 11, "#ffffff"), px(14, 10, "#ffffff"), px(13, 12, "#9aa0b0"))

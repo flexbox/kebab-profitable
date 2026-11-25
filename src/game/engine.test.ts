@@ -5,7 +5,13 @@ import { decodeMoves, encodeMoves } from "./codec";
 import { ACTIONS } from "./data/actions";
 import { CHARACTERS, CHARACTER_IDS } from "./data/characters";
 import { CHEF, MILESTONES } from "./data/chef";
-import { EVENTS, FOLLOW_UPS, eventCard, outcomesOf } from "./data/events";
+import {
+  APERO_CARD,
+  EVENTS,
+  FOLLOW_UPS,
+  eventCard,
+  outcomesOf,
+} from "./data/events";
 import { GUESTS } from "./data/guests";
 import { IDEAS } from "./data/ideas";
 import { MEALS } from "./data/meals";
@@ -25,7 +31,8 @@ import { BOTS } from "./sim/bots";
 import { playRun } from "./sim/run";
 import type { EventDef, GameState, L, Move } from "./types";
 
-const filled = (text: L) => text.fr.trim().length > 0 && text.en.trim().length > 0;
+const filled = (text: L) =>
+  text.fr.trim().length > 0 && text.en.trim().length > 0;
 
 /** Plays until the next action slot, eating pasta and taking the first choice. */
 function toSlot(s: GameState): GameState {
@@ -50,30 +57,41 @@ function toSlot(s: GameState): GameState {
 
 describe("calendar", () => {
   it("starts on Friday 1 January 2027", () => {
-    expect(dateOf(1)).toMatchObject({ year: 2027, month: 1, dayOfMonth: 1, weekday: 4 });
-    expect(dateOf(32)).toMatchObject({ month: 2, dayOfMonth: 1, daysInMonth: 28 });
+    expect(dateOf(1)).toMatchObject({
+      year: 2027,
+      month: 1,
+      dayOfMonth: 1,
+      weekday: 4,
+    });
+    expect(dateOf(32)).toMatchObject({
+      month: 2,
+      dayOfMonth: 1,
+      daysInMonth: 28,
+    });
   });
 
   it("holds the apéro on the third Thursday of each month", () => {
-    const aperos = Array.from({ length: 120 }, (_, i) => i + 1).filter(isAperoDay);
-    expect(aperos.map((d) => `${dateOf(d).dayOfMonth}/${dateOf(d).month}`)).toEqual([
-      "21/1",
-      "18/2",
-      "18/3",
-      "15/4",
-    ]);
+    const aperos = Array.from({ length: 120 }, (_, i) => i + 1).filter(
+      isAperoDay,
+    );
+    expect(
+      aperos.map((d) => `${dateOf(d).dayOfMonth}/${dateOf(d).month}`),
+    ).toEqual(["21/1", "18/2", "18/3", "15/4"]);
   });
 });
 
 describe("content", () => {
   it("has both languages everywhere", () => {
     for (const c of CHARACTERS) {
-      expect(filled(c.role) && filled(c.perk.name) && filled(c.perk.desc)).toBe(true);
+      expect(filled(c.role) && filled(c.perk.name) && filled(c.perk.desc)).toBe(
+        true,
+      );
       expect(filled(c.flaw.name) && filled(c.flaw.desc)).toBe(true);
     }
     for (const i of IDEAS) expect(filled(i.name) && filled(i.pitch)).toBe(true);
     for (const m of MEALS) expect(filled(m.name) && filled(m.desc)).toBe(true);
-    for (const a of ACTIONS) expect(filled(a.name) && filled(a.desc)).toBe(true);
+    for (const a of ACTIONS)
+      expect(filled(a.name) && filled(a.desc)).toBe(true);
     for (const e of EVENTS) {
       expect(filled(e.title) && filled(e.text), e.id).toBe(true);
       for (const c of e.choices) {
@@ -81,10 +99,13 @@ describe("content", () => {
         expect(c.outcomes.length, e.id).toBeGreaterThan(0);
         for (const o of c.outcomes) expect(filled(o.text), e.id).toBe(true);
       }
-      for (const o of e.urgent?.missed ?? []) expect(filled(o.text), e.id).toBe(true);
+      for (const o of e.urgent?.missed ?? [])
+        expect(filled(o.text), e.id).toBe(true);
     }
-    for (const lines of Object.values(CHEF)) for (const l of lines) expect(filled(l)).toBe(true);
-    for (const lines of Object.values(MILESTONES)) for (const l of lines) expect(filled(l)).toBe(true);
+    for (const lines of Object.values(CHEF))
+      for (const l of lines) expect(filled(l)).toBe(true);
+    for (const lines of Object.values(MILESTONES))
+      for (const l of lines) expect(filled(l)).toBe(true);
   });
 
   it("has unique ids and valid references", () => {
@@ -97,10 +118,15 @@ describe("content", () => {
       if (c.handle) expect(c.handle, c.id).toMatch(/^\w{1,15}$/);
     }
     expect(IDEAS).toHaveLength(30);
-    expect(EVENTS.filter((e) => e.kind === "cameo").every((e) => !!e.who)).toBe(true);
+    expect(EVENTS.filter((e) => e.kind === "cameo").every((e) => !!e.who)).toBe(
+      true,
+    );
     // Every guest has a cameo, and a handle without the @.
     for (const [id, g] of Object.entries(GUESTS)) {
-      expect(EVENTS.some((e) => e.who === id), id).toBe(true);
+      expect(
+        EVENTS.some((e) => e.who === id),
+        id,
+      ).toBe(true);
       expect(g.handle, id).toMatch(/^\w{1,15}$/);
     }
     // A card dealt by another one exists, and is answered the same way.
@@ -113,7 +139,10 @@ describe("content", () => {
 
   it("gives every event a choice that is always open", () => {
     for (const e of EVENTS) {
-      expect(e.choices.some((c) => !c.when), e.id).toBe(true);
+      expect(
+        e.choices.some((c) => !c.when),
+        e.id,
+      ).toBe(true);
     }
   });
 
@@ -126,11 +155,17 @@ describe("content", () => {
       expect(e.urgent!.seconds, e.id).toBeGreaterThanOrEqual(5);
       expect(e.urgent!.seconds, e.id).toBeLessThanOrEqual(10);
       // Letting the clock run out always costs something.
-      expect(e.urgent!.missed.some((o) => !o.when), e.id).toBe(true);
-      for (const o of e.urgent!.missed) expect(effectTone(o.effect), e.id).toBe("bad");
+      expect(
+        e.urgent!.missed.some((o) => !o.when),
+        e.id,
+      ).toBe(true);
+      for (const o of e.urgent!.missed)
+        expect(effectTone(o.effect), e.id).toBe("bad");
     }
     // Cards answered at leisure have no clock.
-    expect(EVENTS.filter((e) => e.kind === "urgent").every((e) => !!e.urgent)).toBe(true);
+    expect(
+      EVENTS.filter((e) => e.kind === "urgent").every((e) => !!e.urgent),
+    ).toBe(true);
   });
 
   it("never lets an urgent card end a run by itself", () => {
@@ -155,7 +190,9 @@ describe("content", () => {
         }
       }
     };
-    for (const e of EVENTS.filter((card) => card.urgent && !FOLLOW_UPS.has(card.id))) {
+    for (const e of EVENTS.filter(
+      (card) => card.urgent && !FOLLOW_UPS.has(card.id),
+    )) {
       check(e, e.when?.minCash ?? 0);
     }
   });
@@ -233,7 +270,10 @@ describe("rules", () => {
   it("caps freelance at the monthly budget", () => {
     let s = toSlot(createRun("freelance", "karl"));
     let done = 0;
-    while (legalActions(s).find((a) => a.id === "freelance")!.enabled && done < 20) {
+    while (
+      legalActions(s).find((a) => a.id === "freelance")!.enabled &&
+      done < 20
+    ) {
       s = toSlot(apply(s, { t: "act", id: "freelance" }));
       done++;
     }
@@ -281,6 +321,11 @@ describe("rules", () => {
           expect(["choice", "miss"]).toContain(last.t);
           continue;
         }
+        if (s.pendingEvent === APERO_CARD) {
+          // Dealt by the evening at the bar, not by the night.
+          expect(last).toEqual({ t: "act", id: "apero" });
+          continue;
+        }
         if (EVENTS.find((e) => e.id === s.pendingEvent)!.urgent) {
           urgent++;
           expect(last.t).toBe("act");
@@ -295,6 +340,37 @@ describe("rules", () => {
     expect(overnight).toBeGreaterThan(20);
   });
 
+  it("lets nothing urgent reach the apéro, and brings Indie Hackers the first time", () => {
+    let met = 0;
+    let quiet = 0;
+    for (let i = 0; i < 40; i++) {
+      const s = createRun(
+        `apero-${i}`,
+        CHARACTER_IDS[i % CHARACTER_IDS.length],
+      );
+      let dealt = 0;
+      while (!s.outcome && s.day <= 120) {
+        const move =
+          s.phase === "slot" &&
+          isAperoDay(s.day) &&
+          legalActions(s).some((a) => a.id === "apero" && a.enabled)
+            ? ({ t: "act", id: "apero" } as const)
+            : BOTS.expert(s);
+        step(s, move);
+        if (move.t !== "act" || move.id !== "apero") continue;
+        if (s.outcome) break;
+        if (s.pendingEvent) {
+          expect(s.pendingEvent).toBe(APERO_CARD);
+          dealt++;
+          met++;
+        } else quiet++;
+      }
+      expect(dealt).toBeLessThanOrEqual(1);
+    }
+    expect(met).toBeGreaterThan(10);
+    expect(quiet).toBeGreaterThan(0);
+  });
+
   it("brings each founder different guests, and the same founder the same ones", () => {
     const guests = (seed: string, who: (typeof CHARACTER_IDS)[number]) => {
       const s = createRun(seed, who);
@@ -302,7 +378,10 @@ describe("rules", () => {
       while (!s.outcome && s.day <= 60) {
         const before = s.pendingEvent;
         step(s, BOTS.expert(s));
-        const card = s.pendingEvent && s.pendingEvent !== before ? eventCard(s.pendingEvent) : null;
+        const card =
+          s.pendingEvent && s.pendingEvent !== before
+            ? eventCard(s.pendingEvent)
+            : null;
         if (card?.kind === "cameo") met.push(`${card.who} on day ${s.day}`);
       }
       return met.join(", ");
@@ -314,7 +393,8 @@ describe("rules", () => {
     expect(guests("guests", "karl")).toBe(guests("guests", "karl"));
     // And the first guest of a run is not always the same one.
     const first = new Set<string>();
-    for (let i = 0; i < 30; i++) first.add(guests(`first-${i}`, "david").split(" ")[0]);
+    for (let i = 0; i < 30; i++)
+      first.add(guests(`first-${i}`, "david").split(" ")[0]);
     expect(first.size).toBeGreaterThanOrEqual(5);
 
     // At a milestone, the guest who walks on changes with the run too.
@@ -323,8 +403,15 @@ describe("rules", () => {
       for (const who of CHARACTER_IDS) {
         const s = createRun(`walk-${i}`, who);
         // The journal only keeps its last entries: read it as the run goes.
-        while (!s.outcome && s.day <= 60 && !s.milestones.includes("firstCustomer")) step(s, BOTS.expert(s));
-        const line = s.log.find((entry) => MILESTONES.firstCustomer.some((l) => l.fr === entry.text.fr));
+        while (
+          !s.outcome &&
+          s.day <= 60 &&
+          !s.milestones.includes("firstCustomer")
+        )
+          step(s, BOTS.expert(s));
+        const line = s.log.find((entry) =>
+          MILESTONES.firstCustomer.some((l) => l.fr === entry.text.fr),
+        );
         if (line) walkOns.add(line.text.fr);
       }
     }
@@ -365,7 +452,10 @@ describe("rules", () => {
       const order = shownChoices(s).map((c) => c.index);
       // Every choice is still there, once, and the order holds on a reload.
       expect([...order].sort(), ev.id).toEqual(ev.choices.map((_, i) => i));
-      expect(shownChoices(s).map((c) => c.index), ev.id).toEqual(order);
+      expect(
+        shownChoices(s).map((c) => c.index),
+        ev.id,
+      ).toEqual(order);
       if (!ev.urgent) expect(order, ev.id).toEqual(ev.choices.map((_, i) => i));
       else if (order.some((index, place) => index !== place)) moved++;
     }
@@ -386,13 +476,19 @@ describe("rules", () => {
         continue;
       }
       const next = apply(s, { t: "miss" });
-      const reminders = ev.urgent.missed.flatMap((o) => (o.then ? [o.then] : []));
+      const reminders = ev.urgent.missed.flatMap((o) =>
+        o.then ? [o.then] : [],
+      );
       if (reminders.length > 0) {
         // Silence is a refusal: the reminder lands at once, with no result to read.
         expect(reminders).toContain(next.pendingEvent);
         expect(next.eventResult).toBeNull();
       } else {
-        expect(next.eventResult).toMatchObject({ id: ev.id, missed: true, tone: "bad" });
+        expect(next.eventResult).toMatchObject({
+          id: ev.id,
+          missed: true,
+          tone: "bad",
+        });
       }
       expect(next.stats.missed).toBe(1);
       expect(next.pendingEvent === ev.id).toBe(false);
@@ -412,7 +508,11 @@ describe("rules", () => {
     // Refusing, or letting the clock run out, deals the next card at once.
     let state = start;
     const asked = [price(state)];
-    for (const move of [{ t: "choice", id: 1 }, { t: "miss" }, { t: "choice", id: 1 }] as Move[]) {
+    for (const move of [
+      { t: "choice", id: 1 },
+      { t: "miss" },
+      { t: "choice", id: 1 },
+    ] as Move[]) {
       const before = state.pendingEvent;
       state = apply(state, move);
       expect(state.phase).toBe("event");
@@ -447,7 +547,13 @@ describe("rules", () => {
   it("starts the product again from zero over a copied logo, unless the trademark is bought", () => {
     const sued = (cash: number) => {
       const s = toSlot(createRun("logo", "david"));
-      Object.assign(s.project!, { launched: true, launchDay: 1, customers: 12, quality: 40, built: 30 });
+      Object.assign(s.project!, {
+        launched: true,
+        launchDay: 1,
+        customers: 12,
+        quality: 40,
+        built: 30,
+      });
       s.cash = cash;
       s.audience = 300;
       s.pendingEvent = "logo-troll";
@@ -481,9 +587,12 @@ describe("rules", () => {
 
   it("gives Chef a new thing to say each time, and has him coach at lunch", () => {
     const cueOf = (text: string) =>
-      (Object.keys(CHEF) as (keyof typeof CHEF)[]).find((cue) => CHEF[cue].some((l) => l.fr === text));
+      (Object.keys(CHEF) as (keyof typeof CHEF)[]).find((cue) =>
+        CHEF[cue].some((l) => l.fr === text),
+      );
     // Every cue has several lines: he does not repeat himself.
-    for (const [cue, lines] of Object.entries(CHEF)) expect(lines.length, cue).toBeGreaterThanOrEqual(3);
+    for (const [cue, lines] of Object.entries(CHEF))
+      expect(lines.length, cue).toBeGreaterThanOrEqual(3);
 
     const said = new Set<string>();
     const cues = new Set<string>();
@@ -520,9 +629,17 @@ describe("rules", () => {
       }
     }
     expect(heard.length).toBeGreaterThanOrEqual(CHEF.coach.length);
-    expect(new Set(heard.slice(0, CHEF.coach.length)).size).toBe(CHEF.coach.length);
+    expect(new Set(heard.slice(0, CHEF.coach.length)).size).toBe(
+      CHEF.coach.length,
+    );
     expect(said.size).toBeGreaterThan(60);
-    for (const cue of ["coach", "coachBuilding", "coachNoCustomers", "coachGrowing", "coachAudience"]) {
+    for (const cue of [
+      "coach",
+      "coachBuilding",
+      "coachNoCustomers",
+      "coachGrowing",
+      "coachAudience",
+    ]) {
       expect(cues.has(cue), cue).toBe(true);
     }
   });
@@ -551,9 +668,9 @@ describe("determinism", () => {
     const code = encodeMoves(played.history);
     expect(code.length).toBeLessThanOrEqual(played.history.length * 3);
     expect(decodeMoves(code)).toEqual(played.history);
-    expect(replay("codec-seed", "christophe", decodeMoves(code)).outcome).toEqual(
-      played.outcome,
-    );
+    expect(
+      replay("codec-seed", "christophe", decodeMoves(code)).outcome,
+    ).toEqual(played.outcome);
   });
 
   it("plays every character to the end with every scripted player", () => {

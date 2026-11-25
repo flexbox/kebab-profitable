@@ -950,9 +950,13 @@ export function Play({
   const slots = slotsToday(state);
   const who = character(state.character);
   const latest = state.log[state.log.length - 1];
-  // The move just played was the apéro: the room shows the evening at the bar.
-  const lastMove = state.history[state.history.length - 1];
-  const wentOut = !!turn.prev && !state.outcome && lastMove?.t === "act" && lastMove.id === "apero";
+  // The move just played was the apéro, or the answer to the card it dealt:
+  // the room shows the evening at the bar, from the move that went out.
+  let sinceApero = 0;
+  while (state.history[state.history.length - 1 - sinceApero]?.t === "choice") sinceApero++;
+  const lastMove = state.history[state.history.length - 1 - sinceApero];
+  const wentOut =
+    !!turn.prev && !state.outcome && sinceApero < turn.n && lastMove?.t === "act" && lastMove.id === "apero";
   const roomLabel =
     lang === "fr"
       ? `Le studio de ${who.name.split(" ")[0]}, à Lille`
@@ -1052,7 +1056,7 @@ export function Play({
               preview={preview}
               fasting={fasting && state.phase === "meal"}
               cheer={cueOf(turn) === "customer" ? turn.n : 0}
-              apero={wentOut ? turn.n : 0}
+              apero={wentOut ? turn.n - sinceApero : 0}
               label={roomLabel}
             />
           </section>

@@ -11,7 +11,7 @@ import { dateOf, daysToApero, isAperoDay, SLOT_COUNT } from "./calendar";
 import { ACTIONS, action } from "./data/actions";
 import { character } from "./data/characters";
 import { CHEF, MILESTONES, type ChefCue } from "./data/chef";
-import { EVENTS, FOLLOW_UPS, eventCard } from "./data/events";
+import { APERO_CARD, EVENTS, FOLLOW_UPS, eventCard } from "./data/events";
 import { IDEAS, idea } from "./data/ideas";
 import { meal } from "./data/meals";
 import { M, WHY } from "./messages";
@@ -35,7 +35,7 @@ import type {
 const clamp = (v: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, v));
 
 /** Cards drawn at random. The others only come when another card deals them. */
-const DECK = EVENTS.filter((e) => !FOLLOW_UPS.has(e.id));
+const DECK = EVENTS.filter((e) => !FOLLOW_UPS.has(e.id) && e.id !== APERO_CARD);
 /** Cards dealt overnight and answered in the morning, at leisure. */
 const OVERNIGHT = DECK.filter((e) => !e.urgent);
 /** Cards dealt in the middle of the day and answered against the clock. */
@@ -634,8 +634,16 @@ function act(s: GameState, id: ActionId) {
     }
   }
 
+  if (s.outcome || s.pendingEvent) return;
+  // At the bar, nothing urgent reaches you: the first time, Indie Hackers
+  // comes over instead.
+  if (id === "apero") {
+    const card = eventCard(APERO_CARD);
+    if (playable(s, card)) s.pendingEvent = card.id;
+    return;
+  }
   // Now and then something cannot wait until tomorrow morning.
-  if (!s.outcome && !s.pendingEvent) s.pendingEvent = pickUrgent(s, key[1]);
+  s.pendingEvent = pickUrgent(s, key[1]);
 }
 
 function eat(s: GameState, id: MealId) {
