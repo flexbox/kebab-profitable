@@ -47,7 +47,7 @@ export const store = {
     try {
       const state = JSON.parse(raw) as GameState;
       // A run saved under older rules cannot be replayed, so it is dropped.
-      return state && state.v === 3 && Array.isArray(state.history) ? state : null;
+      return state && state.v === 4 && Array.isArray(state.history) ? state : null;
     } catch {
       return null;
     }

@@ -49,8 +49,8 @@ export const B = {
   updateQuality: 0.55,
 
   // --- audience ------------------------------------------------------------
-  postBase: 7,
-  postPct: 0.014,
+  postBase: 8,
+  postPct: 0.016,
   viralChance: 0.06,
   viralMult: 4,
   /** Audience gained by outreach before launch (waitlist). */
@@ -71,7 +71,7 @@ export const B = {
   updateBurstRate: 0.002,
   /** Bursts triggered by event cards (Uneed, Product Hunt). */
   eventBurstRate: 0.012,
-  trickleRate: 0.0016,
+  trickleRate: 0.0018,
   outreachChance: 0.18,
   /** Potential multipliers, from flop to gem, and their weights. */
   potentialMult: [0.2, 0.5, 1, 1.5, 2.3],

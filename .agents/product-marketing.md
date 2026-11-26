@@ -89,7 +89,7 @@ Taken from their Product Hunt listings. I have not played them, so the "falls sh
 - **There is a real apéro behind it.** On apéro day the game links to the next one on Luma.
 - **Chef.** The only profitable entrepreneur in the game sells kebabs. "Vingt ans que ma broche tourne. Rentable depuis le premier jour."
 
-**How we do it differently:** A run is short (a good player wins in about 45 game days, some 200 clicks), free, in the browser, with no account. All art and sound are original and written as code.
+**How we do it differently:** A run is short (a good player wins in about 40 game days, some 180 clicks), free, in the browser, with no account. All art and sound are original and written as code.
 
 **Why that's better:** You get the lesson by losing to it once, in a few minutes, instead of over six months of savings.
 
@@ -98,7 +98,7 @@ Taken from their Product Hunt listings. I have not played them, so the "falls sh
 ## Objections
 | Objection | Response |
 |-----------|----------|
-| "I don't have time for a game." | One run is about 45 game days and 200 clicks. No account, no download. The current run is saved in the browser. |
+| "I don't have time for a game." | One run is about 40 game days and 180 clicks. No account, no download. The current run is saved in the browser. |
 | "It's a Lille in-joke, and I'm not French." | It plays in English too. The intro explains the French bits in one line each, and the cameos are people you already follow. |
 | "Funny, but do I learn anything?" | Each cameo gives one piece of advice to use this week. And the game's whole balance says one thing: the run that posts wins, the run that only codes goes broke. |
 | "Why pay for a free game?" | You don't have to. After a win it asks once for €9: a real kebab for its author. "Te voilà kebab profitable. Le jeu, pas encore." |

@@ -134,7 +134,7 @@ export interface RunStats {
 }
 
 export interface GameState {
-  v: 3;
+  v: 4;
   seed: string;
   character: CharacterId;
   /** 1 = 1 January 2027. */

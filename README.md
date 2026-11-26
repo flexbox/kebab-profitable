@@ -63,8 +63,8 @@ with indiehackers.com.
 - A new customer is a small victory, and is marked like one: a chest opens in
   the sound, and in the room the founder spins twice and throws a fist in the
   air, beaming, for two seconds.
-- A run is short: a good player is kebab profitable in about 45 days, some
-  200 clicks. `pnpm sim` prints the current figures.
+- A run is short: a good player is kebab profitable in about 40 days, some
+  180 clicks. `pnpm sim` prints the current figures.
 - Everyone plays the same seeded run each day, so two runs of the same day
   compare decisions, not luck. The luck is the same for everyone playing the same
   founder: who drops by overnight, and which guest walks on at a milestone,

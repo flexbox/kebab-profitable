@@ -79,7 +79,7 @@ export const LIMIT = { max: 30, seconds: 10 * 60 };
 /**
  * False once an address has sent too many scores. The limit is wide on
  * purpose: a whole bar on one Wi-Fi shares one address, and an honest win
- * takes some 190 clicks.
+ * takes some 180 clicks.
  */
 export async function underLimit(store: ScoreStore, who: string, now: Date): Promise<boolean> {
   return (await store.hit(who, LIMIT.seconds, now.getTime())) <= LIMIT.max;
