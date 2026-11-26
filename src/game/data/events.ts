@@ -1,4 +1,4 @@
-import type { EventDef, EventOutcome } from "../types";
+import type { EventDef, EventOutcome, L } from "../types";
 import { APERO_CARDS } from "./apero";
 import { URGENT_CARDS } from "./urgent";
 
@@ -17,6 +17,99 @@ import { URGENT_CARDS } from "./urgent";
  * Adding a card: copy one, give it a new `id`, and describe what happens with
  * `effect`. See `Effect` in src/game/types.ts for everything an effect can do.
  */
+// The voice bot really is answered eleven times: each answer deals the next
+// card at once (see `then`), with a way out on every one, and the eleventh
+// asks for a rating from 1 to 5. Only then does a human pick up.
+const VOICEBOT_LINES: L[] = [
+  { fr: "« J'ai une question sur ma déclaration. »", en: "“I have a question about my declaration.”" },
+  { fr: "« Une question. Sur ma déclaration. »", en: "“A question. About my declaration.”" },
+  { fr: "« Déclaration. »", en: "“Declaration.”" },
+  { fr: "« DÉ-CLA-RA-TION. »", en: "“DEC-LA-RA-TION.”" },
+  { fr: "« Déclaration de chiffre d'affaires mensuelle. »", en: "“Monthly revenue declaration.”" },
+  { fr: "« Micro-entreprise. »", en: "“Sole trader.”" },
+  { fr: "« Cotisations. »", en: "“Contributions.”" },
+  { fr: "« Aide. »", en: "“Help.”" },
+  { fr: "« S'il vous plaît. »", en: "“Please.”" },
+  { fr: "« Bonjour. »", en: "“Hello.”" },
+  { fr: "« … »", en: "“…”" },
+];
+
+const NOT_UNDERSTOOD: L = {
+  fr: "« Je n'ai pas compris. »",
+  en: "“I didn't understand.”",
+};
+
+const VOICEBOT_LOOP: EventDef[] = [
+  ...VOICEBOT_LINES.slice(1).map((line, i): EventDef => {
+    const n = i + 2;
+    const last = n === VOICEBOT_LINES.length;
+    return {
+      id: `urssaf-voicebot-${n}`,
+      kind: "admin",
+      tone: "bad",
+      title: { fr: "L'IA de l'URSSAF", en: "The URSSAF voice bot" },
+      text: {
+        fr: `Tentative ${n}. « Je n'ai pas compris. Merci d'annoncer l'objet de votre demande. »`,
+        en: `Attempt ${n}. “I didn't understand. Please state the reason for your call.”`,
+      },
+      choices: [
+        {
+          label: line,
+          outcomes: [
+            last
+              ? {
+                  effect: {},
+                  then: "urssaf-voicebot-rating",
+                  text: { fr: "« Merci. »", en: "“Thank you.”" },
+                }
+              : { effect: {}, then: `urssaf-voicebot-${n + 1}`, text: NOT_UNDERSTOOD },
+          ],
+        },
+        {
+          label: { fr: "Raccrocher", en: "Hang up" },
+          outcomes: [
+            {
+              effect: { skipSlots: 1, moral: -4 },
+              text: {
+                fr: `Tu raccroches au bout de ${n} tentatives. Tu déclareras au pif ce soir.`,
+                en: `You hang up after ${n} attempts. You'll guess on tonight's declaration.`,
+              },
+            },
+          ],
+        },
+      ],
+    };
+  }),
+  {
+    id: "urssaf-voicebot-rating",
+    kind: "admin",
+    tone: "bad",
+    title: { fr: "L'IA de l'URSSAF", en: "The URSSAF voice bot" },
+    text: {
+      fr: "« Pouvez-vous noter cette conversation de 1 à 5 ? »",
+      en: "“Could you rate this conversation from 1 to 5?”",
+    },
+    choices: ["1", "2", "3", "4", "5"].map((note) => ({
+      label: { fr: note, en: note },
+      outcomes: [
+        {
+          effect: { skipSlots: 2, moral: note === "5" ? -8 : -6 },
+          text:
+            note === "5"
+              ? {
+                  fr: "Tu tapes 5, par réflexe. « Merci pour votre note ! » Un humain décroche, t'écoute, et te donne un autre numéro de l'URSSAF. Où une voix de synthèse te demande l'objet de ta demande. Ta réponse arrive en fin d'après-midi.",
+                  en: "You press 5, out of habit. “Thank you for your rating!” A human picks up, listens, and gives you another URSSAF number. Where a synthetic voice asks for the reason for your call. You get your answer late in the afternoon.",
+                }
+              : {
+                  fr: `Tu tapes ${note}. Un humain décroche, t'écoute, et te donne un autre numéro de l'URSSAF. Où une voix de synthèse te demande l'objet de ta demande. Ta réponse arrive en fin d'après-midi.`,
+                  en: `You press ${note}. A human picks up, listens, and gives you another URSSAF number. Where a synthetic voice asks for the reason for your call. You get your answer late in the afternoon.`,
+                },
+        },
+      ],
+    })),
+  },
+];
+
 export const EVENTS: EventDef[] = [
   // =========================================================================
   // Cameos
@@ -987,22 +1080,14 @@ export const EVENTS: EventDef[] = [
     tone: "bad",
     title: { fr: "L'IA de l'URSSAF", en: "The URSSAF voice bot" },
     text: {
-      fr: "Une question simple avant ta déclaration de ce soir. Tu appelles l'URSSAF. Une voix de synthèse : « Merci d'annoncer l'objet de votre demande. » Tu l'annonces. « Je n'ai pas compris. Merci d'annoncer l'objet de votre demande. »",
-      en: "A simple question before tonight's declaration. You call URSSAF. A synthetic voice: “Please state the reason for your call.” You state it. “I didn't understand. Please state the reason for your call.”",
+      fr: "Une question simple avant ta déclaration de ce soir. Tu appelles l'URSSAF. Une voix de synthèse : « Merci d'annoncer l'objet de votre demande. »",
+      en: "A simple question before tonight's declaration. You call URSSAF. A synthetic voice: “Please state the reason for your call.”",
     },
     when: { minDay: 8 },
     choices: [
       {
-        label: { fr: "Jouer le jeu jusqu'au bout", en: "Play along to the end" },
-        outcomes: [
-          {
-            effect: { skipSlots: 2, moral: -6 },
-            text: {
-              fr: "Onze reformulations plus tard : « Pouvez-vous noter cette conversation de 1 à 5 ? » Tu tapes 1. Un humain décroche, t'écoute, et te donne un autre numéro de l'URSSAF. Où une voix de synthèse te demande l'objet de ta demande. Ta réponse arrive en fin d'après-midi.",
-              en: "Eleven rephrasings later: “Could you rate this conversation from 1 to 5?” You press 1. A human picks up, listens, and gives you another URSSAF number. Where a synthetic voice asks for the reason for your call. You get your answer late in the afternoon.",
-            },
-          },
-        ],
+        label: VOICEBOT_LINES[0],
+        outcomes: [{ effect: {}, then: "urssaf-voicebot-2", text: NOT_UNDERSTOOD }],
       },
       {
         label: { fr: "Crier « conseiller » en boucle", en: "Shout “adviser” on repeat" },
@@ -1048,6 +1133,7 @@ export const EVENTS: EventDef[] = [
       },
     ],
   },
+  ...VOICEBOT_LOOP,
   // The wrong addressee, after the Douai court which in January 2026 voided
   // an URSSAF audit and €834,290 of adjustments because the inspector had
   // written to the company's accountant, not its legal representative; the
