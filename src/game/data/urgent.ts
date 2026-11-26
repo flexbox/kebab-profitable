@@ -772,6 +772,60 @@ export const URGENT_CARDS: EventDef[] = [
       },
     ],
   },
+  // A scam with two Fs, after the fake DOETH letters sent to French employers
+  // in November 2026: a contribution for a year not yet begun, paid by
+  // transfer to an attached RIB. A founder with no employees owes nothing.
+  // Here the safe answer is the one that costs nothing.
+  {
+    id: "urssaff-scam",
+    kind: "urgent",
+    tone: "bad",
+    title: { fr: "Un e-mail de l'URSSAFF", en: "An email from URSSAFF" },
+    text: {
+      fr: "Objet : DOETH 2027, régularisation immédiate. 237 € par virement avant ce soir, RIB en pièce jointe. Le logo a l'air vrai.",
+      en: "Subject: DOETH 2027, immediate settlement. €237 by bank transfer before tonight, bank details attached. The logo looks real.",
+    },
+    when: { minDay: 8, minCash: 300 },
+    urgent: {
+      seconds: 8,
+      missed: [
+        {
+          effect: { moral: -3 },
+          text: {
+            fr: "Tu as fixé la pièce jointe jusqu'à en avoir mal au crâne. Tu ne sais toujours pas si tu dois payer.",
+            en: "You stared at the attachment until your head hurt. You still don't know whether you owe it.",
+          },
+        },
+      ],
+    },
+    choices: [
+      {
+        label: { fr: "Payer par virement (237 €)", en: "Pay by transfer (€237)" },
+        when: { minCash: 237 },
+        outcomes: [
+          {
+            effect: { cash: -237, moral: -5 },
+            text: {
+              fr: "Virement parti. L'URSSAFF n'existe pas : deux F, aucune administration derrière. Ton argent, lui, est bien parti.",
+              en: "Transfer sent. URSSAFF doesn't exist: two Fs, no agency behind them. Your money is gone all the same.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Vérifier sur urssaf.fr", en: "Check on urssaf.fr" },
+        outcomes: [
+          {
+            effect: { moral: 4 },
+            text: {
+              fr: "Rien à payer : sans salarié, pas de contribution, et elle ne se paie jamais par virement. L'URSSAF ne prend qu'un F.",
+              en: "Nothing to pay: no employees, no contribution, and it is never paid by transfer. URSSAF only takes one F.",
+            },
+          },
+        ],
+      },
+    ],
+  },
   // The VAT fine and its three reminders. Refusing, or saying nothing, brings
   // the next one at once, with the surcharges French tax law really has: 10,
   // 40, then 80 %. Only the last refusal is a gamble.
