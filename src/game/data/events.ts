@@ -901,6 +901,80 @@ export const EVENTS: EventDef[] = [
       },
     ],
   },
+  // The attestation that buries the company, after an unpaid company head in
+  // 2026 who asked URSSAF for a simple certificate of good standing for a
+  // partner and was first sent one about an amicable liquidation
+  // (art. L.243-15). The right one came only by post; their accountant
+  // signed a sworn statement in the meantime. The deal is the prize: waiting
+  // for the postman is a coin toss, the accountant is sure but costs money.
+  {
+    id: "urssaf-attestation",
+    kind: "admin",
+    tone: "bad",
+    title: { fr: "Une simple attestation", en: "Just a certificate" },
+    text: {
+      fr: "Une boîte veut prendre un abonnement annuel, à une condition : une attestation de vigilance de l'URSSAF. Rien en ligne, tu appelles. Le conseiller t'envoie aussitôt une « Attestation relative aux déclarations sociales dans le cadre d'une liquidation amiable (art. L.243-15) ». Ta boîte est vivante. Il lui faut un moment pour le croire.",
+      en: "A company wants an annual plan, on one condition: a certificate of good standing from URSSAF. Nothing online, so you call. The adviser sends you at once a “Certificate of social declarations in the course of an amicable liquidation (art. L.243-15)”. Your company is alive. It takes the adviser a while to believe it.",
+    },
+    when: { launched: true, minMrr: 30, minDay: 15 },
+    choices: [
+      {
+        label: { fr: "Attendre le facteur", en: "Wait for the postman" },
+        outcomes: [
+          {
+            p: 0.5,
+            effect: { cash: 200, moral: 4 },
+            text: {
+              fr: "« Ce sera uniquement par courrier postal. » La bonne attestation arrive neuf jours plus tard. La boîte a attendu : 200 € d'abonnement annuel.",
+              en: "“It will be by post only.” The right certificate arrives nine days later. The company waited: €200 for the annual plan.",
+            },
+          },
+          {
+            p: 0.5,
+            effect: { moral: -6 },
+            text: {
+              fr: "« Ce sera uniquement par courrier postal. » La lettre arrive le jour où la boîte signe chez un concurrent. Ses attestations à lui sont en PDF.",
+              en: "“It will be by post only.” The letter arrives the day the company signs with a competitor. Theirs come as PDFs.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Passer par l'expert-comptable (90 €)", en: "Ask your accountant (€90)" },
+        when: { minCash: 90 },
+        outcomes: [
+          {
+            effect: { cash: 110, moral: 2 },
+            text: {
+              fr: "Ton expert-comptable signe une attestation sur l'honneur dans l'heure et te facture 90 €. La boîte signe : 200 € d'abonnement. La lettre de l'URSSAF arrivera quand elle arrivera.",
+              en: "Your accountant signs a sworn statement within the hour and bills you €90. The company signs: €200 for the plan. The URSSAF letter will come when it comes.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Envoyer celle que tu as", en: "Send the one you have" },
+        outcomes: [
+          {
+            p: 0.25,
+            effect: { cash: 200, moral: 3 },
+            text: {
+              fr: "Personne n'a lu au-delà du logo de l'URSSAF. La boîte signe : 200 € d'abonnement annuel.",
+              en: "Nobody read past the URSSAF logo. The company signs: €200 for the annual plan.",
+            },
+          },
+          {
+            p: 0.75,
+            effect: { moral: -7 },
+            text: {
+              fr: "« Vous êtes en liquidation ? » Leur juriste refuse de signer un abonnement annuel avec une boîte qui ferme. Tu as beau jurer que non, l'URSSAF dit que si.",
+              en: "“You're in liquidation?” Their lawyer won't sign an annual plan with a company that is closing. You swear it isn't, but URSSAF says it is.",
+            },
+          },
+        ],
+      },
+    ],
+  },
 
   // =========================================================================
   // Clichés of the scene
