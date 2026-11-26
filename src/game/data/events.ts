@@ -836,6 +836,71 @@ export const EVENTS: EventDef[] = [
       },
     ],
   },
+  // Digital sovereignty, after a self-employed founder in 2026 whose password
+  // stopped working the day an adjustment arrived. "Forgot password" said
+  // they were not self-employed; the adviser who reset the account said a
+  // Proton address would not do, only Gmail or Yahoo. The account was
+  // deleted, and they went back to paper. Ignoring it is the real gamble: on
+  // a misunderstanding, URSSAF can send a call for contributions that never
+  // existed.
+  {
+    id: "urssaf-gmail",
+    kind: "admin",
+    tone: "bad",
+    title: { fr: "Il faut une adresse Gmail", en: "It has to be Gmail" },
+    text: {
+      fr: "Un e-mail de régularisation. Tu te connectes : « Mot de passe invalide ». Mot de passe oublié : « Vous n'êtes pas travailleur indépendant ». Douze minutes d'attente plus tard, la conseillère réinitialise ton compte, puis revient : « Votre adresse ne fonctionne pas. Il faut un Gmail ou un Yahoo. » Tu es chez Proton.",
+      en: "An adjustment email. You log in: “Invalid password”. Forgot password: “You are not self-employed”. Twelve minutes on hold later, the adviser resets your account, then comes back: “Your address doesn't work. It has to be Gmail or Yahoo.” You use Proton.",
+    },
+    when: { minDay: 10 },
+    choices: [
+      {
+        label: { fr: "Créer un Gmail", en: "Make a Gmail address" },
+        outcomes: [
+          {
+            effect: { skipSlots: 1, moral: -4 },
+            text: {
+              fr: "kebab.urssaf.2026@gmail.com. Le compte remarche. Tes cotisations sociales transitent désormais par un serveur en Californie, mais ça, l'URSSAF s'en fiche.",
+              en: "kebab.urssaf.2026@gmail.com. The account works again. Your social contributions now pass through a server in California, but URSSAF doesn't mind.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Défendre ta souveraineté numérique", en: "Stand up for digital sovereignty" },
+        outcomes: [
+          {
+            effect: { skipSlots: 1, moral: -6 },
+            text: {
+              fr: "Tu cites le Cloud Act, le rapport du Sénat, la DINUM qui passe à Linux. « Impossible. Je ne peux rien faire. » Ton compte est supprimé, et personne ne peut t'en recréer un. Tu demandes le courrier papier, pour garder le contact.",
+              en: "You quote the Cloud Act, the Senate report, the state moving its own PCs to Linux. “Impossible. There's nothing I can do.” Your account is deleted, and nobody can make you a new one. You ask for paper letters, to stay in touch.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Ignorer le mail", en: "Ignore the email" },
+        outcomes: [
+          {
+            p: 0.5,
+            effect: {},
+            text: {
+              fr: "Tu ne l'ouvres plus. Rien ne se passe. Pour l'instant.",
+              en: "You stop opening it. Nothing happens. For now.",
+            },
+          },
+          {
+            p: 0.5,
+            effect: { cash: -180, moral: -8 },
+            text: {
+              fr: "Puisque tu n'es plus travailleur indépendant, l'URSSAF t'envoie un appel de cotisations pour une activité qu'elle t'invente : 180 €. Tu ne rigoles jamais avec l'URSSAF.",
+              en: "Since you are no longer self-employed, URSSAF sends you a call for contributions on a business it made up for you: €180. You never joke with URSSAF.",
+            },
+          },
+        ],
+      },
+    ],
+  },
 
   // =========================================================================
   // Clichés of the scene
