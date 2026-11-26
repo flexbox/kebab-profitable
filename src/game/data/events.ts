@@ -757,6 +757,85 @@ export const EVENTS: EventDef[] = [
       },
     ],
   },
+  // The hotline lottery, after a founder who called URSSAF thirty times about
+  // one blocked form and drew four different answers: "you should be able
+  // to", "that's not possible", "call Emmanuel Macron", and at last "have you
+  // tried the INPI?". One call is a draw; calling until the right answer
+  // comes is certain, and costs the day.
+  {
+    id: "urssaf-hotline",
+    kind: "admin",
+    tone: "bad",
+    title: { fr: "Le 3698", en: "The URSSAF hotline" },
+    text: {
+      fr: "Le site de l'URSSAF refuse ta déclaration de chiffre d'affaires : « Situation en cours d'examen ». Elle est due ce soir. Tu tapes les deux premiers chiffres de ton code postal. Petite musique.",
+      en: "The URSSAF website won't take your revenue declaration: “Your situation is under review”. It is due tonight. You key in the first two digits of your postcode. Hold music.",
+    },
+    when: { launched: true, minDay: 12 },
+    choices: [
+      {
+        label: { fr: "Tenter ta chance", en: "Try your luck" },
+        outcomes: [
+          {
+            p: 0.3,
+            effect: { skipSlots: 1, cash: -40, moral: -4 },
+            text: {
+              fr: "« C'est curieux, vous devriez pouvoir déclarer pourtant. » Tu demandes comment, vu que le site te bloque. « Ah, alors ce n'est pas possible. » 40 € de majoration de retard.",
+              en: "“That's odd, you should be able to declare.” You ask how, since the site blocks you. “Ah, then it's not possible.” €40 late fee.",
+            },
+          },
+          {
+            p: 0.3,
+            effect: { skipSlots: 1, cash: -40, moral: -5 },
+            text: {
+              fr: "« Ce n'est pas possible, il faut attendre la fin de l'examen de votre situation. » Combien de temps ? « Le temps que ce soit pris en compte. » 40 € de majoration de retard.",
+              en: "“That's not possible, you have to wait until your situation has been reviewed.” How long? “As long as it takes to be taken into account.” €40 late fee.",
+            },
+          },
+          {
+            p: 0.2,
+            effect: { skipSlots: 1, cash: -40, moral: -2 },
+            text: {
+              fr: "Tu insistes, tu expliques l'urgence. « Si vous n'êtes pas content, appelez Emmanuel Macron ! » Tu ris nerveusement. Tu paies 40 € de majoration quand même.",
+              en: "You insist and explain it's urgent. “If you're not happy, call Emmanuel Macron!” You laugh, nervously. You pay a €40 late fee all the same.",
+            },
+          },
+          {
+            p: 0.2,
+            effect: { skipSlots: 1, moral: 6 },
+            text: {
+              fr: "« Vous avez essayé en passant par l'INPI ? » Tu essaies. Ça passe du premier coup. Personne ne saura jamais pourquoi.",
+              en: "“Have you tried going through the INPI?” You try. It goes through first time. Nobody will ever know why.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Rappeler jusqu'à la bonne réponse", en: "Call back until you get the right answer" },
+        outcomes: [
+          {
+            effect: { skipSlots: 3, moral: -3 },
+            text: {
+              fr: "Une trentaine d'appels et autant de départements. Un « c'est curieux », plusieurs « pas possible », un « appelez Macron ». Le trentième conseiller te parle de l'INPI. Déclaration envoyée à 23 h 48.",
+              en: "Thirty calls or so, as many departments. One “that's odd”, several “not possible”, one “call Macron”. The thirtieth adviser mentions the INPI. Declaration sent at 11:48 p.m.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Raccrocher et payer le retard (40 €)", en: "Hang up and pay the late fee (€40)" },
+        outcomes: [
+          {
+            effect: { cash: -40, moral: -2 },
+            text: {
+              fr: "Tu raccroches avant la fin de la petite musique. La majoration arrivera par courrier, dans une enveloppe à fenêtre.",
+              en: "You hang up before the hold music ends. The late fee will come by post, in a window envelope.",
+            },
+          },
+        ],
+      },
+    ],
+  },
 
   // =========================================================================
   // Clichés of the scene
