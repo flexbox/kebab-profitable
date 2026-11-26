@@ -147,10 +147,10 @@ export function End({
             ))}
         </dl>
 
-        {/* Asked once the run is won, right under the numbers that earned it. */}
-        {won && KEBAB_LINK && (
+        {/* Right under the numbers, won or lost: the author's kebab. */}
+        {KEBAB_LINK && (
           <aside className="invite end-kebab">
-            <p>{t(UI.kebabOffer)}</p>
+            <p>{t(won ? UI.kebabOffer : UI.kebabOfferLost)}</p>
             <a
               className="btn btn-small btn-kebab"
               href={`${KEBAB_LINK}?locale=${lang}`}
@@ -208,6 +208,14 @@ export function End({
           </>
         )}
 
+        {/* A lost run cannot enter the board, but sees who made it this week. */}
+        {!won && (
+          <section className="end-board" aria-labelledby="end-board-title">
+            <h2 id="end-board-title">{t(UI.leaderboard)}</h2>
+            <Leaderboard seed={today} />
+          </section>
+        )}
+
         {/* Chef speaks once, and only once there is something to post: a saved
             win is on the board, a lost run has its line ready. */}
         {canShare && (
@@ -239,13 +247,6 @@ export function End({
           </button>
         </div>
 
-        {/* Under the buttons: a long board never pushes "Play again" out of reach. */}
-        {!won && (
-          <section className="end-board" aria-labelledby="end-board-title">
-            <h2 id="end-board-title">{t(UI.leaderboard)}</h2>
-            <Leaderboard seed={today} />
-          </section>
-        )}
       </>
     </dialog>
   );

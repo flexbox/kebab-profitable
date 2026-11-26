@@ -366,6 +366,11 @@ export const UI = {
     fr: "Te voilà kebab profitable. Le jeu, pas encore : offre un vrai kebab à son auteur. 9 €, une seule fois.",
     en: "You are kebab profitable. The game is not, yet: buy its author a real kebab. €9, once.",
   },
+  /** The same offer, after a lost run. */
+  kebabOfferLost: {
+    fr: "Pas encore kebab profitable ? L'auteur du jeu non plus : offre-lui un vrai kebab. 9 €, une seule fois.",
+    en: "Not kebab profitable yet? Neither is the game's author: buy them a real kebab. €9, once.",
+  },
   kebabBuy: { fr: "Offrir un kebab · 9 €", en: "Buy a kebab · €9" },
   /** Chef, on the title screen, to someone coming back from the till. */
   kebabThanks: {

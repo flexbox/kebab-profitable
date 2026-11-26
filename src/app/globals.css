@@ -2066,7 +2066,7 @@ button {
   flex: 1 1 140px;
 }
 
-/* After a win the offer is about the kebab, so it takes the kebab's colour. */
+/* The offer is about the kebab, so it takes the kebab's colour. */
 .end .end-kebab {
   box-shadow: 0 0 0 1px var(--color-brand);
 }
@@ -2098,8 +2098,8 @@ button {
   flex-wrap: wrap;
 }
 
-/* The end of a run arrives in order: verdict, the numbers, the kebab offer
-   after a win, Chef and what next, and after a lost run, who made it this week. */
+/* The end of a run arrives in order, won or lost: verdict, the numbers, the
+   kebab offer, the board (or the form that enters it), Chef, and what next. */
 .end-head,
 .end-stats,
 .end-kebab,
@@ -2130,20 +2130,17 @@ button {
   animation-delay: 200ms;
 }
 
-.end > .submit {
+.end > .submit,
+.end-board {
   animation-delay: 300ms;
 }
 
 .end-share {
-  animation-delay: 300ms;
+  animation-delay: 400ms;
 }
 
 .end-actions {
-  animation-delay: 400ms;
-}
-
-.end-board {
-  animation-delay: 400ms;
+  animation-delay: 500ms;
 }
 
 @keyframes fade-in {
