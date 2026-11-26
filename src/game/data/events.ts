@@ -1048,6 +1048,71 @@ export const EVENTS: EventDef[] = [
       },
     ],
   },
+  // The wrong addressee, after the Douai court which in January 2026 voided
+  // an URSSAF audit and €834,290 of adjustments because the inspector had
+  // written to the company's accountant, not its legal representative; the
+  // Cour de cassation held in 2023 that inspectors may not ask documents of
+  // an employee without a delegation. Here the flaw is a gamble: contesting
+  // alone can win it all or reveal a delegation the founder forgot signing.
+  {
+    id: "urssaf-audit",
+    kind: "admin",
+    tone: "bad",
+    title: { fr: "Contrôle URSSAF", en: "URSSAF audit" },
+    text: {
+      fr: "Lettre d'observations : 280 € de redressement sur tes frais professionnels. Tu n'as jamais vu passer le contrôle. Et pour cause : l'inspectrice a tout demandé à ton expert-comptable, jamais à toi, le dirigeant.",
+      en: "Letter of findings: a €280 adjustment on your business expenses. You never saw the audit happen. No wonder: the inspector asked your accountant for everything, never you, the head of the company.",
+    },
+    when: { launched: true, minMrr: 40, minCash: 300, minDay: 25 },
+    choices: [
+      {
+        label: { fr: "Payer (280 €)", en: "Pay (€280)" },
+        outcomes: [
+          {
+            effect: { cash: -280, moral: -5 },
+            text: {
+              fr: "Tu paies. Tu ne sauras jamais ce que ton comptable leur a envoyé.",
+              en: "You pay. You'll never know what your accountant sent them.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Contester toi-même", en: "Contest it yourself" },
+        outcomes: [
+          {
+            p: 0.6,
+            effect: { skipSlots: 1, moral: 8 },
+            text: {
+              fr: "Tu cites l'arrêt de la Cour de cassation du 28 septembre 2023 : pas de documents demandés à un salarié sans délégation. Le contrôle est nul, le redressement annulé. Tu relis le courrier trois fois.",
+              en: "You cite the Cour de cassation ruling of 28 September 2023: no documents asked of an employee without a delegation. The audit is void, the adjustment cancelled. You read the letter three times.",
+            },
+          },
+          {
+            p: 0.4,
+            effect: { skipSlots: 1, cash: -310, moral: -8 },
+            text: {
+              fr: "L'URSSAF te renvoie une délégation signée de ta main, il y a deux ans, au milieu des papiers de création. Tu ne t'en souvenais pas. 280 €, plus 30 € de majorations.",
+              en: "URSSAF sends back a delegation signed by you two years ago, among the company formation papers. You didn't remember it. €280, plus €30 in surcharges.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Prendre un avocat (150 €)", en: "Hire a lawyer (€150)" },
+        when: { minCash: 150 },
+        outcomes: [
+          {
+            effect: { skipSlots: 1, cash: -150, moral: 3 },
+            text: {
+              fr: "L'avocate vérifie la délégation avant toi, trouve la faille et négocie. Il te reste sa facture. Moins chère que le redressement.",
+              en: "The lawyer checks the delegation before you do, finds the flaw and negotiates. You're left with her bill. Cheaper than the adjustment.",
+            },
+          },
+        ],
+      },
+    ],
+  },
 
   // =========================================================================
   // Clichés of the scene
