@@ -975,6 +975,79 @@ export const EVENTS: EventDef[] = [
       },
     ],
   },
+  // The voice bot loop, after a founder in 2026 whose call to URSSAF met an
+  // AI that never understood the reason for the call, asked them to rate the
+  // conversation from 1 to 5, then passed them to a human who sent them to
+  // another URSSAF number, and the same loop. Playing along is certain and
+  // slow; shouting for an adviser is a coin toss; writing in costs no time
+  // but may answer after the deadline.
+  {
+    id: "urssaf-voicebot",
+    kind: "admin",
+    tone: "bad",
+    title: { fr: "L'IA de l'URSSAF", en: "The URSSAF voice bot" },
+    text: {
+      fr: "Une question simple avant ta déclaration de ce soir. Tu appelles l'URSSAF. Une voix de synthèse : « Merci d'annoncer l'objet de votre demande. » Tu l'annonces. « Je n'ai pas compris. Merci d'annoncer l'objet de votre demande. »",
+      en: "A simple question before tonight's declaration. You call URSSAF. A synthetic voice: “Please state the reason for your call.” You state it. “I didn't understand. Please state the reason for your call.”",
+    },
+    when: { minDay: 8 },
+    choices: [
+      {
+        label: { fr: "Jouer le jeu jusqu'au bout", en: "Play along to the end" },
+        outcomes: [
+          {
+            effect: { skipSlots: 2, moral: -6 },
+            text: {
+              fr: "Onze reformulations plus tard : « Pouvez-vous noter cette conversation de 1 à 5 ? » Tu tapes 1. Un humain décroche, t'écoute, et te donne un autre numéro de l'URSSAF. Où une voix de synthèse te demande l'objet de ta demande. Ta réponse arrive en fin d'après-midi.",
+              en: "Eleven rephrasings later: “Could you rate this conversation from 1 to 5?” You press 1. A human picks up, listens, and gives you another URSSAF number. Where a synthetic voice asks for the reason for your call. You get your answer late in the afternoon.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Crier « conseiller » en boucle", en: "Shout “adviser” on repeat" },
+        outcomes: [
+          {
+            p: 0.5,
+            effect: { skipSlots: 1, moral: 3 },
+            text: {
+              fr: "« Conseiller. CONSEILLER. Con-seil-ler. » Un déclic, de la musique, et une vraie personne répond à ta question en deux minutes. Comme avant.",
+              en: "“Adviser. ADVISER. Ad-vi-ser.” A click, some music, and a real person answers your question in two minutes. Like before.",
+            },
+          },
+          {
+            p: 0.5,
+            effect: { skipSlots: 1, moral: -5 },
+            text: {
+              fr: "« Je n'ai pas compris. Je n'ai pas compris. Au revoir. » Elle a raccroché. Tu as été largué par une IA.",
+              en: "“I didn't understand. I didn't understand. Goodbye.” It hung up. You've been dumped by an AI.",
+            },
+          },
+        ],
+      },
+      {
+        label: { fr: "Écrire via la messagerie", en: "Write through the inbox" },
+        outcomes: [
+          {
+            p: 0.6,
+            effect: {},
+            text: {
+              fr: "Une réponse arrive à 19 h, signée d'un humain. Elle répond à ta question. Tu la relis deux fois, au cas où.",
+              en: "An answer arrives at 7 p.m., signed by a human. It answers your question. You read it twice to be sure.",
+            },
+          },
+          {
+            p: 0.4,
+            effect: { cash: -40, moral: -3 },
+            text: {
+              fr: "« Votre demande sera traitée sous 15 jours ouvrés. » Tu déclares au pif, à côté. 40 € de pénalité.",
+              en: "“Your request will be handled within 15 working days.” You guess on the declaration, and guess wrong. €40 penalty.",
+            },
+          },
+        ],
+      },
+    ],
+  },
 
   // =========================================================================
   // Clichés of the scene
