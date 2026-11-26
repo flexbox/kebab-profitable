@@ -450,11 +450,6 @@ export const UI = {
       },
     ],
   } satisfies Record<"won" | "lost", L[]>,
-  /** Above the score form: why the score comes before the post. */
-  saveFirst: {
-    fr: "Inscris ton score avant de le partager, chef : ton post sur X partira avec l'image de ta victoire.",
-    en: "Save your score before you share it, chef: your post on X will carry the picture of your win.",
-  },
 
   leaderboard: { fr: "Classement", en: "Leaderboard" },
   thisWeek: { fr: "Cette semaine", en: "This week" },

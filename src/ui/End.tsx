@@ -163,16 +163,6 @@ export function End({
           </aside>
         )}
 
-        {/* Chef speaks once on this screen: first for the score, then for the post. */}
-        {!canShare && (
-          <aside className="chef end-share">
-            <Portrait who="chef" className="portrait portrait-md" />
-            <p>
-              <strong>Chef</strong> {t(UI.saveFirst)}
-            </p>
-          </aside>
-        )}
-
         {won && sent.status !== "done" && (
           <form className="submit" onSubmit={send}>
             <label htmlFor="pseudo">{t(UI.yourPseudo)}</label>
@@ -218,6 +208,8 @@ export function End({
           </>
         )}
 
+        {/* Chef speaks once, and only once there is something to post: a saved
+            win is on the board, a lost run has its line ready. */}
         {canShare && (
           <aside className="chef end-share">
             <Portrait who="chef" className="portrait portrait-md" />
