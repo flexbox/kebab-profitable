@@ -5,7 +5,7 @@
 - Play: https://kebab-profitable.vercel.app/
 - No account and no download. The current run is saved in the browser.
 - Everyone plays the same run each day (a daily seed, Paris time), and wins go on a daily and an all-time leaderboard.
-- A good player is kebab profitable in about 45 game days, some 200 clicks.
+- A good player is kebab profitable in about 40 game days, some 180 clicks.
 
 ## How it plays
 
