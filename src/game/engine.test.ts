@@ -374,8 +374,15 @@ describe("rules", () => {
   });
 
   it("lifts morale when the month's report is shared, once", () => {
-    const s = createRun("share-seed", "david");
-    while (!s.outcome && s.phase !== "report") step(s, BOTS.expert(s));
+    // The deck shifts whenever a card is added, so take the first seed whose
+    // run lives to see a month-end report.
+    let seed = "";
+    let s = createRun(seed, "david");
+    for (let i = 0; i < 20 && s.phase !== "report"; i++) {
+      seed = `share-${i}`;
+      s = createRun(seed, "david");
+      while (!s.outcome && s.phase !== "report") step(s, BOTS.expert(s));
+    }
     expect(s.phase).toBe("report");
     const before = s.moral;
     expect(before).toBeLessThanOrEqual(100 - B.shareMoral);
@@ -387,7 +394,7 @@ describe("rules", () => {
     step(s, { t: "ok" });
     expect(s.phase).not.toBe("report");
     expect(decodeMoves(encodeMoves(s.history))).toEqual(s.history);
-    expect(replay("share-seed", "david", s.history)).toEqual(s);
+    expect(replay(seed, "david", s.history)).toEqual(s);
   });
 
   it("deals urgent choices in a seeded new order, and leaves the others alone", () => {
