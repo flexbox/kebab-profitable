@@ -310,10 +310,9 @@ export const UI = {
   }),
 
   quit: { fr: "Abandonner", en: "Give up" },
-  quitConfirm: {
-    fr: "Abandonner cette partie ? Elle comptera comme un essai.",
-    en: "Give up this run? It will count as an attempt.",
-  },
+  quitTitle: { fr: "Abandonner cette partie ?", en: "Give up this run?" },
+  quitBody: { fr: "Elle comptera comme un essai.", en: "It will count as an attempt." },
+  keepPlaying: { fr: "Continuer", en: "Keep playing" },
   aperoIn: (days: number): L => ({
     fr: days === 0 ? "Apéro ce soir au Charlatan" : `Apéro dans ${days} j`,
     en: days === 0 ? "Apéro tonight at Le Charlatan" : `Apéro in ${days}d`,
@@ -565,6 +564,7 @@ export const UI = {
     },
   },
 
+  sound: { fr: "Son", en: "Sound" },
   mute: { fr: "Couper le son", en: "Mute" },
   unmute: { fr: "Activer le son", en: "Unmute" },
   language: { fr: "Langue", en: "Language" },

@@ -15,6 +15,8 @@
     "audio": "node .claude/skills/chirp/bin/chirp.js build audio/kebab.cx.js --no-preview && node audio/export.mjs"
   },
   "dependencies": {
+    "@ui-sdk/core": "0.1.0-beta.17",
+    "@ui-sdk/react": "0.1.0-beta.17",
     "@upstash/redis": "^1.41.0",
     "@vercel/analytics": "^2.0.1",
     "next": "16.4.6",

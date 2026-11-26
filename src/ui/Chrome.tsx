@@ -1,7 +1,23 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import {
+  AlertDialog,
+  AlertDialogBackdrop,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@ui-sdk/react/alert-dialog";
+import {
+  SegmentedControl,
+  SegmentedControlIndicator,
+  SegmentedControlItem,
+} from "@ui-sdk/react/segmented-control";
+import { Toggle } from "@ui-sdk/react/toggle";
 import icon from "@/app/icon.svg";
+import type { Lang } from "@/game/types";
 import { UI } from "@/i18n/strings";
 import { useLang } from "./lang";
 
@@ -61,40 +77,68 @@ export function Controls({ muted, toggleMute }: ChromeProps) {
   const [live, setLive] = useState(false);
   return (
     <div className="controls">
-      <div className="seg" role="group" aria-label={t(UI.language)}>
-        <button
-          type="button"
-          className={lang === "fr" ? "seg-on" : ""}
-          aria-pressed={lang === "fr"}
-          onClick={() => setLang("fr")}
-        >
-          FR
-        </button>
-        <button
-          type="button"
-          className={lang === "en" ? "seg-on" : ""}
-          aria-pressed={lang === "en"}
-          onClick={() => setLang("en")}
-        >
-          EN
-        </button>
-      </div>
-      <button
-        type="button"
-        className={muted ? "icon-btn icon-btn-off" : "icon-btn"}
-        onClick={() => {
+      <SegmentedControl
+        className="seg"
+        aria-label={t(UI.language)}
+        value={lang}
+        onValueChange={(value) => value && setLang(value as Lang)}
+      >
+        <SegmentedControlIndicator className="seg-indicator" />
+        <SegmentedControlItem value="fr">FR</SegmentedControlItem>
+        <SegmentedControlItem value="en">EN</SegmentedControlItem>
+      </SegmentedControl>
+      {/* Pressed means the sound plays: the name stays put, the state changes. */}
+      <Toggle
+        className="icon-btn"
+        pressed={!muted}
+        onPressedChange={() => {
           setLive(true);
           toggleMute();
         }}
-        aria-label={t(muted ? UI.unmute : UI.mute)}
+        aria-label={t(UI.sound)}
         title={t(muted ? UI.unmute : UI.mute)}
       >
         <span className={live ? "icon-swap icon-swap-live" : "icon-swap"} aria-hidden="true">
           <SpeakerIcon hidden={muted} waves="M8.5 4v4M10.5 2.5v7" />
           <SpeakerIcon hidden={!muted} waves="M8 4l3 4M11 4l-3 4" />
         </span>
-      </button>
+      </Toggle>
     </div>
+  );
+}
+
+/**
+ * "Give up", asked twice: the run counts as an attempt, so a stray tap must
+ * not end it. `onOpenChange` lets the screen behind pause while it is open.
+ */
+export function GiveUp({
+  onConfirm,
+  onOpenChange,
+}: {
+  onConfirm: () => void;
+  onOpenChange?: (open: boolean) => void;
+}) {
+  const { t } = useLang();
+  return (
+    <AlertDialog
+      onOpenChange={(open, details) => {
+        onOpenChange?.(open);
+        if (!open && details.returnValue === "confirm") onConfirm();
+      }}
+    >
+      <AlertDialogTrigger className="btn btn-small">{t(UI.quit)}</AlertDialogTrigger>
+      <AlertDialogBackdrop className="sheet-backdrop" />
+      <AlertDialogContent className="card sheet">
+        <AlertDialogTitle>{t(UI.quitTitle)}</AlertDialogTitle>
+        <AlertDialogDescription>{t(UI.quitBody)}</AlertDialogDescription>
+        <div className="sheet-actions">
+          <AlertDialogClose className="btn btn-primary">{t(UI.keepPlaying)}</AlertDialogClose>
+          <AlertDialogClose className="btn btn-danger" value="confirm">
+            {t(UI.quit)}
+          </AlertDialogClose>
+        </div>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 

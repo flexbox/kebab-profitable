@@ -1,6 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
+import {
+  createContext,
+  use,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import {
   ACTIONS,
   B,
@@ -26,7 +35,7 @@ import { monthName } from "@/i18n/format";
 import { UI } from "@/i18n/strings";
 import { postOnX } from "@/lib/share";
 import { sfx } from "@/lib/sound";
-import { Brand, Controls, type ChromeProps } from "./Chrome";
+import { Brand, Controls, GiveUp, type ChromeProps } from "./Chrome";
 import { roadmap, suggestAction, suggestIdea } from "./coach";
 import { cueOf } from "./cue";
 import { End } from "./End";
@@ -540,12 +549,20 @@ function MealPanel({
 /** How long a card ignores input after it lands, in milliseconds. */
 const ARMING = 600;
 
+/** True while a question is asked over the game, like "Give up?": the clock waits. */
+const Paused = createContext(false);
+
 /**
  * The clock on an urgent card. It only runs while the page is in view: a
  * hidden tab, an open dialog or a sleeping laptop does not eat the time.
  */
 function Countdown({ seconds, onExpire }: { seconds: number; onExpire: () => void }) {
   const { t } = useLang();
+  const paused = use(Paused);
+  const pausedRef = useRef(paused);
+  useEffect(() => {
+    pausedRef.current = paused;
+  }, [paused]);
   const total = seconds * 1000;
   const [left, setLeft] = useState(total);
 
@@ -555,7 +572,7 @@ function Countdown({ seconds, onExpire }: { seconds: number; onExpire: () => voi
       const now = performance.now();
       const elapsed = Math.min(now - last, 250);
       last = now;
-      if (!document.hidden) setLeft((ms) => Math.max(0, ms - elapsed));
+      if (!document.hidden && !pausedRef.current) setLeft((ms) => Math.max(0, ms - elapsed));
     }, 100);
     return () => window.clearInterval(id);
   }, []);
@@ -873,6 +890,8 @@ export function Play({
   const ack = useCallback(() => setAcked(turn.n), [turn.n]);
   const reportLink = useRef<HTMLAnchorElement>(null);
   const thankLink = useRef<HTMLAnchorElement>(null);
+  // "Give up?" is open: the keys and the clock belong to it, not to the card behind.
+  const [asking, setAsking] = useState(false);
 
   // A shorter question than the last one shortens the page under a reader who
   // had scrolled down to the buttons: the new card would land above the
@@ -897,6 +916,7 @@ export function Play({
   const urgent = state.phase === "event" && !!eventCard(state.pendingEvent!).urgent && !showResult;
 
   useEffect(() => {
+    if (asking) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const target = e.target as HTMLElement | null;
@@ -942,7 +962,7 @@ export function Play({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [state, showResult, ack, play, armed]);
+  }, [state, showResult, ack, play, armed, asking]);
 
   const today = dateOf(state.day);
   const rentIn = today.daysInMonth - today.dayOfMonth;
@@ -973,111 +993,105 @@ export function Play({
           <span className={rentIn <= 3 ? "chip chip-warn" : "chip"}>{t(UI.rentIn(rentIn))}</span>
           <span className={aperoIn === 0 ? "chip chip-good" : "chip"}>{t(UI.aperoIn(aperoIn))}</span>
           <Controls {...chrome} />
-          <button
-            type="button"
-            className="btn btn-small"
-            onClick={() => {
-              if (window.confirm(t(UI.quitConfirm))) onQuit();
-            }}
-          >
-            {t(UI.quit)}
-          </button>
+          <GiveUp onConfirm={onQuit} onOpenChange={setAsking} />
         </div>
       </header>
 
-      <main className="play-grid">
-        {/* What just happened, announced once: the panel itself is not read out each turn. */}
-        <p className="sr-only" role="status">
-          {latest ? t(latest.text) : ""}
-        </p>
-        {/* On the left, what you do: Chef's word, what came of the last moves, then the question. */}
-        <div className="col-ask">
-          {state.chef && (
-            <aside className="chef">
-              <Portrait who="chef" className="portrait portrait-md" />
-              <p>
-                <strong>Chef</strong> {t(state.chef)}
-              </p>
-            </aside>
-          )}
-          {/* Each urgent card makes its own entrance, even right after another one. */}
-          <section
-            key={urgent ? `urgent-${turn.n}` : "panel"}
-            ref={panel}
-            className={urgent ? "card panel panel-urgent" : "card panel"}
-          >
-            {/* The space is kept even when empty, so the question does not jump. */}
-            {/* Always on show, even over the result of a card. */}
-            <div className="just-now">
-              <JustNow key={turn.n} turn={turn} />
-            </div>
-            {showResult ? (
-              <ResultPanel state={state} onContinue={ack} thankLink={thankLink} />
-            ) : state.phase === "idea" ? (
-              <IdeaPanel state={state} play={play} tips={tips} />
-            ) : state.phase === "meal" ? (
-              <MealPanel state={state} play={play} onFasting={setFasting} />
-            ) : state.phase === "event" ? (
-              <EventPanel
-                key={turn.n}
-                state={state}
-                play={play}
-                armed={armed}
-              />
-            ) : state.phase === "report" ? (
-              <ReportPanel state={state} play={play} reportLink={reportLink} />
-            ) : state.phase === "slot" ? (
-              <SlotPanel state={state} play={play} onPreview={setPreview} tips={tips} />
-            ) : (
-              // Nothing is asked once the run is over: the card keeps its height under the ending.
-              <div className="panel-body" />
+      <Paused value={asking}>
+        <main className="play-grid">
+          {/* What just happened, announced once: the panel itself is not read out each turn. */}
+          <p className="sr-only" role="status">
+            {latest ? t(latest.text) : ""}
+          </p>
+          {/* On the left, what you do: Chef's word, what came of the last moves, then the question. */}
+          <div className="col-ask">
+            {state.chef && (
+              <aside className="chef">
+                <Portrait who="chef" className="portrait portrait-md" />
+                <p>
+                  <strong>Chef</strong> {t(state.chef)}
+                </p>
+              </aside>
             )}
-          </section>
-        </div>
+            {/* Each urgent card makes its own entrance, even right after another one. */}
+            <section
+              key={urgent ? `urgent-${turn.n}` : "panel"}
+              ref={panel}
+              className={urgent ? "card panel panel-urgent" : "card panel"}
+            >
+              {/* The space is kept even when empty, so the question does not jump. */}
+              {/* Always on show, even over the result of a card. */}
+              <div className="just-now">
+                <JustNow key={turn.n} turn={turn} />
+              </div>
+              {showResult ? (
+                <ResultPanel state={state} onContinue={ack} thankLink={thankLink} />
+              ) : state.phase === "idea" ? (
+                <IdeaPanel state={state} play={play} tips={tips} />
+              ) : state.phase === "meal" ? (
+                <MealPanel state={state} play={play} onFasting={setFasting} />
+              ) : state.phase === "event" ? (
+                <EventPanel
+                  key={turn.n}
+                  state={state}
+                  play={play}
+                  armed={armed}
+                />
+              ) : state.phase === "report" ? (
+                <ReportPanel state={state} play={play} reportLink={reportLink} />
+              ) : state.phase === "slot" ? (
+                <SlotPanel state={state} play={play} onPreview={setPreview} tips={tips} />
+              ) : (
+                // Nothing is asked once the run is over: the card keeps its height under the ending.
+                <div className="panel-body" />
+              )}
+            </section>
+          </div>
 
-        {/* On the right, what you see: the room, then the numbers. */}
-        <div className="col-side">
-          <section className="scene">
-            <ol className="slots" aria-label={t(UI.slotsLabel)}>
-              {Array.from({ length: slots }, (_, i) => (
-                <li
-                  key={i}
-                  aria-current={i === state.slot ? "step" : undefined}
-                  className={
-                    i < state.slot ? "slot slot-done" : i === state.slot ? "slot slot-now" : "slot"
-                  }
-                >
-                  {t(UI.slots[i])}
-                </li>
-              ))}
-            </ol>
-            <Room
-              state={state}
-              preview={preview}
-              fasting={fasting && state.phase === "meal"}
-              cheer={cueOf(turn) === "customer" ? turn.n : 0}
-              apero={wentOut ? turn.n - sinceApero : 0}
-              label={roomLabel}
-            />
-          </section>
+          {/* On the right, what you see: the room, then the numbers. */}
+          <div className="col-side">
+            <section className="scene">
+              <ol className="slots" aria-label={t(UI.slotsLabel)}>
+                {Array.from({ length: slots }, (_, i) => (
+                  <li
+                    key={i}
+                    aria-current={i === state.slot ? "step" : undefined}
+                    className={
+                      i < state.slot ? "slot slot-done" : i === state.slot ? "slot slot-now" : "slot"
+                    }
+                  >
+                    {t(UI.slots[i])}
+                  </li>
+                ))}
+              </ol>
+              <Room
+                state={state}
+                preview={preview}
+                fasting={fasting && state.phase === "meal"}
+                cheer={cueOf(turn) === "customer" ? turn.n : 0}
+                apero={wentOut ? turn.n - sinceApero : 0}
+                label={roomLabel}
+              />
+            </section>
 
-          {/* The day of the apéro, the real one is one click away. */}
-          {aperoIn === 0 && !over && (
-            <aside className="invite">
-              <p>{t(UI.aperoReal)}</p>
-              <a className="btn btn-small" href={LUMA} target="_blank" rel="noopener noreferrer">
-                {t(UI.aperoJoin)}
-                <span className="sr-only"> {t(UI.newTab)}</span>
-              </a>
-            </aside>
-          )}
+            {/* The day of the apéro, the real one is one click away. */}
+            {aperoIn === 0 && !over && (
+              <aside className="invite">
+                <p>{t(UI.aperoReal)}</p>
+                <a className="btn btn-small" href={LUMA} target="_blank" rel="noopener noreferrer">
+                  {t(UI.aperoJoin)}
+                  <span className="sr-only"> {t(UI.newTab)}</span>
+                </a>
+              </aside>
+            )}
 
-          {tips && !over && <Roadmap state={state} onHide={onHideTips} />}
-          <Gauges turn={turn} />
-          <ProjectCard state={state} />
-        </div>
+            {tips && !over && <Roadmap state={state} onHide={onHideTips} />}
+            <Gauges turn={turn} />
+            <ProjectCard state={state} />
+          </div>
 
-      </main>
+        </main>
+      </Paused>
 
       {over && <End state={state} attempts={attempts} onRetry={onRetry} onHome={onHome} />}
     </div>
