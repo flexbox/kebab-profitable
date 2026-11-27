@@ -38,10 +38,18 @@ export const APERO_CARDS: EventDef[] = [
         },
         outcomes: [
           {
+            p: 5,
             effect: { audience: 20, socialMoral: 4 },
             text: {
               fr: "Tu donnes ton MRR, ton churn et ce qui bloque. Trois personnes ont une idée, une a un contact. La meilleure heure du mois.",
               en: "You give your MRR, your churn and what is blocking you. Three people have an idea, one has a contact. Best hour of the month.",
+            },
+          },
+          {
+            effect: { audience: 20, boost: { mult: 0.7, days: 7 }, moral: -6 },
+            text: {
+              fr: "Tu donnes tout, jusqu'à ta meilleure source de clients. Au bout de la table, quelqu'un prend des notes. La semaine suivante, il y achète des pubs.",
+              en: "You give it all, down to your best source of customers. At the end of the table, someone takes notes. The next week, they're buying ads there.",
             },
           },
         ],
@@ -121,10 +129,18 @@ export const APERO_CARDS: EventDef[] = [
         label: { fr: "Installer Raycast", en: "Install Raycast" },
         outcomes: [
           {
+            p: 4,
             effect: { built: 3, energie: 5 },
             text: {
               fr: "Tu mets tes trois tâches les plus répétées derrière un raccourci. Le lendemain, tu codes plus et tu cliques moins.",
               en: "You put your three most repeated tasks behind a shortcut. The next day you code more and click less.",
+            },
+          },
+          {
+            effect: { skipSlots: 1, energie: -8 },
+            text: {
+              fr: "Tu rentres et tu configures. Le thème, les extensions, les alias, puis le thème encore. À 2 h, tu connais quarante raccourcis. Tu en utiliseras un.",
+              en: "You get home and configure. The theme, the extensions, the aliases, then the theme again. By 2 a.m. you know forty shortcuts. You will use one.",
             },
           },
         ],

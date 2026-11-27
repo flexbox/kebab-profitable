@@ -12,6 +12,9 @@ import { URGENT_CARDS } from "./urgent";
  *  - the figure appears by name, never as a quote; the "in real life" advice
  *    under the result is the game's own, see `lesson` in `guests.ts`;
  *  - the joke is about what they are famous for, never about a setback;
+ *  - following their advice usually pays, but not always: the choice that
+ *    takes it has a rare outcome that backfires (about one in five, `p: 4`
+ *    against 1). When it does, the founder is to blame, never the guest;
  *  - anyone named can ask for their card to be removed (see the README).
  *
  * Adding a card: copy one, give it a new `id`, and describe what happens with
@@ -130,10 +133,18 @@ export const EVENTS: EventDef[] = [
         label: { fr: "Couper dans le MVP", en: "Cut the MVP down" },
         outcomes: [
           {
+            p: 5,
             effect: { mvpCut: 0.4 },
             text: {
               fr: "Tu supprimes le mode sombre, l'onboarding et trois tableaux de bord. Il reste un produit. Presque.",
               en: "You drop dark mode, onboarding and three dashboards. A product remains. Almost.",
+            },
+          },
+          {
+            effect: { mvpCut: 0.4, mvpAdd: 14, moral: -8 },
+            text: {
+              fr: "Emporté par l'élan, tu supprimes aussi la page de paiement. Tu t'en rends compte au moment de tester un achat. Une journée pour la refaire.",
+              en: "Carried away, you delete the checkout page too. You notice when you try to test a purchase. A day to build it again.",
             },
           },
         ],
@@ -168,10 +179,18 @@ export const EVENTS: EventDef[] = [
         label: { fr: "Tourner la vidéo", en: "Roll camera" },
         outcomes: [
           {
+            p: 4,
             effect: { flags: { burstMult: 2 } },
             text: {
               fr: "La vidéo est dans la boîte. Ton prochain lancement fera deux fois plus de bruit.",
               en: "The video is in the can. Your next launch will make twice the noise.",
+            },
+          },
+          {
+            effect: { audience: 60, skipSlots: 2, moral: -5 },
+            text: {
+              fr: "Tu passes deux créneaux au montage et la vidéo fait un carton. Les commentaires parlent tous de la perruque. Personne n'a cliqué sur ton lien.",
+              en: "You spend two slots on the edit and the video is a hit. Every comment is about the wig. Nobody clicked your link.",
             },
           },
         ],
@@ -206,10 +225,18 @@ export const EVENTS: EventDef[] = [
         label: { fr: "Acheter (199 €)", en: "Buy it (€199)" },
         outcomes: [
           {
+            p: 4,
             effect: { cash: -199, mvpCut: 0.5 },
             text: {
               fr: "Auth, paiement, emails : tout est déjà là. La moitié du travail restant vient de disparaître.",
               en: "Auth, payments, emails: all there already. Half the remaining work just vanished.",
+            },
+          },
+          {
+            effect: { cash: -199, mvpCut: 0.2, skipSlots: 2, moral: -4 },
+            text: {
+              fr: "Tout est là, mais tu ne résistes pas : tu réécris l'auth « à ta façon ». Deux créneaux plus tard, elle marche comme avant. En moins bien.",
+              en: "It's all there, but you can't help it: you rewrite the auth “your way”. Two slots later it works like before. Only worse.",
             },
           },
         ],
@@ -244,10 +271,18 @@ export const EVENTS: EventDef[] = [
         label: { fr: "Vendre", en: "Sell" },
         outcomes: [
           {
+            p: 4,
             effect: { cashPerMrr: 12, sell: true, moral: 10 },
             text: {
               fr: "Virement reçu. Tu n'as plus de produit, mais tu as du temps et une histoire à raconter.",
               en: "Wire received. You have no product left, but you have time and a story to tell.",
+            },
+          },
+          {
+            effect: { cashPerMrr: 6, sell: true, moral: -6 },
+            text: {
+              fr: "L'audit révèle que ton compte Stripe est au nom de ton coloc, et que la moitié de ton MRR, c'est lui. Le prix est divisé par deux. Tu signes quand même.",
+              en: "Due diligence finds your Stripe account is in your flatmate's name, and half your MRR is him. The price is cut in half. You sign anyway.",
             },
           },
         ],
@@ -282,10 +317,18 @@ export const EVENTS: EventDef[] = [
         label: { fr: "Prendre la manche (120 €)", en: "Take the sleeve (€120)" },
         outcomes: [
           {
+            p: 4,
             effect: { cash: -120, audience: 60, audiencePct: 0.15 },
             text: {
               fr: "Ton logo est sur les photos du mariage. Tout Internet a vu la manche gauche.",
               en: "Your logo is in the wedding photos. The whole internet saw the left sleeve.",
+            },
+          },
+          {
+            effect: { cash: -120, audience: 5, moral: -6 },
+            text: {
+              fr: "Tu as envoyé ton logo en blanc sur fond transparent. Sur un costume blanc. Tout Internet a vu la manche gauche, et rien dessus.",
+              en: "You sent your logo in white on a transparent background. For a white suit. The whole internet saw the left sleeve, and nothing on it.",
             },
           },
         ],
@@ -319,10 +362,18 @@ export const EVENTS: EventDef[] = [
         label: { fr: "C'est noté", en: "Noted" },
         outcomes: [
           {
+            p: 4,
             effect: { flags: { freePivot: true } },
             text: {
               fr: "Si un jour tu pivotes, ce sera sans y laisser ta journée.",
               en: "If you ever pivot, it won't cost you the day.",
+            },
+          },
+          {
+            effect: { flags: { freePivot: true }, skipSlots: 2, energie: -10 },
+            text: {
+              fr: "Tu le prends au pied de la lettre et lances une deuxième app le soir même. Puis une troisième. Au matin, tu as quatre noms de domaine et aucun produit fini.",
+              en: "You take it literally and start a second app that same evening. Then a third. By morning you own four domain names and no finished product.",
             },
           },
         ],
@@ -345,10 +396,18 @@ export const EVENTS: EventDef[] = [
         label: { fr: "Lancer", en: "Launch" },
         outcomes: [
           {
+            p: 4,
             effect: { burst: 0.8 },
             text: {
               fr: "Nouveau public, nouvelles inscriptions.",
               en: "New crowd, new signups.",
+            },
+          },
+          {
+            effect: { burst: 0.3, quality: -10, skipSlots: 1, moral: -6 },
+            text: {
+              fr: "Le trafic arrive, et ton serveur à 4 € tombe à 9 h 02. Tu passes la matinée à le relancer. Les visiteurs, eux, ne reviennent pas.",
+              en: "The traffic arrives, and your €4 server falls over at 9:02. You spend the morning restarting it. The visitors don't come back.",
             },
           },
         ],
@@ -383,11 +442,20 @@ export const EVENTS: EventDef[] = [
         label: { fr: "Publier les tiens", en: "Post yours" },
         outcomes: [
           {
+            p: 4,
             when: { mrrGrew: true },
             effect: { audience: 20, audiencePct: 0.2, moral: 5 },
             text: {
               fr: "Ça monte, et ça se voit. Tout le monde aime une courbe qui grimpe.",
               en: "It's going up, and it shows. Everybody loves a rising line.",
+            },
+          },
+          {
+            when: { mrrGrew: true },
+            effect: { audience: 20, customers: -2, moral: -8 },
+            text: {
+              fr: "Ta capture montre aussi tes plus gros clients. Un concurrent les a tous démarchés avant midi. Deux sont partis.",
+              en: "Your screenshot also shows your biggest customers. A competitor pitched every one of them by noon. Two left.",
             },
           },
           {
@@ -430,10 +498,18 @@ export const EVENTS: EventDef[] = [
         label: { fr: "S'offrir un portrait (29 €)", en: "Get a headshot (€29)" },
         outcomes: [
           {
+            p: 4,
             effect: { cash: -29, audience: 35 },
             text: {
               fr: "Tu as l'air d'un fondateur qui vient de lever des fonds. Les abonnés affluent.",
               en: "You look like a founder who just raised a round. Followers pour in.",
+            },
+          },
+          {
+            effect: { cash: -29, audience: 5, moral: -6 },
+            text: {
+              fr: "Tu as envoyé les photos du mariage comme références. Tu as maintenant la coiffure de la mariée, et ta mère ne te reconnaît plus.",
+              en: "You uploaded the wedding photos as references. You now have the bride's hairdo, and your mum no longer recognises you.",
             },
           },
         ],
@@ -468,10 +544,18 @@ export const EVENTS: EventDef[] = [
         label: { fr: "Shipper plus vite qu'eux", en: "Out-ship them" },
         outcomes: [
           {
+            p: 3,
             effect: { boost: { mult: 0.6, days: 6 }, moral: -4 },
             text: {
               fr: "Tu serres les dents. Les inscriptions ralentissent pendant quelques jours.",
               en: "You grit your teeth. Signups slow down for a few days.",
+            },
+          },
+          {
+            effect: { quality: 6, audience: 30, moral: 6 },
+            text: {
+              fr: "Tu sors trois mises à jour en une semaine. Tes clients le racontent sur X, le clone n'a rien à montrer, et ferme ses portes.",
+              en: "You ship three updates in a week. Your customers talk about it on X, the clone has nothing to show, and shuts down.",
             },
           },
         ],
@@ -515,10 +599,18 @@ export const EVENTS: EventDef[] = [
         label: { fr: "Enregistrer l'épisode", en: "Record the episode" },
         outcomes: [
           {
+            p: 4,
             effect: { audience: 35, audiencePct: 0.12, moral: 5, skipSlots: 1 },
             text: {
               fr: "Une heure au micro, un créneau en moins. Des freelances t'écrivent : « et sinon, tu prends des missions ? »",
               en: "An hour at the microphone, one slot gone. Freelancers write to you: “so, do you take on gigs?”",
+            },
+          },
+          {
+            effect: { skipSlots: 3, moral: -8 },
+            text: {
+              fr: "Ton micro était coupé pendant toute l'heure. Elle est adorable : vous réenregistrez. Trois créneaux pour un épisode, et ta meilleure anecdote ne sort pas deux fois.",
+              en: "Your mic was muted for the whole hour. She is lovely about it: you record again. Three slots for one episode, and your best story doesn't come out twice.",
             },
           },
         ],
@@ -553,10 +645,18 @@ export const EVENTS: EventDef[] = [
         label: { fr: "Accepter le tournage", en: "Say yes to the shoot" },
         outcomes: [
           {
+            p: 5,
             effect: { audience: 40, audiencePct: 0.15, skipSlots: 1 },
             text: {
               fr: "Un créneau de tournage, et des milliers de gens ont vu ton éditeur de code.",
               en: "One slot of filming, and thousands of people have seen your code editor.",
+            },
+          },
+          {
+            effect: { audience: 40, skipSlots: 3, energie: -15, moral: -10 },
+            text: {
+              fr: "Ton fichier .env reste à l'écran quatre secondes. Des milliers de gens ont mis pause. Tu passes la nuit et le lendemain à changer toutes tes clés, une par une.",
+              en: "Your .env file stays on screen for four seconds. Thousands of people hit pause. You spend the night and the next morning rotating every key, one by one.",
             },
           },
         ],
