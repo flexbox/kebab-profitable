@@ -29,7 +29,6 @@ import {
   potentialOf,
   slotsToday,
 } from "@/game";
-import { effectTone } from "@/game/engine";
 import type { ActionId, GameState, L, Move } from "@/game/types";
 import { monthName } from "@/i18n/format";
 import { UI } from "@/i18n/strings";
@@ -640,15 +639,12 @@ function EventPanel({
             <span className="choice-title">{t(choice.label)}</span>
             {seesOdds && choice.odds.length > 1 && (
               <span className="odds">
-                {choice.odds.map((o, i) => {
-                  const tone = effectTone(o.effect);
-                  return (
-                    <span key={i} className={`odd tone-${tone}`}>
-                      <span className="sr-only">{t(UI.oddsTone[tone])}, </span>
-                      {t(UI.odds(Math.round(o.p * 100)))}
-                    </span>
-                  );
-                })}
+                {choice.odds.map((o, i) => (
+                  <span key={i} className={`odd tone-${o.tone}`}>
+                    <span className="sr-only">{t(UI.oddsTone[o.tone])}, </span>
+                    {t(UI.odds(Math.round(o.p * 100)))}
+                  </span>
+                ))}
               </span>
             )}
           </button>

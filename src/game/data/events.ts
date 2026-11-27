@@ -127,7 +127,8 @@ export const EVENTS: EventDef[] = [
       fr: "Pieter Levels apparaît dans ton fil. Il regarde ta liste de 47 tâches avant lancement et hausse un sourcil. Le message est clair.",
       en: "Pieter Levels shows up in your feed. He looks at your 47-item pre-launch list and raises an eyebrow. The message is clear.",
     },
-    when: { hasProject: true, launched: false },
+    // With a day of work left at least: a cut that removes nothing is no advice.
+    when: { hasProject: true, launched: false, minMvpLeft: 14 },
     choices: [
       {
         label: { fr: "Couper dans le MVP", en: "Cut the MVP down" },
@@ -219,7 +220,8 @@ export const EVENTS: EventDef[] = [
       fr: "Une pub te suit partout : un boilerplate qui promet de lancer ta startup en quelques jours plutôt qu'en quelques semaines. 199 €.",
       en: "An ad follows you everywhere: a boilerplate that promises to launch your startup in days rather than weeks. €199.",
     },
-    when: { hasProject: true, launched: false, minCash: 250 },
+    // Two days of work left at least, so that half of it is worth the price.
+    when: { hasProject: true, launched: false, minCash: 250, minMvpLeft: 28 },
     choices: [
       {
         label: { fr: "Acheter (199 €)", en: "Buy it (€199)" },
@@ -227,6 +229,8 @@ export const EVENTS: EventDef[] = [
           {
             p: 4,
             effect: { cash: -199, mvpCut: 0.5 },
+            // Days of work for the price of a week of kebabs: money well spent.
+            tone: "good",
             text: {
               fr: "Auth, paiement, emails : tout est déjà là. La moitié du travail restant vient de disparaître.",
               en: "Auth, payments, emails: all there already. Half the remaining work just vanished.",
@@ -280,6 +284,8 @@ export const EVENTS: EventDef[] = [
           },
           {
             effect: { cashPerMrr: 6, sell: true, moral: -6 },
+            // Cash in the bank, but half of what was on the table.
+            tone: "bad",
             text: {
               fr: "L'audit révèle que ton compte Stripe est au nom de ton coloc, et que la moitié de ton MRR, c'est lui. Le prix est divisé par deux. Tu signes quand même.",
               en: "Due diligence finds your Stripe account is in your flatmate's name, and half your MRR is him. The price is cut in half. You sign anyway.",
@@ -319,6 +325,7 @@ export const EVENTS: EventDef[] = [
           {
             p: 4,
             effect: { cash: -120, audience: 60, audiencePct: 0.15 },
+            tone: "good",
             text: {
               fr: "Ton logo est sur les photos du mariage. Tout Internet a vu la manche gauche.",
               en: "Your logo is in the wedding photos. The whole internet saw the left sleeve.",
@@ -397,7 +404,8 @@ export const EVENTS: EventDef[] = [
         outcomes: [
           {
             p: 4,
-            effect: { burst: 0.8 },
+            // At least one signup, whatever the size of the crowd.
+            effect: { burst: 0.8, customers: 1 },
             text: {
               fr: "Nouveau public, nouvelles inscriptions.",
               en: "New crowd, new signups.",

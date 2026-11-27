@@ -314,6 +314,9 @@ function holds(s: GameState, cond: Condition | undefined): boolean {
   if (cond.minBuilt !== undefined) {
     if (!p || p.launched || p.built / p.mvpSize < cond.minBuilt) return false;
   }
+  if (cond.minMvpLeft !== undefined) {
+    if (!p || p.launched || p.mvpSize - p.built < cond.minMvpLeft) return false;
+  }
   if (cond.mrrGrew !== undefined && mrrOf(s) > s.month.startMrr !== cond.mrrGrew) {
     return false;
   }
@@ -378,6 +381,11 @@ function applyEffect(s: GameState, e: Effect) {
   if (e.sell) dropProject(s);
   if (e.cash) addCash(s, e.cash);
   if (e.end === "cdi") lose(s, "cdi");
+}
+
+/** Whether an outcome is good or bad news: what it says, or else what its effect adds up to. */
+export function outcomeTone(o: Pick<EventOutcome, "effect" | "tone">): Tone {
+  return o.tone ?? effectTone(o.effect);
 }
 
 /** Whether an effect is, on the whole, good or bad news. */
@@ -699,7 +707,7 @@ function settle(
       )
     ];
   applyEffect(s, picked.effect);
-  const tone = effectTone(picked.effect);
+  const tone = outcomeTone(picked);
   log(s, { fr: `${ev.title.fr} — ${picked.text.fr}`, en: `${ev.title.en} — ${picked.text.en}` }, tone, -1);
   if (picked.then && !s.outcome) {
     // The next card lands at once, and the journal says what led to it.
@@ -1121,7 +1129,7 @@ export function eventChoices(s: GameState) {
       index,
       label: choice.label,
       enabled: holds(s, choice.when),
-      odds: outcomes.map((o) => ({ p: (o.p ?? 1) / total, effect: o.effect })),
+      odds: outcomes.map((o) => ({ p: (o.p ?? 1) / total, effect: o.effect, tone: outcomeTone(o) })),
     };
   });
 }

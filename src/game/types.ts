@@ -276,6 +276,11 @@ export interface Condition {
   minCustomers?: number;
   /** MVP progress as a fraction of its size, before launch. */
   minBuilt?: number;
+  /**
+   * Points of MVP work still to do before the first launch: for a card that
+   * cuts into it, so there is always something left to cut.
+   */
+  minMvpLeft?: number;
   /** MRR is higher than at the start of the month. */
   mrrGrew?: boolean;
   /** Any founder but this one: for a card in which that member gives the advice. */
@@ -324,6 +329,11 @@ export interface EventOutcome {
   p?: number;
   when?: Condition;
   effect: Effect;
+  /**
+   * Whether this is good or bad news, when the sum of the effect gets it
+   * wrong: a deal worth its price, say. See `effectTone` in the engine.
+   */
+  tone?: Tone;
   text: L;
   /**
    * The card this outcome deals at once, in place of a result to read: a

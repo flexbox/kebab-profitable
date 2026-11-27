@@ -17,6 +17,7 @@ import {
   effectTone,
   legalActions,
   mrrOf,
+  outcomeTone,
   potentialOf,
   replay,
   shownChoices,
@@ -363,6 +364,58 @@ describe("rules", () => {
       }
     }
     expect(walkOns.size).toBe(MILESTONES.firstCustomer.length);
+  });
+
+  it("calls a guest's advice good news when it pays, and a setback when it backfires", () => {
+    // Arvid's card is the exception: it opens on bad news, and the advice is how to take it.
+    const cameos = EVENTS.filter((e) => e.kind === "cameo" && e.tone !== "bad");
+    expect(cameos.length).toBeGreaterThanOrEqual(13);
+    for (const e of cameos) {
+      // The first choice is the one that takes the advice.
+      const outcomes = e.choices[0].outcomes;
+      const usual = Math.max(...outcomes.map((o) => o.p ?? 1));
+      // It can go wrong, but it usually does not.
+      expect(outcomes.length, e.id).toBeGreaterThanOrEqual(2);
+      for (const o of outcomes) {
+        const pays = (o.p ?? 1) === usual && o.when?.mrrGrew !== false;
+        expect(outcomeTone(o), `${e.id}: ${o.text.en}`).toBe(pays ? "good" : "bad");
+      }
+    }
+  });
+
+  it("never brings a guest whose advice changes nothing", () => {
+    const stand = (s: GameState) =>
+      JSON.stringify([s.cash, s.moral, s.energie, s.audience, s.flags, s.boosts.length, s.project]);
+    const paid = new Map<string, number>();
+    for (const bot of ["newcomer", "expert"] as const) {
+      for (let i = 0; i < 40; i++) {
+        const who = CHARACTER_IDS[i % CHARACTER_IDS.length];
+        const s = createRun(`advice-${i}`, who);
+        while (!s.outcome && s.day <= 120) {
+          const card = s.phase === "event" && s.pendingEvent ? eventCard(s.pendingEvent) : null;
+          if (card?.kind === "cameo") {
+            const next = apply(s, { t: "choice", id: 0 });
+            if (next.eventResult?.tone === "good") {
+              const where = `${card.id} on day ${s.day} of advice-${i}`;
+              paid.set(card.id, (paid.get(card.id) ?? 0) + 1);
+              expect(stand(next), where).not.toBe(stand(s));
+              // What the result says happened did happen.
+              if (card.id === "levels-ship" || card.id === "marclou-boilerplate") {
+                expect(next.project!.mvpSize, where).toBeLessThan(s.project!.mvpSize);
+              }
+              if (card.id === "sanlis-uneed") {
+                expect(next.project!.customers, where).toBeGreaterThan(s.project!.customers);
+              }
+            }
+          }
+          step(s, BOTS[bot](s));
+        }
+      }
+    }
+    // Every guest turned up, and their advice paid, at least once.
+    for (const e of EVENTS.filter((card) => card.kind === "cameo")) {
+      expect(paid.get(e.id) ?? 0, e.id).toBeGreaterThan(0);
+    }
   });
 
   it("gives every guest advice short enough to post", () => {
